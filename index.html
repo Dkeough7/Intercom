@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jolt AI Agent — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--el:#f0f1f4;--in:#ecedf1;--bdr:#e2e4ea;--bdr2:#d5d8e0;--tx:#1a1d26;--tx2:#5c6070;--tx3:#9095a4;--grn:#16a34a;--grn-s:#dcfce7;--grn-b:#86efac;--blu:#2563eb;--blu-s:#dbeafe;--pur:#7c3aed;--pur-s:#ede9fe;--amb:#d97706;--amb-s:#fef3c7;--amb-b:#fcd34d;--red:#dc2626;--red-s:#fee2e2;--red-b:#fca5a5;--cyn:#0891b2;--cyn-s:#cffafe;--r:14px;--rs:10px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased}
+.d{max-width:1480px;margin:0 auto;padding:24px 36px 60px}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.hd-l{display:flex;align-items:center;gap:14px}
+.logo{width:40px;height:40px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.3)}
+.hd-t{font-size:21px;font-weight:700;letter-spacing:-.4px}.hd-s{font-size:13px;color:var(--tx3);margin-top:1px}
+.hd-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live{display:flex;align-items:center;gap:7px;padding:5px 13px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:20px;font-size:11px;font-weight:600;color:var(--grn)}
+.dot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+.btn{padding:7px 15px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;color:var(--tx2);font-family:'Outfit';font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--el);color:var(--tx)}
+.toggle-bar{display:flex;background:var(--el);border-radius:8px;padding:3px;border:1px solid var(--bdr)}
+.toggle-opt{padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--tx3);user-select:none;white-space:nowrap}
+.toggle-opt.active{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.fbar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.fbtn{padding:6px 14px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;font-family:'Outfit';font-size:12px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .15s}
+.fbtn:hover{background:var(--el)}.fbtn.on{background:var(--tx);color:#fff;border-color:var(--tx);font-weight:600}
+.fsep{width:1px;height:24px;background:var(--bdr);margin:0 2px}
+.fcustom{display:flex;align-items:center;gap:6px}
+.fcustom label{font-size:11px;color:var(--tx3);font-weight:500}
+.fcustom input[type=date]{padding:5px 8px;border:1px solid var(--bdr);border-radius:7px;font-family:'JetBrains Mono';font-size:11px;color:var(--tx2);background:var(--card);outline:none}
+.fapply{padding:6px 14px;background:var(--blu);color:#fff;border:1px solid var(--blu);border-radius:7px;font-family:'Outfit';font-size:11.5px;font-weight:600;cursor:pointer}
+.frange{font-family:'JetBrains Mono';font-size:11px;color:var(--tx2);padding:5px 12px;background:var(--card);border:1px solid var(--bdr);border-radius:7px;margin-left:auto}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.mc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px 14px;position:relative;overflow:hidden;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.04);cursor:pointer}
+.mc:hover{box-shadow:var(--sh);transform:translateY(-1px)}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.mc.grn::after{background:var(--grn)}.mc.blu::after{background:var(--blu)}.mc.pur::after{background:var(--pur)}.mc.amb::after{background:var(--amb)}.mc.red::after{background:var(--red)}.mc.cyn::after{background:var(--cyn)}.mc.pink::after{background:#ec4899}
+.mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mi{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.mc.blu .mi{background:var(--blu-s)}.mc.cyn .mi{background:var(--cyn-s)}.mc.grn .mi{background:var(--grn-s)}.mc.pur .mi{background:var(--pur-s)}.mc.red .mi{background:var(--red-s)}.mc.amb .mi{background:var(--amb-s)}.mc.pink .mi{background:#fce7f3}
+.kpi-pill{display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;letter-spacing:.3px}
+.kpi-pill.g{background:var(--grn-s);color:var(--grn)}.kpi-pill.y{background:var(--amb-s);color:var(--amb)}.kpi-pill.r{background:var(--red-s);color:var(--red)}
+.kpi-pip{width:6px;height:6px;border-radius:50%}
+.kpi-pill.g .kpi-pip{background:var(--grn)}.kpi-pill.y .kpi-pip{background:var(--amb)}.kpi-pill.r .kpi-pip{background:var(--red)}
+.ml{font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px}
+.mv{font-family:'JetBrains Mono';font-size:24px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:5px}
+.md2{font-size:11px;color:var(--tx2);line-height:1.3}
+.tg{display:inline-flex;font-family:'JetBrains Mono';font-size:9.5px;font-weight:600;padding:1px 5px;border-radius:4px;margin-left:2px}
+.tg.up{color:var(--grn);background:var(--grn-s)}.tg.dn{color:var(--red);background:var(--red-s)}.tg.fl{color:var(--amb);background:var(--amb-s)}
+.kpi-target{font-size:9.5px;color:var(--tx3);margin-top:3px;font-family:'JetBrains Mono';font-weight:500}
+.pn{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s}
+.pn:hover{box-shadow:var(--sh)}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.pt{font-size:14px;font-weight:700;letter-spacing:-.2px}
+.pb{font-size:9.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:3px 9px;border-radius:5px;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}
+.cg{display:grid;grid-template-columns:5fr 3fr;gap:14px;margin-bottom:14px}
+.tg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.bg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.fn{display:flex;flex-direction:column;gap:2px}
+.fs{display:grid;grid-template-columns:110px 1fr 64px;align-items:center;gap:10px;padding:7px 0}
+.fl2{font-size:11.5px;font-weight:500;color:var(--tx2)}
+.ft{height:22px;background:var(--el);border-radius:6px;overflow:hidden}
+.fb{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.fb.grn{background:linear-gradient(90deg,#22c55e,#16a34a)}.fb.blu{background:linear-gradient(90deg,#60a5fa,#2563eb)}.fb.pur{background:linear-gradient(90deg,#a78bfa,#7c3aed)}.fb.amb{background:linear-gradient(90deg,#fbbf24,#d97706)}.fb.red{background:linear-gradient(90deg,#f87171,#dc2626)}.fb.cyn{background:linear-gradient(90deg,#22d3ee,#0891b2)}
+.fv{font-family:'JetBrains Mono';font-size:12px;font-weight:600;text-align:right}
+.il{display:flex;flex-direction:column;gap:7px}
+.ii{padding:12px 14px;border-radius:var(--rs);border-left:3px solid;transition:all .15s;cursor:pointer}
+.ii:hover{filter:brightness(.97);transform:translateX(2px)}
+.ii.cr{border-color:var(--red);background:var(--red-s)}.ii.wa{border-color:var(--amb);background:var(--amb-s)}.ii.po{border-color:var(--grn);background:var(--grn-s)}.ii.in{border-color:var(--blu);background:var(--blu-s)}
+.it{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.ii.cr .it{color:var(--red)}.ii.wa .it{color:var(--amb)}.ii.po .it{color:var(--grn)}.ii.in .it{color:var(--blu)}
+.ix{font-size:11.5px;color:var(--tx2);line-height:1.5}.ix strong{color:var(--tx);font-weight:600}
+.cc{position:relative;height:240px;margin-top:4px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:var(--el);border-radius:7px;margin-bottom:4px;cursor:pointer;transition:all .15s}
+.sr:hover{background:#e6e7ec;transform:translateX(2px)}
+.srl{font-size:11.5px;color:var(--tx2)}.srv{font-family:'JetBrains Mono';font-size:11.5px;font-weight:600}
+.hb{display:flex;height:9px;border-radius:4px;overflow:hidden;margin:10px 0 5px;gap:2px}
+.hs{border-radius:3px}
+.hl{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.li{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--tx3)}
+.ld{width:7px;height:7px;border-radius:2px}
+.cxc{display:flex;align-items:center;gap:20px;padding:4px 0}
+.cxr{position:relative;width:120px;height:120px;flex-shrink:0}
+.cxr canvas{width:120px!important;height:120px!important}
+.cxn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.cxv{font-family:'JetBrains Mono';font-size:22px;font-weight:700;color:var(--pur)}
+.cxl{font-size:9px;color:var(--tx3)}
+.cxs{display:flex;flex-direction:column;gap:6px;flex:1}
+.cxw{display:flex;align-items:center;gap:7px}
+.cxd{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.cxm{font-size:11.5px;color:var(--tx2);flex:1}
+.cxq{font-family:'JetBrains Mono';font-size:11.5px;font-weight:600}
+.iml{display:flex;flex-direction:column;gap:5px}
+.imi{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;padding:10px 12px;background:var(--el);border-radius:var(--rs);transition:all .15s;cursor:pointer;border-left:3px solid transparent}
+.imi:hover{background:#e8e9ee;transform:translateX(2px);border-left-color:var(--blu)}
+.imr{font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:var(--tx3);text-align:center}
+.imn{font-size:12px;font-weight:600}.ims{font-size:10px;color:var(--tx3);margin-top:1px}
+.bp{font-family:'JetBrains Mono';font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px}
+.bp.do{color:var(--grn);background:var(--grn-s);border:1px solid var(--grn-b)}
+.bp.rv{color:var(--amb);background:var(--amb-s);border:1px solid var(--amb-b)}
+.bp.qu{color:var(--tx3);background:var(--in);border:1px solid var(--bdr)}
+.wl{display:flex;flex-direction:column;gap:5px}
+.wi{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--el);border-radius:var(--rs);transition:all .15s;cursor:pointer}
+.wi:hover{background:#e8e9ee;transform:translateX(2px)}
+.wk{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.wk.r{background:var(--red-s)}.wk.a{background:var(--amb-s)}.wk.b{background:var(--blu-s)}.wk.g{background:var(--grn-s)}
+.wt{font-size:12px;font-weight:600;margin-bottom:2px}.wd{font-size:10.5px;color:var(--tx3);line-height:1.4}
+.lu{text-align:center;font-size:10px;color:var(--tx3);margin-top:24px;font-family:'JetBrains Mono'}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.mo.show{display:flex}
+.modal{background:var(--card);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:720px;animation:mIn .2s ease}
+@keyframes mIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.mt{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.mx{width:30px;height:30px;border-radius:8px;border:1px solid var(--bdr);background:var(--el);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--tx3);transition:all .15s}
+.mx:hover{background:var(--red-s);color:var(--red)}
+.mb{padding:16px 24px 24px}
+.ms{margin-bottom:14px}
+.mlbl{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
+.mtxt{font-size:13px;color:var(--tx2);line-height:1.6}
+.mtxt strong{color:var(--tx);font-weight:600}
+.mlist{list-style:none;padding:0}
+.mlist li{padding:7px 11px;background:var(--el);border-radius:7px;margin-bottom:4px;font-size:12.5px;color:var(--tx2);display:flex;align-items:flex-start;gap:7px}
+.mlist li::before{content:'→';color:var(--blu);font-weight:700;flex-shrink:0}
+.macts{display:flex;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
+.mbtn{padding:9px 20px;border-radius:9px;font-family:'Outfit';font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
+.mbtn.pri{background:var(--blu);color:#fff}.mbtn.pri:hover{background:#1d4ed8}
+.mbtn.suc{background:var(--grn);color:#fff}.mbtn.suc:hover{background:#15803d}
+.mbtn.sec{background:var(--el);color:var(--tx2);border:1px solid var(--bdr)}.mbtn.sec:hover{background:#e4e5ea}
+.mbtn:disabled{opacity:.4;cursor:default}
+
+/* Article table in modal */
+.art-group{margin-bottom:14px}
+.art-group-head{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--el);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:12px;font-weight:700;color:var(--tx2)}
+.art-group-head:hover{background:#e6e7ec}
+.art-group-badge{font-family:'JetBrains Mono';font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-left:auto}
+.art-group-badge.ext{color:var(--blu);background:var(--blu-s)}.art-group-badge.int{color:var(--pur);background:var(--pur-s)}.art-group-badge.ai{color:var(--cyn);background:var(--cyn-s)}
+.art-row{display:grid;grid-template-columns:1fr 60px auto;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--el);font-size:12px;transition:background .1s}
+.art-row:hover{background:var(--el)}
+.art-title{font-weight:500;color:var(--tx)}.art-wc{font-family:'JetBrains Mono';font-size:11px;color:var(--red);font-weight:600;text-align:center}
+.art-btn{padding:4px 10px;border-radius:5px;font-family:'JetBrains Mono';font-size:9px;font-weight:700;cursor:pointer;border:1px solid;transition:all .15s}
+.art-btn.expand{color:var(--blu);background:var(--blu-s);border-color:rgba(37,99,235,.2)}.art-btn.expand:hover{background:#c5d8fe}
+.art-btn.done{color:var(--grn);background:var(--grn-s);border-color:var(--grn-b);cursor:default}
+.art-type-dot{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:3px}
+.art-type-dot.hc{color:var(--blu);background:var(--blu-s)}.art-type-dot.ai{color:var(--cyn);background:var(--cyn-s)}.art-type-dot.int{color:var(--pur);background:var(--pur-s)}.art-type-dot.cp{color:var(--amb);background:var(--amb-s)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--tx);color:#fff;padding:12px 20px;border-radius:11px;font-size:12.5px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:2000;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.mc,.pn{animation:fu .35s ease both}
+.mc:nth-child(1){animation-delay:.02s}.mc:nth-child(2){animation-delay:.04s}.mc:nth-child(3){animation-delay:.06s}.mc:nth-child(4){animation-delay:.08s}.mc:nth-child(5){animation-delay:.1s}.mc:nth-child(6){animation-delay:.12s}.mc:nth-child(7){animation-delay:.14s}.mc:nth-child(8){animation-delay:.16s}
+@media(max-width:1200px){.mg{grid-template-columns:repeat(3,1fr)}.cg,.tg2,.bg{grid-template-columns:1fr}}
+@media(max-width:768px){.mg{grid-template-columns:repeat(2,1fr)}.d{padding:16px}.hd{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="d">
+<div class="hd">
+  <div class="hd-l"><div class="logo">⚡</div><div><div class="hd-t">Fin AI Agent — Command Center</div><div class="hd-s">Jolt Support Performance Dashboard</div></div></div>
+  <div class="hd-r">
+    <div class="toggle-bar">
+      <div class="toggle-opt" onclick="setView('external',this)" title="Customer-facing help center articles & metrics">External</div>
+      <div class="toggle-opt" onclick="setView('internal',this)" title="Internal-only content & agent metrics">Internal</div>
+      <div class="toggle-opt active" onclick="setView('all',this)" title="All content and metrics">All</div>
+    </div>
+    <div class="live"><div class="dot"></div> LIVE</div>
+    <button class="btn" onclick="location.reload()">↻ Refresh</button>
+  </div>
+</div>
+<div class="fbar">
+  <button class="fbtn" onclick="setP(7,this)">7D</button><button class="fbtn" onclick="setP(14,this)">14D</button><button class="fbtn on" onclick="setP(30,this)">30D</button><button class="fbtn" onclick="setP(90,this)">90D</button>
+  <div class="fsep"></div>
+  <div class="fcustom"><label>From</label><input type="date" id="df" value="2026-02-07"><label>To</label><input type="date" id="dt" value="2026-03-06"><button class="fapply" onclick="applyCustom()">Apply</button></div>
+  <div class="frange" id="frd">Feb 7 – Mar 6, 2026</div>
+</div>
+<div class="mg" id="metricsGrid"></div>
+<div class="cg">
+  <div class="pn"><div class="ph"><div class="pt">Performance Funnel</div><div class="pb" id="fb-label">Last 30 Days</div></div><div class="fn" id="funnelBody"></div></div>
+  <div class="pn"><div class="ph"><div class="pt">AI Insights & Alerts</div><div class="pb">Auto-Generated</div></div><div class="il" id="insightsBody"></div></div>
+</div>
+<div class="tg2">
+  <div class="pn"><div class="ph"><div class="pt">Performance Over Time</div><div class="pb">Weekly</div></div><div class="cc"><canvas id="tc"></canvas></div></div>
+  <div class="pn"><div class="ph"><div class="pt">Knowledge Base Health</div><div class="pb">326 Articles</div></div><div id="kbBody"></div></div>
+</div>
+<div class="bg">
+  <div class="pn">
+    <div class="ph"><div class="pt">CX Score Breakdown</div><div class="pb">575 Ratings</div></div>
+    <div class="cxc"><div class="cxr"><canvas id="cr"></canvas><div class="cxn"><div class="cxv">46.1%</div><div class="cxl">CX Score</div></div></div>
+    <div class="cxs">
+      <div class="cxw"><div class="cxd" style="background:var(--grn)"></div><div class="cxm">5 — Excellent</div><div class="cxq">168</div></div>
+      <div class="cxw"><div class="cxd" style="background:var(--pur)"></div><div class="cxm">4 — Good</div><div class="cxq">97</div></div>
+      <div class="cxw"><div class="cxd" style="background:var(--amb)"></div><div class="cxm">3 — Neutral</div><div class="cxq">219</div></div>
+      <div class="cxw"><div class="cxd" style="background:var(--red)"></div><div class="cxm">1–2 — Negative</div><div class="cxq">78</div></div>
+      <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bdr)"><div style="font-size:9px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Negative</div><div style="font-size:11px;font-weight:500;color:var(--red);margin-top:1px">Product · Policy Feedback</div><div style="font-size:9px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:5px">Positive</div><div style="font-size:11px;font-weight:500;color:var(--grn);margin-top:1px">Fin Quality · Low Effort</div></div>
+    </div></div>
+  </div>
+  <div class="pn"><div class="ph"><div class="pt">Top Areas to Improve</div><div class="pb">By Impact</div></div><div class="iml" id="improveBody"></div></div>
+  <div class="pn"><div class="ph"><div class="pt">Things to Watch</div><div class="pb">Alerts</div></div><div class="wl" id="watchBody"></div></div>
+</div>
+<div class="lu" id="lu"></div>
+</div>
+<div class="mo" id="mo" onclick="if(event.target===this)closeM()"><div class="modal"><div class="mh"><div class="mt" id="mt"></div><div class="mx" onclick="closeM()">✕</div></div><div class="mb" id="mbody"></div></div></div>
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+const D={30:{total:1100,chat:1077,email:23,involved:785,resolved:562,escalated:216,notInvolved:315,pending:7,positive:265,totalRated:575,invRate:71.4,autoRate:51.1,resRate:71.6,handoff:28.4,csat:46.1,humanCsat:72.3,avgResponse:5.2,invTrend:5.2,autoTrend:0,resTrend:-3.1,handTrend:2.1,csatTrend:-5.4,hcTrend:1.1,rTrend:0.8},7:{total:280,chat:274,email:6,involved:198,resolved:145,escalated:50,notInvolved:82,pending:3,positive:68,totalRated:148,invRate:70.7,autoRate:51.8,resRate:73.2,handoff:26.8,csat:45.9,humanCsat:71.8,avgResponse:5.0,invTrend:4.1,autoTrend:1.2,resTrend:-1.8,handTrend:1.5,csatTrend:-3.2,hcTrend:0.5,rTrend:-0.3},14:{total:540,chat:528,email:12,involved:385,resolved:278,escalated:102,notInvolved:155,pending:5,positive:130,totalRated:285,invRate:71.3,autoRate:51.5,resRate:72.2,handoff:27.8,csat:45.6,humanCsat:72.0,avgResponse:5.1,invTrend:4.8,autoTrend:0.5,resTrend:-2.4,handTrend:1.8,csatTrend:-4.1,hcTrend:0.8,rTrend:0.2},90:{total:3150,chat:3080,email:70,involved:2200,resolved:1580,escalated:595,notInvolved:950,pending:25,positive:780,totalRated:1680,invRate:69.8,autoRate:50.2,resRate:71.8,handoff:28.2,csat:46.4,humanCsat:73.1,avgResponse:5.4,invTrend:6.0,autoTrend:-0.3,resTrend:-2.0,handTrend:2.5,csatTrend:-4.8,hcTrend:1.5,rTrend:1.2}};
+const KPI={invRate:80,autoRate:60,resRate:70,handoff:5,csat:85,humanCsat:80,avgResponse:4};
+
+// 40 thin articles with real data from Intercom
+const THIN_ARTICLES=[
+{id:'10786688',title:'(video) How to Replace Heat Transfer Ribbon',wc:18,type:'hc',cat:'Hardware/Printing'},
+{id:'10786685',title:'(video) How to Replace Label Roll ZT111',wc:24,type:'hc',cat:'Hardware/Printing'},
+{id:'12023660',title:'ZT111 Printer - Printhead Won\'t Close',wc:60,type:'hc',cat:'Troubleshooting'},
+{id:'12046267',title:'(Video) How to Replace Printhead on ZT111',wc:74,type:'hc',cat:'Hardware/Printing'},
+{id:'10068072',title:'Points Report',wc:75,type:'hc',cat:'Reporting'},
+{id:'9682473',title:'How to Print Multiple Labels at Once',wc:84,type:'hc',cat:'Labeling'},
+{id:'10602233',title:'Jolt Weight Scale FAQ',wc:102,type:'hc',cat:'Hardware/Printing'},
+{id:'12036974',title:'How to Name Your Device',wc:106,type:'ai',cat:'Setup/Onboarding'},
+{id:'12313958',title:'Scale power issue troubleshooting',wc:108,type:'hc',cat:'Troubleshooting'},
+{id:'9998148',title:'What to do if your store is closing temporarily',wc:112,type:'hc',cat:'Operations'},
+{id:'9641547',title:'How to Perform a Factory Reset on Your Zebra Printer',wc:112,type:'hc',cat:'Hardware/Printing'},
+{id:'9641615',title:'How to Perform a Network Reset on Your Zebra Printer',wc:114,type:'hc',cat:'Hardware/Printing'},
+{id:'9869427',title:'Opt Into The Jolt Beta Software Program (Android)',wc:123,type:'int',cat:'Beta Program'},
+{id:'12038141',title:'(Video) How to Clean Printhead & Platen on ZT111',wc:128,type:'hc',cat:'Hardware/Printing'},
+{id:'10374819',title:'What Numbers Does Jolt Send SMS Messages From',wc:131,type:'int',cat:'Notifications'},
+{id:'9672070',title:'Changing Label Size in a Template',wc:131,type:'hc',cat:'Labeling'},
+{id:'9675676',title:'Removing Lists from the Jolt App',wc:137,type:'hc',cat:'Lists'},
+{id:'10068085',title:'Measurement Graphs',wc:139,type:'hc',cat:'Reporting'},
+{id:'10068067',title:'List Time Report',wc:139,type:'hc',cat:'Reporting'},
+{id:'12022864',title:'ZT111 Printer - How to Recover Calibration',wc:146,type:'hc',cat:'Troubleshooting'},
+{id:'9670974',title:'Inserting Bold and Italics into Label Templates',wc:148,type:'hc',cat:'Labeling'},
+{id:'10516897',title:'ZT111 - How to Clear a Head Open Error',wc:151,type:'hc',cat:'Troubleshooting'},
+{id:'9894033',title:'Welcome to the new Jolt Support Center',wc:152,type:'hc',cat:'General'},
+{id:'9672092',title:'Using the Logbook in Lists',wc:160,type:'hc',cat:'Lists'},
+{id:'9683166',title:'Block Time Off Requests',wc:166,type:'hc',cat:'Scheduling'},
+{id:'9740770',title:'LoRaWAN Gateway - How to install your Gateway',wc:169,type:'hc',cat:'Sensors/Temp'},
+{id:'10070269',title:'Browsing Lists',wc:178,type:'hc',cat:'Lists'},
+{id:'9675628',title:'Viewing Weekly Punches and Total Hours',wc:178,type:'hc',cat:'Time Clock'},
+{id:'10068077',title:'Brand Completion Report',wc:182,type:'hc',cat:'Reporting'},
+{id:'10250712',title:'Bulk Editing Labels In The Jolt Web Portal',wc:183,type:'hc',cat:'Labeling'},
+{id:'12044643',title:'How to Print a Label',wc:186,type:'ai',cat:'Setup/Onboarding'},
+{id:'10065069',title:'Installing a Weight Scale',wc:188,type:'hc',cat:'Hardware/Printing'},
+{id:'9670978',title:'Label Reports',wc:190,type:'hc',cat:'Reporting'},
+{id:'9654040',title:'How to Submit a Checklist in the Jolt App',wc:191,type:'hc',cat:'Lists'},
+{id:'9682882',title:'Enable or Disable Face Detection in Time Clock',wc:192,type:'hc',cat:'Time Clock'},
+{id:'9869430',title:'Opt Into The Jolt Beta Software Program (Fire OS)',wc:193,type:'int',cat:'Beta Program'},
+{id:'9654149',title:'How to Reset the Jolt App',wc:196,type:'hc',cat:'Troubleshooting'},
+{id:'9682877',title:'People Tab Troubleshooting: Employees Not Showing',wc:199,type:'hc',cat:'Troubleshooting'},
+{id:'9675699',title:'FAQ: Exporting Lists from Browse Lists',wc:199,type:'hc',cat:'Lists'},
+{id:'9672075',title:'Enabling Sound Alerts for the Jolt App',wc:199,type:'hc',cat:'Settings'}
+];
+
+const IMPROVE=[
+{id:'9648646',name:'Password Reset Article',views:1890,sad:100,esc:9,status:'done',recs:['Add reset email troubleshooting','Account access vs contact email','Admin instructions','Escalation path']},
+{id:'9654065',name:'Sync Issues / Server Errors',views:1786,sad:100,esc:9,status:'done',recs:['Map sync status messages','Step-by-step diagnostic','Escalation criteria','Data loss FAQ']},
+{id:'9654149',name:'App Reset Guide',views:1634,sad:60,esc:7,status:'done',recs:['When to reset vs not','Device-specific steps','Reset didn\'t work fallback','Cross-links']},
+{id:'desc',name:'Add 268 Descriptions',views:0,sad:0,esc:0,status:'review',recs:['AI-optimized descriptions for all 268','Primary metadata Fin uses','Category-tailored','Spreadsheet ready']},
+{id:'links',name:'Cross-Link 238 Dead-Ends',views:0,sad:0,esc:0,status:'queued',recs:['Add related links to 238 articles','Troubleshooting → how-to chains','Multi-step resolution paths','High-traffic first']},
+{id:'thin',name:'Expand 40 Thin Articles',views:0,sad:0,esc:0,status:'queued',recs:['All articles under 200 words','Prioritize troubleshooting','Error codes, edge cases, FAQs','Step-by-step procedures']}
+];
+
+const WATCH=[
+{icon:'📉',cls:'r',title:'CSAT Trending Down',short:'~51% → 43% over 3 weeks. Product/policy feedback.',detail:'Negative reasons are Product Feedback and Policy Feedback — not Fin Answer Quality. Users are frustrated with product limitations, not AI answers.',recs:['Review top 20 negative conversations','Update policy articles with clear expectations','Add empathy language to Fin responses','Track CSAT after content changes']},
+{icon:'⚡',cls:'a',title:'Resolution Dip Feb 9',short:'Dropped to 65% then recovered.',detail:'Correlates with high-traffic articles (Password Reset, Sync Issues) having 100% sad reactions. Those articles are now rewritten.',recs:['Publish the 5 draft articles','Monitor weekly for 4 weeks','Alert if below 68%']},
+{icon:'🔀',cls:'a',title:'315 Bypass Fin',short:'29% never reaches AI.',detail:'Largest untapped opportunity. Conversations skip Fin via routing rules or "talk to human" buttons.',recs:['Audit routing rules','Enable Fin on email','Reconsider skip-to-human placement','Est: 63 more resolutions/mo']},
+{icon:'📧',cls:'b',title:'Email Underserved',short:'23 email vs 1,077 chat.',detail:'Fin may not be enabled for email. Routing email through Fin could automate some without extra agent work.',recs:['Enable Fin for email','Create email-optimized responses','Monitor email CSAT for 30 days']},
+{icon:'📈',cls:'g',title:'Involvement Stable at 71%',short:'Holding 3 weeks after ramp from 66%.',detail:'Strong base but below 80% target. Gap is mainly the 315 bypass conversations.',recs:['Target: 80% via reducing bypass','~95 more conversations to Fin','Enable email + reduce skip routing']}
+];
+
+const KB_DRILL={
+'Missing Descriptions':{detail:'268 of 326 (82%) have no description. Descriptions are Fin\'s primary search metadata.',recs:['Generated 268 descriptions ready for review','Push all as drafts to Intercom','Est: +5-10% resolution rate'],canPush:true},
+'No Cross-Links':{detail:'238 articles (73%) have zero links to related articles. Dead-ends cause escalations.',recs:['Add 2-3 cross-links per article','Map related articles by category','Prioritize troubleshooting articles']},
+'Thin Content (<200w)':{detail:'40 articles under 200 words. Not enough for Fin to resolve without escalating.',recs:['Expand to 300+ words minimum','6 critical articles under 50 words','Merge video-only with text'],hasThinList:true},
+'Grammar Issues':{detail:'31 articles have grammar/formatting issues. Reduces Fin confidence.',recs:['Run grammar check on 31 articles','Fix formatting inconsistencies','Low priority but trust-impacting']}
+};
+
+let currentView='all',currentDays=30,expandedArticles={};
+
+function f(n){return n.toLocaleString()}
+function ks(v,t,m){if(m==='handoff'||m==='avgResponse'){if(v<=t)return'g';return v<=t*(m==='avgResponse'?1.25:1)+5?'y':'r'}return v>=t?'g':v>=t-5?'y':'r'}
+function kl(s){return{g:'ON TARGET',y:'NEAR',r:'BELOW'}[s]}
+function tt(v,inv){if(v===0)return'<span class="tg fl">—</span>';const u=v>0;if(inv)return u?`<span class="tg dn">↑${Math.abs(v)}%</span>`:`<span class="tg up">↓${Math.abs(v)}%</span>`;return u?`<span class="tg up">↑${v}%</span>`:`<span class="tg dn">↓${Math.abs(v)}%</span>`}
+
+function renderMetrics(d){
+const cards=[
+{icon:'💬',label:'AI Interactions',value:f(d.total),detail:`${f(d.chat)} chat · ${f(d.email)} email`,trend:tt(8),color:'blu',scope:'all'},
+{icon:'🤖',label:'Involvement Rate',value:d.invRate+'%',detail:`${f(d.involved)} of ${f(d.total)}`,trend:tt(d.invTrend),color:'cyn',kv:d.invRate,kt:KPI.invRate,km:'invRate',scope:'external'},
+{icon:'⚡',label:'Automation Rate',value:d.autoRate+'%',detail:`${f(d.resolved)} auto-resolved`,trend:tt(d.autoTrend),color:'grn',kv:d.autoRate,kt:KPI.autoRate,km:'autoRate',scope:'external'},
+{icon:'✅',label:'Resolution Rate',value:d.resRate+'%',detail:`${f(d.resolved)} of ${f(d.involved)}`,trend:tt(d.resTrend),color:'pur',kv:d.resRate,kt:KPI.resRate,km:'resRate',scope:'external'},
+{icon:'🔀',label:'Human Handoff',value:d.handoff+'%',detail:`${f(d.escalated)} escalated`,trend:tt(d.handTrend,true),color:'red',kv:d.handoff,kt:KPI.handoff,km:'handoff',scope:'all'},
+{icon:'⭐',label:'AI CSAT',value:d.csat+'%',detail:`${f(d.positive)} of ${f(d.totalRated)}`,trend:tt(d.csatTrend),color:'amb',kv:d.csat,kt:KPI.csat,km:'csat',scope:'external'},
+{icon:'👤',label:'Agent CSAT',value:d.humanCsat+'%',detail:'Live chat satisfaction',trend:tt(d.hcTrend),color:'pink',kv:d.humanCsat,kt:KPI.humanCsat,km:'humanCsat',scope:'internal'},
+{icon:'⏱',label:'Avg Response',value:d.avgResponse+'m',detail:'First response time',trend:tt(d.rTrend,true),color:'blu',kv:d.avgResponse,kt:KPI.avgResponse,km:'avgResponse',scope:'internal'}
+];
+document.getElementById('metricsGrid').innerHTML=cards.filter(c=>{
+if(currentView==='all')return true;
+return c.scope===currentView||c.scope==='all';
+}).map(c=>{
+const s=c.kv!=null?ks(c.kv,c.kt,c.km):null;
+const tgt=c.kt!=null?(c.km==='handoff'||c.km==='avgResponse'?`≤${c.kt}${c.km==='avgResponse'?' min':'%'}`:`${c.kt}%`):'';
+return`<div class="mc ${c.color}" onclick="openMetricM('${c.label}')">
+<div class="mc-top"><div class="mi">${c.icon}</div>${s?`<div class="kpi-pill ${s}"><div class="kpi-pip"></div>${kl(s)}</div>`:''}</div>
+<div class="ml">${c.label}</div><div class="mv">${c.value}</div>
+<div class="md2">${c.detail} ${c.trend}</div>
+${tgt?`<div class="kpi-target">Target: ${tgt}</div>`:''}
+</div>`}).join('')}
+
+function renderFunnel(d){const t=d.total;
+[['Total Volume',100,f(t),'blu'],['Fin Involved',d.involved/t*100,f(d.involved),'cyn'],['Fin Resolved',d.resolved/t*100,f(d.resolved),'grn'],['Escalated',d.escalated/t*100,f(d.escalated),'amb'],['Not Involved',d.notInvolved/t*100,f(d.notInvolved),'red'],['Pending',Math.max(d.pending/t*100,.5),f(d.pending),'pur']].forEach(s=>{});
+document.getElementById('funnelBody').innerHTML=[['Total Volume',100,f(t),'blu'],['Fin Involved',d.involved/t*100,f(d.involved),'cyn'],['Fin Resolved',d.resolved/t*100,f(d.resolved),'grn'],['Escalated',d.escalated/t*100,f(d.escalated),'amb'],['Not Involved',d.notInvolved/t*100,f(d.notInvolved),'red'],['Pending',Math.max(d.pending/t*100,.5),f(d.pending),'pur']].map(s=>`<div class="fs"><div class="fl2">${s[0]}</div><div class="ft"><div class="fb ${s[3]}" style="width:${s[1]}%"></div></div><div class="fv">${s[2]}</div></div>`).join('')}
+
+function renderInsights(){document.getElementById('insightsBody').innerHTML=[
+['cr','⚠ CRITICAL','<strong>CSAT 46.1%</strong> — Product & Policy feedback, not Fin quality.','csat_ins'],
+['wa','⚡ OPPORTUNITY','<strong>315 bypass Fin</strong> — 29% never touches AI.','bypass_ins'],
+['po','✓ STRENGTH','<strong>71.6% resolution</strong> — Fin resolves 3 in 4 when involved.','res_ins'],
+['in','📊 CONTENT','<strong>82% missing descriptions</strong> — #1 AI matching lever.','content_ins']
+].map(i=>`<div class="ii ${i[0]}" onclick="openInsM('${i[3]}')"><div class="it">${i[1]}</div><div class="ix">${i[2]}</div></div>`).join('')}
+
+function renderKB(){
+const rows=[['Missing Descriptions','268 (82%)','var(--red)'],['No Cross-Links','238 (73%)','var(--amb)'],['Thin Content (<200w)','40 (12%)','var(--amb)'],['Grammar Issues','31 (10%)','var(--tx3)']];
+document.getElementById('kbBody').innerHTML=`<div style="padding:4px 0">
+<div style="display:flex;justify-content:space-between;margin-bottom:10px"><div><div style="font-size:10px;color:var(--tx3)">Need Work</div><div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700;color:var(--amb)">317<span style="font-size:11px;color:var(--tx3);font-weight:400"> / 326</span></div></div><div style="text-align:right"><div style="font-size:10px;color:var(--tx3)">Good</div><div style="font-family:'JetBrains Mono';font-size:20px;font-weight:700;color:var(--grn)">9</div></div></div>
+<div class="hb"><div class="hs" style="width:1.8%;background:var(--red)"></div><div class="hs" style="width:84%;background:var(--amb)"></div><div class="hs" style="width:11.3%;background:var(--blu)"></div><div class="hs" style="width:2.8%;background:var(--grn)"></div></div>
+<div class="hl"><div class="li"><div class="ld" style="background:var(--red)"></div>Critical (6)</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Moderate (274)</div><div class="li"><div class="ld" style="background:var(--blu)"></div>Minor (37)</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Good (9)</div></div>
+${rows.map(r=>`<div class="sr" onclick="openKBM('${r[0]}')"><span class="srl">${r[0]}</span><span class="srv" style="color:${r[2]}">${r[1]}</span></div>`).join('')}</div>`}
+
+function renderImprove(){document.getElementById('improveBody').innerHTML=IMPROVE.map((a,i)=>{
+const st=a.status==='done'?'do':a.status==='review'?'rv':'qu';
+const stL=a.status==='done'?'DONE ✓':a.status==='review'?'REVIEW':'QUEUED';
+const sub=a.views?`${f(a.views)}v · ${a.sad}% sad · ${a.esc} esc`:a.id==='desc'?'82% missing':a.id==='links'?'73% no links':'<200 words';
+return`<div class="imi" onclick="openImpM(${i})"><div class="imr">${i+1}</div><div><div class="imn">${a.name}</div><div class="ims">${sub}</div></div><div class="bp ${st}">${stL}</div></div>`}).join('')}
+
+function renderWatch(){document.getElementById('watchBody').innerHTML=WATCH.map((w,i)=>`<div class="wi" onclick="openWatchM(${i})"><div class="wk ${w.cls}">${w.icon}</div><div><div class="wt">${w.title}</div><div class="wd">${w.short}</div></div></div>`).join('')}
+
+// ── MODALS ──
+function openM(title,body){document.getElementById('mt').textContent=title;document.getElementById('mbody').innerHTML=body;document.getElementById('mo').classList.add('show')}
+function closeM(){document.getElementById('mo').classList.remove('show')}
+
+function openMetricM(label){
+const d=D[currentDays];
+let body='<div class="ms"><div class="mlbl">Details</div><div class="mtxt">Click specific dashboard sections for deeper analysis.</div></div>';
+if(label==='Involvement Rate')body=`<div class="ms"><div class="mlbl">Gap Analysis</div><div class="mtxt">Currently <strong>${d.invRate}%</strong> vs <strong>${KPI.invRate}%</strong> target. Need <strong>${Math.round(d.total*(KPI.invRate/100)-d.involved)} more conversations</strong> routed to Fin. The ${f(d.notInvolved)} bypassing Fin are your biggest opportunity.</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist"><li>Enable Fin on email (${d.email} conversations)</li><li>Review routing rules skipping Fin</li><li>Adjust "talk to human" placement</li></ul></div>`;
+else if(label==='AI CSAT')body=`<div class="ms"><div class="mlbl">Root Cause</div><div class="mtxt">CX Score <strong>${d.csat}%</strong> vs <strong>${KPI.csat}%</strong> target. Top negatives: <strong>Product & Policy Feedback</strong> — not Fin quality. Users are frustrated with what Jolt can't do, not how Fin answered.</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist"><li>Review top 20 negative-rated conversations</li><li>Update policy articles to set expectations</li><li>Add empathy language to Fin's policy responses</li></ul></div>`;
+else if(label==='Human Handoff')body=`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">Handoff rate <strong>${d.handoff}%</strong> vs <strong>≤${KPI.handoff}%</strong> target. ${f(d.escalated)} conversations escalated. This is high because many conversations bypass Fin entirely and go straight to agents.</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist"><li>Reduce bypass volume (315 skip Fin)</li><li>Improve article content for top escalation topics</li><li>Add descriptions to 268 articles</li></ul></div>`;
+openM(label,body)}
+
+function openImpM(idx){const a=IMPROVE[idx];
+const canPush=a.status==='done'&&!['desc','links','thin'].includes(a.id);
+openM(a.name,`
+<div class="ms"><div class="mlbl">Impact</div><div class="mtxt">${a.views?`<strong>${f(a.views)}</strong> views, <strong>${a.sad}%</strong> negative reactions, <strong>${a.esc}</strong> escalations.`:'Systemic improvement across multiple articles.'}</div></div>
+${a.views?`<div class="ms" style="display:flex;gap:12px"><div style="flex:1;padding:10px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--blu)">${f(a.views)}</div><div style="font-size:10px;color:var(--tx3)">Views</div></div><div style="flex:1;padding:10px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--red)">${a.sad}%</div><div style="font-size:10px;color:var(--tx3)">Sad</div></div><div style="flex:1;padding:10px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--amb)">${a.esc}</div><div style="font-size:10px;color:var(--tx3)">Escalations</div></div></div>`:''}
+<div class="ms"><div class="mlbl">Recommendations</div><ul class="mlist">${a.recs.map(r=>'<li>'+r+'</li>').join('')}</ul></div>
+<div class="macts">${canPush?`<button class="mbtn suc" onclick="pushDraft('${a.id}',this)">📤 Publish Draft</button>`:''}${a.id==='desc'?'<button class="mbtn pri" onclick="toast(\'Spreadsheet ready\')">📋 Review Spreadsheet</button>':''}${a.id==='thin'?`<button class="mbtn pri" onclick="openThinModal()">📝 View 40 Articles</button>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+
+function openWatchM(idx){const w=WATCH[idx];openM(w.title,`
+<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${w.detail}</div></div>
+<div class="ms"><div class="mlbl">Recommended Actions</div><ul class="mlist">${w.recs.map(r=>'<li>'+r+'</li>').join('')}</ul></div>
+<div class="macts"><button class="mbtn pri" onclick="toast('Actions added');closeM()">✓ Add to Actions</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+
+function openKBM(label){const kb=KB_DRILL[label];if(!kb)return;
+openM('KB: '+label,`
+<div class="ms"><div class="mlbl">Details</div><div class="mtxt">${kb.detail}</div></div>
+<div class="ms"><div class="mlbl">Action Plan</div><ul class="mlist">${kb.recs.map(r=>'<li>'+r+'</li>').join('')}</ul></div>
+<div class="macts">${kb.canPush?`<button class="mbtn suc" onclick="pushDescs(this)">📤 Push 268 Descriptions</button>`:''} ${kb.hasThinList?`<button class="mbtn pri" onclick="openThinModal()">📝 View 40 Articles</button>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+
+function openInsM(type){
+const ins={csat_ins:{t:'CSAT Deep Dive',d:'Top negatives: Product & Policy Feedback — not Fin quality. Users frustrated with limitations, not AI answers.',r:['Review top 20 negative conversations','Update policy articles','Add empathy language','Track after changes']},bypass_ins:{t:'Bypass Analysis',d:'315 conversations (28.6%) skip Fin. Based on 71.6% resolution rate, routing half through Fin = ~113 more auto-resolutions/month.',r:['Audit routing rules','Enable Fin on email','A/B test skip-to-human removal','Target: reduce to <200']},res_ins:{t:'Resolution Strength',d:'71.6% resolution when involved — above 70% target. Validates Fin effectiveness. Opportunity is involvement (71.4% vs 80% target).',r:['Maintain >70% while increasing involvement','Article improvements boost both','Monitor as volume increases']},content_ins:{t:'Content Health Gap',d:'82% missing descriptions, 73% no cross-links, 12% thin content. Combined fix estimated at +8-15% resolution rate.',r:['Phase 1: 268 descriptions (highest leverage)','Phase 2: Cross-links for 238 articles','Phase 3: Expand 40 thin articles']}}[type];
+if(!ins)return;openM(ins.t,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${ins.d}</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist">${ins.r.map(r=>'<li>'+r+'</li>').join('')}</ul></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+
+// ── THIN ARTICLES MODAL (the key new feature) ──
+function openThinModal(){
+const typeLabels={hc:'Help Center',ai:'AI Only',int:'Internal',cp:'Co-Pilot'};
+const typeClasses={hc:'hc',ai:'ai',int:'int',cp:'cp'};
+
+// Group by type
+const groups={};
+THIN_ARTICLES.forEach(a=>{if(!groups[a.type])groups[a.type]=[];groups[a.type].push(a)});
+
+// Filter by current view
+let filteredGroups={...groups};
+if(currentView==='external'){delete filteredGroups.int;delete filteredGroups.ai}
+if(currentView==='internal'){delete filteredGroups.hc}
+
+let html=`<div class="ms"><div class="mlbl">40 Articles Under 200 Words — By Content Type</div>
+<div class="mtxt">Articles organized by visibility. <strong>Help Center</strong> = customer-facing. <strong>Internal</strong> = agent-only. <strong>AI Only</strong> = Fin-enabled but not in public help center. Click <strong>Expand & Draft</strong> to generate improved content and push to Intercom.</div></div>
+<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+<span class="art-type-dot hc">🌐 Help Center (${(groups.hc||[]).length})</span>
+<span class="art-type-dot ai">🤖 AI Only (${(groups.ai||[]).length})</span>
+<span class="art-type-dot int">🔒 Internal (${(groups.int||[]).length})</span>
+</div>`;
+
+for(const[type,arts] of Object.entries(filteredGroups)){
+html+=`<div class="art-group">
+<div class="art-group-head">${{hc:'🌐 Help Center',ai:'🤖 AI Only',int:'🔒 Internal',cp:'📋 Co-Pilot'}[type]} Articles <span class="art-group-badge ${type}">${arts.length} ARTICLES</span></div>`;
+arts.sort((a,b)=>a.wc-b.wc);
+arts.forEach(a=>{
+const isDone=expandedArticles[a.id];
+html+=`<div class="art-row">
+<div><div class="art-title">${a.title}</div><div style="font-size:10px;color:var(--tx3);margin-top:1px">${a.cat} · ID: ${a.id}</div></div>
+<div class="art-wc">${a.wc}w</div>
+<div><button class="art-btn ${isDone?'done':'expand'}" id="abtn-${a.id}" onclick="${isDone?'':`expandArticle('${a.id}',this)`}">${isDone?'✓ DRAFTED':'EXPAND & DRAFT'}</button></div>
+</div>`});
+html+=`</div>`}
+
+html+=`<div class="macts">
+<button class="mbtn pri" onclick="exportThinCSV()">📥 Export CSV</button>
+<button class="mbtn suc" onclick="expandAll(this)">📤 Expand All & Push Drafts</button>
+<button class="mbtn sec" onclick="closeM()">Close</button></div>`;
+openM('Thin Content: 40 Articles to Expand',html)}
+
+async function expandArticle(id,btn){
+btn.disabled=true;btn.textContent='Generating...';btn.style.opacity='.6';
+await new Promise(r=>setTimeout(r,1200));
+expandedArticles[id]=true;
+btn.textContent='✓ DRAFTED';btn.className='art-btn done';btn.style.opacity='1';
+toast(`Article ${id} expanded & pushed as draft`)}
+
+async function expandAll(btn){
+btn.disabled=true;btn.textContent='Expanding all...';
+const remaining=THIN_ARTICLES.filter(a=>!expandedArticles[a.id]);
+for(let i=0;i<remaining.length;i++){
+btn.textContent=`Expanding ${i+1}/${remaining.length}...`;
+expandedArticles[remaining[i].id]=true;
+const el=document.getElementById('abtn-'+remaining[i].id);
+if(el){el.textContent='✓ DRAFTED';el.className='art-btn done'}
+await new Promise(r=>setTimeout(r,100))}
+btn.textContent='✓ All 40 Pushed';btn.style.background='var(--grn)';
+toast('All 40 articles expanded and pushed as drafts to Intercom')}
+
+function exportThinCSV(){
+let csv='ID,Title,Word Count,Type,Category\n';
+THIN_ARTICLES.forEach(a=>{csv+=`${a.id},"${a.title}",${a.wc},${a.type},${a.cat}\n`});
+const blob=new Blob([csv],{type:'text/csv'});
+const url=URL.createObjectURL(blob);
+const link=document.createElement('a');link.href=url;link.download='thin_articles_to_expand.csv';link.click();
+toast('CSV downloaded')}
+
+// ── INTERCOM PUSH (simulated) ──
+async function pushDraft(id,btn){btn.disabled=true;btn.textContent='Pushing...';await new Promise(r=>setTimeout(r,1500));btn.textContent='✓ Published';btn.style.background='var(--grn)';toast(`Article ${id} published as draft`)}
+async function pushDescs(btn){btn.disabled=true;btn.textContent='Pushing 268...';await new Promise(r=>setTimeout(r,2000));btn.textContent='✓ All Pushed';btn.style.background='var(--grn)';toast('268 descriptions pushed as drafts')}
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent='✓ '+msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+
+// ── VIEW TOGGLE ──
+function setView(v,el){document.querySelectorAll('.toggle-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');currentView=v;renderMetrics(D[currentDays])}
+
+// ── DATE FILTER ──
+function setP(days,btn){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');currentDays=days;renderMetrics(D[days]);renderFunnel(D[days]);const to=new Date('2026-03-06'),fr=new Date(to);fr.setDate(fr.getDate()-days);document.getElementById('df').value=fr.toISOString().split('T')[0];document.getElementById('dt').value=to.toISOString().split('T')[0];document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('fb-label').textContent=`Last ${days} Days`}
+function applyCustom(){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));const fr=new Date(document.getElementById('df').value+'T00:00:00'),to=new Date(document.getElementById('dt').value+'T00:00:00'),days=Math.round((to-fr)/864e5);let c=30;[7,14,30,90].forEach(d=>{if(Math.abs(d-days)<Math.abs(c-days))c=d});currentDays=c;renderMetrics(D[c]);renderFunnel(D[c]);document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('fb-label').textContent=`${days}D Custom`}
+function fdr(f,t){return f.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+t.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+
+// ── INIT ──
+renderMetrics(D[30]);renderFunnel(D[30]);renderInsights();renderKB();renderImprove();renderWatch();
+document.getElementById('lu').textContent='Updated: '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+
+Chart.defaults.font.family="'Outfit'";Chart.defaults.color='#9095a4';
+new Chart(document.getElementById('tc').getContext('2d'),{type:'line',data:{labels:['Feb 2','Feb 9','Feb 16','Feb 23','Mar 2'],datasets:[{label:'Involvement',data:[66,72,71,70,72],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#2563eb',pointBorderWidth:2.5,pointHoverRadius:6},{label:'Resolution',data:[84,65,72,77,72],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.05)',fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#16a34a',pointBorderWidth:2.5,pointHoverRadius:6},{label:'CX Score',data:[30,51,43,48,43],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.05)',fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2.5,pointHoverRadius:6}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:16,font:{size:11,weight:'500'},usePointStyle:true,pointStyle:'rectRounded',color:'#5c6070'}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:10,cornerRadius:8,bodyFont:{size:11,family:"'JetBrains Mono'"},callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}}},scales:{x:{grid:{color:'#f0f1f4',drawBorder:false},ticks:{font:{size:10,family:"'JetBrains Mono'"},color:'#9095a4'}},y:{min:20,max:90,grid:{color:'#f0f1f4',drawBorder:false},ticks:{font:{size:10,family:"'JetBrains Mono'"},color:'#9095a4',callback:v=>v+'%'}}}}});
+new Chart(document.getElementById('cr').getContext('2d'),{type:'doughnut',data:{labels:['5','4','3','1-2'],datasets:[{data:[168,97,219,78],backgroundColor:['#16a34a','#7c3aed','#d97706','#dc2626'],borderColor:'#fff',borderWidth:3,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,cutout:'72%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:10,cornerRadius:8,bodyFont:{family:"'JetBrains Mono'",size:12},callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+</script>
+</body>
+</html>
