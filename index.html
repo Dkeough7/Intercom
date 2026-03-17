@@ -242,20 +242,24 @@ const ROI_B={salary:50000,benefitRate:.34,loadedCost:66750,annualHrs:1664,suppor
 
 // Progress tracker state (persisted in memory for session)
 const PROGRESS=[
-{name:'Password Reset Article',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 7',id:'9648646'},
-{name:'Sync Issues / Server Errors',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 7',id:'9654065'},
-{name:'App Reset Guide',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9654149'},
-{name:'Repairs & Replacements',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9671818'},
-{name:'Lists Not Showing',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9655189'},
+{name:'Password Reset Article',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9648646',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9648646'},
+{name:'Sync Issues / Server Errors',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9654065',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654065'},
+{name:'App Reset Guide',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9654149',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654149'},
+{name:'Repairs & Replacements',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9671818',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9671818'},
+{name:'Lists Not Showing',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9655189',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9655189'},
+{name:'Network Reset Zebra (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9641615',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9641615'},
+{name:'Factory Reset Zebra (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9641547',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9641547'},
+{name:'Bulk Add Labels (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9672111',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9672111'},
+{name:'8 Descriptions Added (live)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'batch-desc-8'},
 {name:'268 Article Descriptions',status:'suggested',sugDate:'Mar 7',draftDate:null,pubDate:null,id:'batch-desc'},
 {name:'238 Cross-Link Updates',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-cl'},
 {name:'40 Thin Article Expansions',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-thin'},
 {name:'25 Grammar Fixes',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-gram'},
 ];
 const IMPROVE=[
-{id:'9648646',name:'Password Reset',views:1890,sad:100,esc:9,status:'done'},
-{id:'9654065',name:'Sync / Server Errors',views:1786,sad:100,esc:9,status:'done'},
-{id:'9654149',name:'App Reset Guide',views:1634,sad:60,esc:7,status:'done'},
+{id:'9648646',name:'Password Reset',views:1890,sad:100,esc:9,status:'drafted'},
+{id:'9654065',name:'Sync / Server Errors',views:1786,sad:100,esc:9,status:'drafted'},
+{id:'9654149',name:'App Reset Guide',views:1634,sad:60,esc:7,status:'drafted'},
 {id:'desc',name:'Add 268 Descriptions',status:'review'},
 {id:'links',name:'Cross-Link 238 Articles',status:'queued'},
 {id:'thin',name:'Expand 40 Thin Articles',status:'queued'},
@@ -307,8 +311,8 @@ function renderKB(){document.getElementById('KB').innerHTML=`<div style="padding
 ${[['Missing Descriptions','268 (82%)','var(--red)'],['No Cross-Links','238 (73%)','var(--amb)'],['Thin Content (<200w)','40 (12%)','var(--amb)'],['Grammar Issues','25 (8%)','var(--tx3)']].map(r=>`<div class="sr" onclick="openKBM('${r[0]}')"><span class="srl">${r[0]}</span><span class="srv" style="color:${r[2]}">${r[1]}</span></div>`).join('')}</div>`}
 
 function renderImprove(){document.getElementById('IMP').innerHTML=IMPROVE.map((a,i)=>{
-const st=a.status==='done'?'do':a.status==='review'?'rv':'qu';
-const stL=a.status==='done'?'DONE ✓':a.status==='review'?'REVIEW':'QUEUED';
+const st=a.status==='done'?'do':a.status==='drafted'?'rv':a.status==='review'?'rv':'qu';
+const stL=a.status==='done'?'DONE ✓':a.status==='drafted'?'DRAFTED':a.status==='review'?'REVIEW':'QUEUED';
 const sub=a.views?`${f(a.views)}v·${a.sad}%sad·${a.esc}esc`:a.id==='desc'?'82% missing':a.id==='links'?'73% no links':a.id==='thin'?'<200 words':'Grammar/formatting';
 return`<div class="imi" onclick="openImpM(${i})"><div class="imr">${i+1}</div><div><div class="imn">${a.name}</div><div class="ims">${sub}</div></div><div class="bp ${st}">${stL}</div></div>`}).join('')}
 
@@ -324,7 +328,8 @@ document.getElementById('progPct').textContent=pct+'% Complete';
 document.getElementById('progList').innerHTML=PROGRESS.map(p=>{
 const cls=p.status==='published'?'published':p.status==='drafted'?'drafted':'suggested';
 const dates=p.status==='published'?`Suggested ${p.sugDate} → Drafted ${p.draftDate} → Published ${p.pubDate}`:p.status==='drafted'?`Suggested ${p.sugDate} → Drafted ${p.draftDate}`:`Suggested ${p.sugDate}`;
-return`<div class="prog-item"><div class="prog-dot ${cls}"></div><div class="prog-label"><strong>${p.name}</strong></div><div class="prog-date">${dates}</div></div>`}).join('')}
+const link=p.iUrl?` <a href="${p.iUrl}" target="_blank" style="font-size:9px;color:var(--blu);text-decoration:none;font-weight:600">↗ View in Intercom</a>`:'';
+return`<div class="prog-item"><div class="prog-dot ${cls}"></div><div class="prog-label"><strong>${p.name}</strong>${link}</div><div class="prog-date">${dates}</div></div>`}).join('')}
 
 function renderROI(d){
 const resolved=d.resolved;
@@ -375,7 +380,7 @@ if(label==='Thin Content (<200w)'){openM('Thin Content',`<div class="ms"><div cl
 function openImpM(i){const a=IMPROVE[i];const canPush=a.status==='done'&&a.views;
 openM(a.name,`<div class="ms"><div class="mlbl">Impact</div><div class="mtxt">${a.views?`<strong>${f(a.views)}</strong> views, <strong>${a.sad}%</strong> sad, <strong>${a.esc}</strong> escalations.`:'Systemic improvement across articles.'}</div></div>
 ${a.views?`<div class="ms" style="display:flex;gap:8px"><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--blu)">${f(a.views)}</div><div style="font-size:9px;color:var(--tx3)">Views</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--red)">${a.sad}%</div><div style="font-size:9px;color:var(--tx3)">Sad</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--amb)">${a.esc}</div><div style="font-size:9px;color:var(--tx3)">Escalations</div></div></div>`:''}
-<div class="macts">${canPush?`<button class="mbtn suc" onclick="pushDraft('${a.id}',this)">📤 Publish Draft</button>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+<div class="macts">${a.status==='drafted'?`<a href="https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=${a.id}" target="_blank" class="mbtn pri" style="text-decoration:none">↗ Preview in Intercom</a>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
 function openWatM(i){const w=WATCH[i];openM(w.title,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${w.detail}</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist">${w.recs.map(r=>'<li>'+r+'</li>').join('')}</ul></div><div class="macts"><button class="mbtn pri" onclick="toast('Actions added');closeM()">✓ Add to Actions</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
