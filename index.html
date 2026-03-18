@@ -3,387 +3,336 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jolt AI Agent — Command Center v7</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>Tech Support Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--el:#f0f1f4;--in:#ecedf1;--bdr:#e2e4ea;--tx:#1a1d26;--tx2:#5c6070;--tx3:#9095a4;--grn:#16a34a;--grn-s:#dcfce7;--grn-b:#86efac;--blu:#2563eb;--blu-s:#dbeafe;--pur:#7c3aed;--pur-s:#ede9fe;--amb:#d97706;--amb-s:#fef3c7;--amb-b:#fcd34d;--red:#dc2626;--red-s:#fee2e2;--red-b:#fca5a5;--cyn:#0891b2;--cyn-s:#cffafe;--r:12px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
-.d{max-width:1480px;margin:0 auto;padding:20px 32px 48px}
-.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-.hd-l{display:flex;align-items:center;gap:12px}
-.logo{width:36px;height:36px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.3)}
-.hd-t{font-size:18px;font-weight:700;letter-spacing:-.4px}.hd-s{font-size:11px;color:var(--tx3)}
-.hd-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.live{display:flex;align-items:center;gap:5px;padding:3px 10px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:16px;font-size:9px;font-weight:600;color:var(--grn)}
-.dot{width:5px;height:5px;background:var(--grn);border-radius:50%;animation:p 2s infinite}@keyframes p{50%{opacity:.3}}
-.btn{padding:5px 11px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;color:var(--tx2);font-family:'Outfit';font-size:10px;font-weight:500;cursor:pointer;transition:all .15s}.btn:hover{background:var(--el)}
-.tog{display:flex;background:var(--el);border-radius:6px;padding:2px;border:1px solid var(--bdr)}.tog-o{padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--tx3);user-select:none}.tog-o.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.fbar{display:flex;align-items:center;gap:5px;margin-bottom:14px;flex-wrap:wrap}
-.fbtn{padding:4px 10px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;font-family:'Outfit';font-size:10px;font-weight:500;color:var(--tx2);cursor:pointer}.fbtn.on{background:var(--tx);color:#fff;border-color:var(--tx)}
-.fsep{width:1px;height:18px;background:var(--bdr)}.fci{display:flex;align-items:center;gap:4px}.fci label{font-size:9px;color:var(--tx3)}.fci input[type=date]{padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;font-family:'JetBrains Mono';font-size:9px;color:var(--tx2);background:var(--card)}.fap{padding:4px 10px;background:var(--blu);color:#fff;border:1px solid var(--blu);border-radius:5px;font-family:'Outfit';font-size:9px;font-weight:600;cursor:pointer}
-.fr{font-family:'JetBrains Mono';font-size:9px;color:var(--tx2);padding:3px 8px;background:var(--card);border:1px solid var(--bdr);border-radius:5px;margin-left:auto}
-/* Metrics */
-.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.mc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px 10px;position:relative;overflow:hidden;transition:all .2s;cursor:pointer}.mc:hover{box-shadow:var(--sh);transform:translateY(-1px)}
-.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;border-radius:2px 2px 0 0}
-.mc.grn::after{background:var(--grn)}.mc.blu::after{background:var(--blu)}.mc.pur::after{background:var(--pur)}.mc.amb::after{background:var(--amb)}.mc.red::after{background:var(--red)}.mc.cyn::after{background:var(--cyn)}.mc.pk::after{background:#ec4899}
-.mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.mi{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
-.mc.blu .mi{background:var(--blu-s)}.mc.cyn .mi{background:var(--cyn-s)}.mc.grn .mi{background:var(--grn-s)}.mc.pur .mi{background:var(--pur-s)}.mc.red .mi{background:var(--red-s)}.mc.amb .mi{background:var(--amb-s)}.mc.pk .mi{background:#fce7f3}
-.kp{display:flex;align-items:center;gap:3px;padding:1px 5px;border-radius:6px;font-size:7.5px;font-weight:700;letter-spacing:.2px}.kp.g{background:var(--grn-s);color:var(--grn)}.kp.y{background:var(--amb-s);color:var(--amb)}.kp.r{background:var(--red-s);color:var(--red)}
-.kpp{width:4px;height:4px;border-radius:50%}.kp.g .kpp{background:var(--grn)}.kp.y .kpp{background:var(--amb)}.kp.r .kpp{background:var(--red)}
-.ml{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--tx3);margin-bottom:2px}
-.mv{font-family:'JetBrains Mono';font-size:20px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:3px}
-.md2{font-size:9.5px;color:var(--tx2);line-height:1.2}
-.tg{display:inline-flex;font-family:'JetBrains Mono';font-size:8px;font-weight:600;padding:1px 3px;border-radius:3px;margin-left:1px}.tg.up{color:var(--grn);background:var(--grn-s)}.tg.dn{color:var(--red);background:var(--red-s)}.tg.fl{color:var(--amb);background:var(--amb-s)}
-.kt{font-size:8px;color:var(--tx3);margin-top:2px;font-family:'JetBrains Mono';font-weight:500}
-/* Panels */
-.pn{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.03);transition:box-shadow .2s;margin-bottom:0}.pn:hover{box-shadow:var(--sh)}
-.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.pt{font-size:12px;font-weight:700;letter-spacing:-.2px}.pb{font-size:8px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}
-.g2{display:grid;grid-template-columns:5fr 3fr;gap:10px;margin-bottom:10px}
-.g22{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
-.gf{margin-bottom:10px}
-/* Funnel */
-.fn{display:flex;flex-direction:column;gap:1px}.fs{display:grid;grid-template-columns:90px 1fr 50px;align-items:center;gap:6px;padding:5px 0}
-.fl2{font-size:10px;font-weight:500;color:var(--tx2)}.ft2{height:18px;background:var(--el);border-radius:4px;overflow:hidden}
-.fb{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.22,1,.36,1)}
-.fb.grn{background:linear-gradient(90deg,#22c55e,#16a34a)}.fb.blu{background:linear-gradient(90deg,#60a5fa,#2563eb)}.fb.pur{background:linear-gradient(90deg,#a78bfa,#7c3aed)}.fb.amb{background:linear-gradient(90deg,#fbbf24,#d97706)}.fb.red{background:linear-gradient(90deg,#f87171,#dc2626)}.fb.cyn{background:linear-gradient(90deg,#22d3ee,#0891b2)}
-.fv{font-family:'JetBrains Mono';font-size:10px;font-weight:600;text-align:right}
-/* Insights */
-.il{display:flex;flex-direction:column;gap:4px}.ii{padding:8px 10px;border-radius:7px;border-left:3px solid;transition:all .15s;cursor:pointer}.ii:hover{filter:brightness(.97);transform:translateX(2px)}
-.ii.cr{border-color:var(--red);background:var(--red-s)}.ii.wa{border-color:var(--amb);background:var(--amb-s)}.ii.po{border-color:var(--grn);background:var(--grn-s)}.ii.ib{border-color:var(--blu);background:var(--blu-s)}
-.it2{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px}
-.ii.cr .it2{color:var(--red)}.ii.wa .it2{color:var(--amb)}.ii.po .it2{color:var(--grn)}.ii.ib .it2{color:var(--blu)}
-.ix{font-size:10px;color:var(--tx2);line-height:1.4}.ix strong{color:var(--tx)}
-.cc{position:relative;height:200px}
-/* Stats rows */
-.sr{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10px}.sr:hover{background:#e6e7ec;transform:translateX(2px)}
-.srl{color:var(--tx2)}.srv{font-family:'JetBrains Mono';font-weight:600}
-.hb{display:flex;height:7px;border-radius:3px;overflow:hidden;margin:6px 0 3px;gap:1px}.hs{border-radius:2px}
-.hl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.li{display:flex;align-items:center;gap:3px;font-size:8.5px;color:var(--tx3)}.ld{width:5px;height:5px;border-radius:2px}
-/* CX */
-.cxc{display:flex;align-items:center;gap:12px}.cxr{position:relative;width:100px;height:100px;flex-shrink:0}.cxr canvas{width:100px!important;height:100px!important}
-.cxn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}.cxv{font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--pur)}.cxl{font-size:7px;color:var(--tx3)}
-.cxs{display:flex;flex-direction:column;gap:3px;flex:1}.cxw{display:flex;align-items:center;gap:5px}.cxd{width:6px;height:6px;border-radius:2px;flex-shrink:0}.cxm{font-size:10px;color:var(--tx2);flex:1}.cxq{font-family:'JetBrains Mono';font-size:10px;font-weight:600}
-/* Lists */
-.iml{display:flex;flex-direction:column;gap:3px}
-.imi{display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:5px;padding:7px 8px;background:var(--el);border-radius:7px;transition:all .15s;cursor:pointer;border-left:3px solid transparent}.imi:hover{background:#e8e9ee;transform:translateX(2px);border-left-color:var(--blu)}
-.imr{font-family:'JetBrains Mono';font-size:8px;font-weight:700;color:var(--tx3)}.imn{font-size:10px;font-weight:600}.ims{font-size:8px;color:var(--tx3)}
-.bp{font-family:'JetBrains Mono';font-size:7.5px;font-weight:700;padding:2px 5px;border-radius:3px}.bp.do{color:var(--grn);background:var(--grn-s);border:1px solid var(--grn-b)}.bp.rv{color:var(--amb);background:var(--amb-s);border:1px solid var(--amb-b)}.bp.qu{color:var(--tx3);background:var(--in);border:1px solid var(--bdr)}
-.wl{display:flex;flex-direction:column;gap:3px}.wi{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;background:var(--el);border-radius:7px;transition:all .15s;cursor:pointer}.wi:hover{background:#e8e9ee;transform:translateX(2px)}
-.wk{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}.wk.r{background:var(--red-s)}.wk.a{background:var(--amb-s)}.wk.b{background:var(--blu-s)}.wk.g{background:var(--grn-s)}
-.wt{font-size:10px;font-weight:600}.wd{font-size:8.5px;color:var(--tx3)}
-/* Escalation feed */
-.esc-row{display:grid;grid-template-columns:1fr 100px 40px;align-items:center;gap:6px;padding:7px 8px;border-radius:6px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10px;border-left:3px solid transparent}
-.esc-row:hover{transform:translateX(2px)}
-.esc-row.no-content{background:var(--red-s);border-left-color:var(--red)}.esc-row.tried{background:var(--amb-s);border-left-color:var(--amb)}.esc-row.resolved{background:var(--grn-s);border-left-color:var(--grn)}.esc-row.bypass{background:var(--el);border-left-color:var(--tx3)}
-.esc-title{font-weight:600;color:var(--tx)}.esc-team{font-size:8px;color:var(--tx3);font-family:'JetBrains Mono'}
-.esc-sla{font-family:'JetBrains Mono';font-size:8px;font-weight:700;text-align:center;padding:2px 5px;border-radius:3px}
-.esc-sla.hit{color:var(--grn);background:var(--grn-s)}.esc-sla.miss{color:var(--red);background:var(--red-s)}.esc-sla.na{color:var(--tx3);background:var(--el)}
-.esc-filter{display:flex;gap:3px;margin-bottom:8px}.esc-fb{padding:3px 8px;border-radius:4px;font-size:8px;font-weight:600;cursor:pointer;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}.esc-fb.on{background:var(--tx);color:#fff;border-color:var(--tx)}
-/* Heatmap bars */
-.hm-row{display:grid;grid-template-columns:80px 1fr 40px;align-items:center;gap:6px;padding:4px 0}.hm-label{font-size:9px;color:var(--tx2);font-weight:500}.hm-bar-bg{height:16px;background:var(--el);border-radius:4px;overflow:hidden}.hm-bar{height:100%;border-radius:4px;transition:width .8s ease}.hm-val{font-family:'JetBrains Mono';font-size:9px;font-weight:600;text-align:right}
-/* Content gap */
-.gap-row{padding:7px 8px;background:var(--red-s);border-left:3px solid var(--red);border-radius:6px;margin-bottom:3px;cursor:pointer;transition:all .15s}.gap-row:hover{transform:translateX(2px)}
-.gap-topic{font-size:10px;font-weight:600;color:var(--tx)}.gap-sub{font-size:8px;color:var(--tx3);margin-top:1px}
-/* Overworked articles */
-.ow-row{display:grid;grid-template-columns:20px 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--el);border-radius:6px;margin-bottom:2px;cursor:pointer;transition:all .15s}.ow-row:hover{background:#e6e7ec;transform:translateX(2px)}
-.ow-rank{font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--tx3)}.ow-name{font-size:10px;font-weight:600}.ow-count{font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:var(--red)}
-/* Progress */
-.prog-bg{height:7px;background:var(--el);border-radius:3px;overflow:hidden;margin:5px 0 3px}.prog-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--grn),#22c55e);transition:width .8s}
-.prog-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:9.5px}
-.prog-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}.prog-dot.sug{background:var(--blu)}.prog-dot.dra{background:var(--amb)}.prog-dot.pub{background:var(--grn)}
-.prog-label{flex:1;color:var(--tx2)}.prog-date{font-family:'JetBrains Mono';font-size:8px;color:var(--tx3)}
-/* ROI */
-.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-.roi-card{padding:10px;background:var(--el);border-radius:8px;text-align:center}.roi-val{font-family:'JetBrains Mono';font-size:18px;font-weight:700;line-height:1;margin-bottom:1px}.roi-lbl{font-size:8px;color:var(--tx3)}
-.roi-big{padding:14px;background:linear-gradient(135deg,var(--grn-s),#d1fae5);border:1px solid var(--grn-b);border-radius:10px;text-align:center;margin-bottom:8px}.roi-big .roi-val{font-size:28px;color:var(--grn)}
-/* SLA */
-.sla-row{display:grid;grid-template-columns:1fr 50px 50px;align-items:center;gap:6px;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:9.5px}
-.sla-team{font-weight:600;color:var(--tx)}.sla-val{font-family:'JetBrains Mono';font-weight:600;text-align:center}
-/* Road to 95 */
-.road-phase{display:grid;grid-template-columns:30px 1fr 60px 60px;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;margin-bottom:4px;transition:all .15s;cursor:pointer}
-.road-phase:hover{transform:translateX(2px)}
-.road-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:11px;font-weight:700;color:#fff}
-.road-name{font-size:11px;font-weight:600}.road-sub{font-size:8.5px;color:var(--tx3);margin-top:1px}
-.road-impact{font-family:'JetBrains Mono';font-size:10px;font-weight:700;text-align:center}
-.road-status{font-family:'JetBrains Mono';font-size:8px;font-weight:700;padding:3px 8px;border-radius:4px;text-align:center}
-/* Cost */
-.cost-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--el);font-size:10px;color:var(--tx2)}
-.cost-val{font-family:'JetBrains Mono';font-weight:600;color:var(--tx)}
-/* Modal */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}.mo.show{display:flex}
-.modal{background:var(--card);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:700px;max-height:85vh;overflow-y:auto;animation:mIn .2s ease}
-@keyframes mIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;position:sticky;top:0;background:var(--card);z-index:1}.mt{font-size:15px;font-weight:700}.mx{width:26px;height:26px;border-radius:6px;border:1px solid var(--bdr);background:var(--el);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--tx3)}.mx:hover{background:var(--red-s);color:var(--red)}
-.mb2{padding:12px 20px 20px}.ms{margin-bottom:10px}.mlbl{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px}
-.mtxt{font-size:11px;color:var(--tx2);line-height:1.5}.mtxt strong{color:var(--tx)}
-.mlist{list-style:none;padding:0}.mlist li{padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:10.5px;color:var(--tx2);display:flex;align-items:flex-start;gap:5px}.mlist li::before{content:'→';color:var(--blu);font-weight:700;flex-shrink:0}
-.macts{display:flex;gap:5px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
-.mbtn{padding:7px 14px;border-radius:7px;font-family:'Outfit';font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
-.mbtn.pri{background:var(--blu);color:#fff}.mbtn.pri:hover{background:#1d4ed8}
-.mbtn.suc{background:var(--grn);color:#fff}.mbtn.suc:hover{background:#15803d}
-.mbtn.sec{background:var(--el);color:var(--tx2);border:1px solid var(--bdr)}.mbtn.sec:hover{background:#e4e5ea}
-.mbtn.wrn{background:var(--amb);color:#fff}.mbtn:disabled{opacity:.4;cursor:default}
-/* Toast */
-.toast{position:fixed;bottom:16px;right:16px;background:var(--tx);color:#fff;padding:8px 16px;border-radius:8px;font-size:11px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:2000;transform:translateY(60px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}
-.lu{text-align:center;font-size:8px;color:var(--tx3);margin-top:16px;font-family:'JetBrains Mono'}
-@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.mc,.pn{animation:fu .3s ease both}
-@media(max-width:1200px){.mg{grid-template-columns:repeat(3,1fr)}.g2,.g22,.g3{grid-template-columns:1fr}}
-@media(max-width:768px){.mg{grid-template-columns:repeat(2,1fr)}.d{padding:12px}.roi-grid{grid-template-columns:1fr 1fr}}
+:root{--bg:#f0f2f5;--bg2:#e8ebf0;--card:#fff;--cardh:#f5f7fa;--inp:#eef1f6;--bdr:#d4d9e3;--bdr2:#e8ebf0;--t1:#1a2030;--t2:#4a5568;--tm:#8494a7;--blue:#2563eb;--blued:#dbeafe;--grn:#059669;--grnd:#d1fae5;--amb:#d97706;--ambd:#fef3c7;--red:#dc2626;--redd:#fee2e2;--pur:#7c3aed;--purd:#ede9fe;--cyan:#0891b2;--teal:#0d9488;--sh:0 2px 10px rgba(0,0,0,.05);--r:10px;--rs:6px}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh}
+.hdr{background:linear-gradient(135deg,#fff,#f0f4ff);border-bottom:1px solid var(--bdr);box-shadow:0 1px 6px rgba(0,0,0,.05);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr h1{font-size:17px;font-weight:700;background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bdg{background:var(--blued);color:var(--blue);font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;margin-left:8px}
+.tabs{display:flex;gap:2px;background:var(--inp);border-radius:8px;padding:2px;flex-wrap:wrap}
+.tbtn{padding:6px 12px;border:none;background:none;color:var(--tm);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}.tbtn:hover{color:var(--t2);background:var(--card)}.tbtn.a{background:var(--blue);color:#fff}
+.tc{display:none;padding:16px 20px}.tc.a{display:block}
+.st{font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:5px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:6px}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.mc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.ml{font-size:10px;color:var(--tm);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.mv{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
+.mt{font-size:10px;font-weight:600;margin-top:3px}.tu{color:var(--grn)}.td{color:var(--red)}.tn{color:var(--amb)}
+.spark{display:inline-block;vertical-align:middle;margin-left:4px}
+.tcw{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh)}
+.tct{padding:12px 14px;font-size:12px;font-weight:700;border-bottom:1px solid var(--bdr)}
+table.kt{width:100%;border-collapse:collapse;font-size:10px}
+.kt th{padding:7px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--tm);font-weight:600;border-bottom:1px solid var(--bdr);background:var(--bg2);position:sticky;top:0}
+.kt td{padding:7px 8px;border-bottom:1px solid var(--bdr2);font-family:'JetBrains Mono',monospace;font-size:10px}
+.kt td:first-child{font-family:'DM Sans',sans-serif;font-weight:600;color:var(--t2)}.kt tr:hover td{background:var(--cardh)}
+.kh{background:var(--grnd);color:#065f46}.km{background:var(--redd);color:#991b1b}.kn{background:var(--ambd);color:#92400e}
+.qhb{display:flex;gap:8px;margin-bottom:12px;padding:10px 14px;border-radius:var(--r);border:1px solid var(--bdr);font-size:12px;font-weight:600;flex-wrap:wrap;align-items:center}
+.qhb.ok{background:#ecfdf5;border-color:#6ee7b7}.qhb.warn{background:#fffbeb;border-color:#fcd34d}.qhb.crit{background:#fef2f2;border-color:#fca5a5}
+.slay{display:grid;grid-template-columns:220px 1fr;gap:12px}
+.roster{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;box-shadow:var(--sh)}
+.roster h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:8px}
+.ri{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:var(--rs);cursor:pointer;margin-bottom:1px}.ri:hover{background:var(--cardh)}
+.av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+.ri .nm{font-size:10px;font-weight:600}.ri .rl{font-size:8px;color:var(--tm)}.ri .info{flex:1;min-width:0}
+.tog{width:28px;height:14px;border-radius:7px;background:var(--inp);border:1px solid var(--bdr);position:relative;cursor:pointer;transition:all .2s;flex-shrink:0}
+.tog.on{background:var(--grn);border-color:var(--grn)}.tog::after{content:'';width:10px;height:10px;border-radius:50%;background:#fff;position:absolute;top:1px;left:1px;transition:transform .2s}.tog.on::after{transform:translateX(14px)}
+.sd{width:6px;height:6px;border-radius:50%;flex-shrink:0}.sd.on{background:var(--grn);box-shadow:0 0 3px var(--grn)}.sd.off{background:var(--tm)}
+.ptag{font-size:7px;background:var(--redd);color:var(--red);padding:1px 3px;border-radius:2px;font-weight:600;margin-left:2px}
+.sgc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.shr{display:grid;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+.shc{padding:5px 2px;font-size:7px;font-weight:600;text-transform:uppercase;color:var(--tm);text-align:center;border-right:1px solid var(--bdr2)}.shc:first-child{text-align:left;padding-left:6px}
+.sbody{max-height:calc(100vh - 340px);overflow-y:auto}
+.srow{display:grid;border-bottom:1px solid var(--bdr2);transition:opacity .3s}.srow.abs{opacity:.15}
+.snc{padding:4px 6px;display:flex;align-items:center;gap:4px;font-size:9px;font-weight:600;border-right:1px solid var(--bdr2)}
+.sc{padding:2px 1px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--bdr2);min-height:26px}
+.sb{width:100%;height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:600}
+.sb-c{background:var(--blued);color:var(--blue)}.sb-d{background:var(--purd);color:var(--pur)}.sb-l{background:var(--ambd);color:var(--amb)}.sb-b{background:rgba(100,116,139,.1);color:#94a3b8}
+.crow{display:grid;background:var(--bg2);border-top:2px solid var(--bdr)}
+.clbl{padding:4px 6px;font-size:8px;font-weight:700;text-transform:uppercase;color:var(--tm);border-right:1px solid var(--bdr2);display:flex;align-items:center}
+.ccnt{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-right:1px solid var(--bdr2)}
+.ccnt.dng{color:var(--red)}.ccnt.wrn{color:var(--amb)}.ccnt.gd{color:var(--grn)}
+.ptos{margin-top:12px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;box-shadow:var(--sh)}
+.pton{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pton button{background:var(--inp);border:1px solid var(--bdr);color:var(--t1);padding:3px 7px;border-radius:var(--rs);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600}.pton button:hover{background:var(--cardh)}
+.ptog{display:grid;gap:1px;background:var(--bdr2);border-radius:var(--rs);overflow:hidden}
+.ptohc{background:var(--bg2);padding:2px 1px;text-align:center;font-size:7px;font-weight:600;color:var(--tm)}
+.ptonc{background:var(--card);padding:3px 4px;font-size:8px;font-weight:600;cursor:pointer}.ptonc:hover{background:var(--cardh)}.ptonc.sel{background:var(--blued);color:var(--blue)}
+.ptodc{background:var(--card);padding:1px;text-align:center;cursor:pointer;transition:background .1s;min-height:18px}.ptodc:hover{background:var(--cardh)}.ptodc.pon{background:var(--redd)}.ptodc.wknd{background:rgba(100,116,139,.03)}
+.pbox{margin-top:10px;background:var(--ambd);border:1px solid #fcd34d;border-radius:var(--r);padding:12px}
+.pbox h4{font-size:11px;font-weight:700;margin-bottom:6px;color:#92400e}
+.pi{font-size:10px;color:#78350f;margin-bottom:3px;padding-left:14px;position:relative}.pi::before{content:'→';position:absolute;left:0}
+.upa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.upc{background:var(--card);border:2px dashed var(--bdr);border-radius:var(--r);padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s}.upc:hover{border-color:var(--blue);background:var(--cardh)}.upc.done{border-color:var(--grn);border-style:solid}.upc input{display:none}
+.cpp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.pp{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;box-shadow:var(--sh)}
+.pp label{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.4px;font-weight:600;display:block;margin-bottom:3px}
+.pp input{width:100%;padding:5px 7px;background:var(--inp);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;outline:none}.pp input:focus{border-color:var(--blue)}
+.gauge{width:100%;height:4px;background:var(--inp);border-radius:2px;overflow:hidden;margin-top:3px}.gf{height:100%;border-radius:2px;transition:width .3s}
+.scg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-bottom:14px}
+.scc{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);cursor:pointer;font-size:10px;font-weight:600}.scc:hover{background:var(--cardh)}.scc.off{opacity:.3;border-style:dashed}
+.scsel{padding:6px 10px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;outline:none;min-width:150px}
+.scgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.src{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;text-align:center;box-shadow:var(--sh)}
+.sr{width:70px;height:70px;margin:0 auto 6px;position:relative}.sr svg{width:100%;height:100%;transform:rotate(-90deg)}
+.srbg{fill:none;stroke:var(--inp);stroke-width:8}.srf{fill:none;stroke-width:8;stroke-linecap:round}
+.srv{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700}
+.srl{font-size:9px;color:var(--tm);font-weight:600}
+.cbrw{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr2)}
+.cbnm{width:100px;flex-shrink:0;font-size:10px;font-weight:600;color:var(--t2)}
+.cbc{flex:1;position:relative;height:22px}.cbbg{position:absolute;top:7px;width:100%;height:8px;background:var(--inp);border-radius:4px}
+.cbg{position:absolute;top:6px;height:10px;border-radius:5px;opacity:.35}.cbi{position:absolute;top:4px;height:14px;border-radius:7px;opacity:.6}
+.cbv{width:90px;flex-shrink:0;display:flex;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px}
+.rb{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:9px;font-weight:700}
+.r1{background:#fef3c7;color:#92400e}.r2{background:#e0e7ff;color:#3730a3}.r3{background:#fce7f3;color:#9d174d}.ro{background:var(--bg2);color:var(--tm)}
+.tier{padding:2px 6px;border-radius:10px;font-size:8px;font-weight:600}
+.tg{background:var(--grnd);color:var(--grn)}.ty{background:var(--ambd);color:var(--amb)}.tr{background:var(--redd);color:var(--red)}
+.csec{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;margin-top:14px;box-shadow:var(--sh)}
+.ce{padding:6px 8px;border:1px solid var(--bdr2);border-radius:var(--rs);margin-bottom:5px;background:var(--cardh)}
+.ceh{display:flex;justify-content:space-between;font-size:9px;color:var(--tm);margin-bottom:2px}.cet{font-size:10px}
+.crow2{display:flex;gap:5px;margin-top:6px}
+.cinp{flex:1;padding:5px 8px;border:1px solid var(--bdr);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:10px;outline:none;background:var(--inp);color:var(--t1)}.cinp:focus{border-color:var(--blue)}
+.cbtn{padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer}
+.lsec{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.lsec h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.lkr{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.lk{text-align:center;padding:10px;border-radius:var(--rs);background:var(--cardh)}
+.lkv{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700}
+.lkl{font-size:8px;color:var(--tm);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.wi,.ris{padding:5px 8px;border-radius:var(--rs);margin-bottom:4px;font-size:10px;font-weight:500;display:flex;align-items:flex-start;gap:5px}
+.wi{background:var(--grnd);color:#065f46}.ris{background:var(--redd);color:#991b1b}
+.slac{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;margin-bottom:8px;box-shadow:var(--sh)}
+.slah{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px}
+.slsv{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sv1{background:var(--redd);color:var(--red)}.sv2{background:var(--ambd);color:var(--amb)}.sv3{background:var(--blued);color:var(--blue)}
+.sltm{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 5px;border-radius:var(--rs)}.sltm.over{background:var(--redd);color:var(--red)}.sltm.ok{background:var(--grnd);color:var(--grn)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+@media(max-width:1024px){.slay{grid-template-columns:1fr}.upa,.cpp{grid-template-columns:repeat(2,1fr)}.scgrid,.lkr{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div class="d">
-<!-- HEADER -->
-<div class="hd"><div class="hd-l"><div class="logo">⚡</div><div><div class="hd-t">Fin AI Agent — Command Center</div><div class="hd-s">Jolt Support · Target: 95% Resolution | 80% Automation</div></div></div><div class="hd-r"><div class="tog"><div class="tog-o" onclick="setV('external',this)">External</div><div class="tog-o" onclick="setV('internal',this)">Internal</div><div class="tog-o on" onclick="setV('all',this)">All</div></div><div class="live"><div class="dot"></div>LIVE</div><button class="btn" onclick="location.reload()">↻</button></div></div>
-<div class="fbar"><button class="fbtn" onclick="setP(7,this)">7D</button><button class="fbtn" onclick="setP(14,this)">14D</button><button class="fbtn on" onclick="setP(30,this)">30D</button><button class="fbtn" onclick="setP(90,this)">90D</button><div class="fsep"></div><div class="fci"><label>From</label><input type="date" id="df" value="2026-02-07"><label>To</label><input type="date" id="dt" value="2026-03-06"><button class="fap" onclick="applyC()">Apply</button></div><div class="fr" id="frd">Feb 7 – Mar 6, 2026</div></div>
-<!-- KPIs -->
-<div class="mg" id="MG"></div>
-<!-- Funnel + Insights -->
-<div class="g2"><div class="pn"><div class="ph"><div class="pt">Performance Funnel</div><div class="pb" id="FBL">30D</div></div><div class="fn" id="FN"></div></div><div class="pn"><div class="ph"><div class="pt">AI Insights & Alerts</div><div class="pb">Auto</div></div><div class="il" id="INS"></div></div></div>
-<!-- Charts + KB -->
-<div class="g22"><div class="pn"><div class="ph"><div class="pt">Performance Over Time</div><div class="pb">Weekly</div></div><div class="cc"><canvas id="tc"></canvas></div></div><div class="pn"><div class="ph"><div class="pt">Knowledge Base Health</div><div class="pb">327 Articles</div></div><div id="KB"></div></div></div>
-<!-- CX + Improve + Watch -->
-<div class="g3"><div class="pn"><div class="ph"><div class="pt">CX Score</div><div class="pb">575</div></div><div class="cxc"><div class="cxr"><canvas id="cx"></canvas><div class="cxn"><div class="cxv">46.1%</div><div class="cxl">CX Score</div></div></div><div class="cxs"><div class="cxw"><div class="cxd" style="background:var(--grn)"></div><div class="cxm">5 Star</div><div class="cxq">168</div></div><div class="cxw"><div class="cxd" style="background:var(--pur)"></div><div class="cxm">4 Star</div><div class="cxq">97</div></div><div class="cxw"><div class="cxd" style="background:var(--amb)"></div><div class="cxm">3 Star</div><div class="cxq">219</div></div><div class="cxw"><div class="cxd" style="background:var(--red)"></div><div class="cxm">1-2 Star</div><div class="cxq">78</div></div><div style="margin-top:3px;padding-top:3px;border-top:1px solid var(--bdr);font-size:8px"><span style="color:var(--red);font-weight:600">NEG:</span> Product·Policy | <span style="color:var(--grn);font-weight:600">POS:</span> Quality·Low Effort</div></div></div></div>
-<div class="pn"><div class="ph"><div class="pt">Top Areas to Improve</div><div class="pb">Impact</div></div><div class="iml" id="IMP"></div></div>
-<div class="pn"><div class="ph"><div class="pt">Things to Watch</div><div class="pb">Alerts</div></div><div class="wl" id="WAT"></div></div></div>
-<!-- ★ NEW: Live Escalation Feed + Topic Heatmap -->
-<div class="g22">
-<div class="pn"><div class="ph"><div class="pt">🔴 Live Escalation Feed</div><div class="pb" id="escCount">Today</div></div><div class="esc-filter" id="escFilter"></div><div id="escFeed" style="max-height:280px;overflow-y:auto"></div></div>
-<div class="pn"><div class="ph"><div class="pt">🔥 Escalation Topics</div><div class="pb">Heatmap</div></div><div id="hmBody"></div><div style="margin-top:8px"><div class="cc" style="height:160px"><canvas id="hmChart"></canvas></div></div></div>
-</div>
-<!-- ★ NEW: Content Gap + Overworked Articles -->
-<div class="g22">
-<div class="pn"><div class="ph"><div class="pt">🕳 Content Gaps</div><div class="pb" id="gapCount">0 Gaps</div></div><div style="font-size:9px;color:var(--tx3);margin-bottom:8px">Conversations where Fin had <strong style="color:var(--red)">zero</strong> content sources — highest-priority new articles to write</div><div id="gapList"></div></div>
-<div class="pn"><div class="ph"><div class="pt">🔄 Overworked Articles</div><div class="pb">Most Referenced in Escalations</div></div><div style="font-size:9px;color:var(--tx3);margin-bottom:8px">Articles appearing most in failed escalations — may need splitting or expanding</div><div id="owList"></div></div>
-</div>
-<!-- Progress + ROI -->
-<div class="g22">
-<div class="pn"><div class="ph"><div class="pt">📋 Progress Tracker</div><div class="pb" id="progPct">0%</div></div><div class="prog-bg"><div class="prog-bar" id="progBar" style="width:0%"></div></div><div style="display:flex;gap:8px;margin:5px 0 8px"><div class="li"><div class="ld" style="background:var(--blu)"></div>Suggested</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Drafted</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Published</div></div><div id="progList" style="max-height:220px;overflow-y:auto"></div></div>
-<div class="pn"><div class="ph"><div class="pt">💰 ROI Calculator</div><div class="pb">Current</div></div><div class="roi-big"><div class="roi-val" id="roiSavings">$0</div><div class="roi-lbl">Net Annual Benefit (after Intercom cost)</div></div><div class="roi-grid"><div class="roi-card"><div class="roi-val" id="roiHrs" style="color:var(--blu)">0</div><div class="roi-lbl">Hrs/Mo Saved</div></div><div class="roi-card"><div class="roi-val" id="roiFTE" style="color:var(--pur)">0</div><div class="roi-lbl">FTEs Offset</div></div><div class="roi-card"><div class="roi-val" id="roiROI" style="color:var(--grn)">0%</div><div class="roi-lbl">ROI</div></div></div><div style="font-size:8px;color:var(--tx3);line-height:1.4"><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>Loaded Cost/FTE</span><span style="font-family:'JetBrains Mono';font-weight:600">$66,750</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>AHT Pre-AI</span><span style="font-family:'JetBrains Mono';font-weight:600">23.1 min</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>AI Resolved</span><span style="font-family:'JetBrains Mono';font-weight:600" id="roiCases">562/mo</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>Intercom Cost</span><span style="font-family:'JetBrains Mono';font-weight:600;color:var(--red)">$27,532/yr</span></div><div style="display:flex;justify-content:space-between;padding:2px 0"><span>Payback</span><span style="font-family:'JetBrains Mono';font-weight:600;color:var(--grn)" id="roiPayback">—</span></div></div></div>
-</div>
-<!-- ★ NEW: SLA + Cost Per Ticket -->
-<div class="g22">
-<div class="pn"><div class="ph"><div class="pt">⏱ SLA Performance</div><div class="pb">Today</div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;padding:8px;background:var(--grn-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--grn)" id="slaHit">3</div><div style="font-size:8px;color:var(--tx3)">SLA Hit</div></div><div style="flex:1;padding:8px;background:var(--red-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--red)" id="slaMiss">13</div><div style="font-size:8px;color:var(--tx3)">SLA Missed</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--amb)" id="slaRate">19%</div><div style="font-size:8px;color:var(--tx3)">Hit Rate</div></div></div><div style="font-size:9px;font-weight:600;color:var(--tx3);margin-bottom:4px">BY TEAM</div><div id="slaTeams"></div></div>
-<div class="pn"><div class="ph"><div class="pt">💵 Cost Per Ticket</div><div class="pb">Monthly</div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;padding:8px;background:var(--grn-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--grn)">$0</div><div style="font-size:8px;color:var(--tx3)">AI Resolved</div></div><div style="flex:1;padding:8px;background:var(--red-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--red)" id="costHuman">$0</div><div style="font-size:8px;color:var(--tx3)">Human Handled</div></div><div style="flex:1;padding:8px;background:var(--blu-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--blu)" id="costBlend">$0</div><div style="font-size:8px;color:var(--tx3)">Blended Avg</div></div></div><div id="costDetails"></div></div>
-</div>
-<!-- ROI Trending -->
-<div class="pn gf"><div class="ph"><div class="pt">📈 ROI Trending — 12 Month FTE Offset</div><div class="pb">MoM</div></div><div style="height:220px;position:relative"><canvas id="roiChart"></canvas></div><div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:8px;margin-top:10px"><div><div style="font-size:8px;font-weight:600;color:var(--grn);text-transform:uppercase">12-Month Growth</div><div style="font-size:10px;margin-top:1px"><strong>FTEs:</strong> 1.17→1.72 <span style="font-family:'JetBrains Mono';font-size:9px;color:var(--grn);font-weight:600">(+47%)</span></div></div><div style="text-align:right"><div style="font-size:8px;font-weight:600;color:var(--grn);text-transform:uppercase">Cumulative Savings</div><div style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:var(--grn)" id="roiCum">$0</div></div></div></div>
-<!-- ★ NEW: Road to 95% -->
-<div class="pn gf"><div class="ph"><div class="pt">🎯 Road to 95% Resolution</div><div class="pb">Roadmap</div></div>
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--el);border-radius:8px"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:9px;font-weight:600;margin-bottom:3px"><span style="color:var(--tx2)">Current: 71.6%</span><span style="color:var(--grn)">Target: 95%</span></div><div style="height:10px;background:var(--bdr);border-radius:5px;overflow:hidden;position:relative"><div style="width:75.4%;height:100%;background:linear-gradient(90deg,var(--amb),var(--grn));border-radius:5px"></div><div style="position:absolute;left:75.4%;top:-2px;width:2px;height:14px;background:var(--tx)"></div></div></div><div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--pur)">23.4pp<div style="font-size:7px;color:var(--tx3);font-weight:500">to close</div></div></div>
-<div id="roadPhases"></div>
-</div>
-<div class="lu" id="lu"></div>
-</div>
-<!-- Modal -->
-<div class="mo" id="mo" onclick="if(event.target===this)closeM()"><div class="modal"><div class="mh"><div class="mt" id="mt"></div><div class="mx" onclick="closeM()">✕</div></div><div class="mb2" id="mb"></div></div></div>
-<div class="toast" id="toast"><span id="tMsg"></span></div>
+<header class="hdr"><div style="display:flex;align-items:center"><h1>⚡ Tech Support Command Center</h1><span class="bdg">Live</span></div>
+<div class="tabs"><button class="tbtn a" data-t="lead">Leadership</button><button class="tbtn" data-t="sched">Scheduler</button><button class="tbtn" data-t="metrics">Metrics</button><button class="tbtn" data-t="cap">Capacity</button><button class="tbtn" data-t="score">Scorecard</button><button class="tbtn" data-t="sla">SLA</button></div></header>
+<div class="tc a" id="t-lead"></div><div class="tc" id="t-sched"></div><div class="tc" id="t-metrics"></div><div class="tc" id="t-cap"></div><div class="tc" id="t-score"></div><div class="tc" id="t-sla"></div>
 <script>
-const D={30:{total:1100,chat:1077,email:23,involved:785,resolved:562,escalated:216,notInvolved:315,pending:7,positive:265,totalRated:575,invRate:71.4,autoRate:51.1,resRate:71.6,handoff:28.4,csat:46.1,hCsat:72.3,avgR:5.2,invT:5.2,autoT:0,resT:-3.1,handT:2.1,csatT:-5.4,hcT:1.1,rT:0.8},7:{total:280,chat:274,email:6,involved:198,resolved:145,escalated:50,notInvolved:82,pending:3,positive:68,totalRated:148,invRate:70.7,autoRate:51.8,resRate:73.2,handoff:26.8,csat:45.9,hCsat:71.8,avgR:5.0,invT:4.1,autoT:1.2,resT:-1.8,handT:1.5,csatT:-3.2,hcT:0.5,rT:-0.3},14:{total:540,chat:528,email:12,involved:385,resolved:278,escalated:102,notInvolved:155,pending:5,positive:130,totalRated:285,invRate:71.3,autoRate:51.5,resRate:72.2,handoff:27.8,csat:45.6,hCsat:72.0,avgR:5.1,invT:4.8,autoT:0.5,resT:-2.4,handT:1.8,csatT:-4.1,hcT:0.8,rT:0.2},90:{total:3150,chat:3080,email:70,involved:2200,resolved:1580,escalated:595,notInvolved:950,pending:25,positive:780,totalRated:1680,invRate:69.8,autoRate:50.2,resRate:71.8,handoff:28.2,csat:46.4,hCsat:73.1,avgR:5.4,invT:6.0,autoT:-0.3,resT:-2.0,handT:2.5,csatT:-4.8,hcT:1.5,rT:1.2}};
-const KPI={invRate:80,autoRate:80,resRate:95,handoff:5,csat:85,hCsat:80,avgR:4};
-const ROI_B={salary:50000,benefitRate:.34,loadedCost:66750,annualHrs:1664,aht:23.1,intercomAnnual:27531.97,intercomMonthly:2294.33};
-const ROI_M=[{m:"Apr'25",res:420,fte:1.17,sv:6486},{m:"May'25",res:450,fte:1.25,sv:6950},{m:"Jun'25",res:470,fte:1.30,sv:7259},{m:"Jul'25",res:490,fte:1.36,sv:7568},{m:"Aug'25",res:485,fte:1.35,sv:7490},{m:"Sep'25",res:510,fte:1.42,sv:7876},{m:"Oct'25",res:520,fte:1.44,sv:8031},{m:"Nov'25",res:515,fte:1.43,sv:7954},{m:"Dec'25",res:508,fte:1.41,sv:7846},{m:"Jan'26",res:540,fte:1.50,sv:8340},{m:"Feb'26",res:562,fte:1.56,sv:8680},{m:"Mar'26",res:620,fte:1.72,sv:9575}];
-// Live escalation data from Intercom API pull
-const ESC=[
-{id:'215473521712992',title:'Follow up work order',team:'BILLING',fin:true,articles:['Payment Method','Work Order Posts'],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521712992'},
-{id:'215473523716866',title:'App labels not displaying',team:'CHATS',fin:true,articles:['Sync Issues','Reset App','Update App','JPS Launcher'],sla:'miss',cat:'Sync',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473523716866'},
-{id:'215473521428577',title:'Food safety not showing',team:'CHATS',fin:true,articles:['Sync Issues','Lists Not Showing'],sla:'hit',cat:'Lists',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521428577'},
-{id:'215473521616345',title:'How-To question',team:'TECH',fin:false,articles:[],sla:'na',cat:'How-To',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521616345'},
-{id:'215473295222209',title:'HOQ billing question',team:'BILLING',fin:false,articles:[],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473295222209'},
-{id:'215473507702571',title:'List population issue',team:'CHATS',fin:true,articles:[],sla:'miss',cat:'Lists',noContent:true,gapFixed:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473507702571'},
-{id:'215473520780644',title:'Cancel account',team:'BILLING',fin:true,articles:[],sla:'miss',cat:'Billing',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473520780644'},
-{id:'215473518649176',title:'Printer replacement status',team:'CHATS',fin:true,articles:['Welcome page','Printer repair FAQ'],sla:'hit',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473518649176'},
-{id:'215473518232373',title:'Tablet not turning on',team:'CHATS',fin:true,articles:['JPS Tablet','JPS Setup','JPS Connect','JPS Charge'],sla:'miss',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473518232373'},
-{id:'215473519033045',title:'DFS error compliance',team:'CHATS',fin:true,articles:['Sync Issues','List Submission'],sla:'miss',cat:'Lists',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519033045'},
-{id:'215473505524929',title:'Manufacturer warranty',team:'CHATS',fin:true,articles:[],sla:'hit',cat:'Repairs',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473505524929'},
-{id:'215473519436069',title:'Unblock time off requests',team:'CHATS',fin:true,articles:['Sync Issues','Update App','Block Time Off'],sla:'miss',cat:'Scheduling',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519436069'},
-{id:'215473519534676',title:'LoRaWAN gateway issue',team:'CHATS',fin:true,articles:['LoRa Troubleshooting','LoRa FAQ','LoRa Checklist'],sla:'miss',cat:'Sensors',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519534676'},
-{id:'215473502869003',title:'Printer access code issue',team:'CHATS',fin:true,articles:['JPS Tablet','Sync Issues','Reset App','JPS Setup','JPS Connect','JPS WiFi'],sla:'miss',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473502869003'},
-{id:'215473502261754',title:'Subscription access issue',team:'CHATS',fin:true,articles:['Password Reset','Subscriptions','Access Levels'],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473502261754'},
-{id:'215473506980687',title:'Cancel Jolt account',team:'CANCEL',fin:true,articles:[],sla:'miss',cat:'Billing',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473506980687'},
-{id:'215473500540942',title:'Shift pickup requests',team:'TECH',fin:true,articles:['Scheduling Notifications','Shift Drop/Pickup','Schedule FAQ'],sla:'na',cat:'Scheduling',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473500540942'},
-{id:'215473511409676',title:'Generate QR code',team:'CHATS',fin:true,articles:['Connect Device','Getting Started Web'],sla:'miss',cat:'How-To',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473511409676'},
-{id:'215473478693240',title:'Other (abandoned)',team:'TECH',fin:true,articles:[],sla:'na',cat:'Other',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473478693240'},
-{id:'215473510115417',title:'Remove company',team:'CHATS',fin:true,articles:['Sharing Content'],sla:'na',cat:'Other',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473510115417'}
-];
-const PROGRESS=[
-{name:'Password Reset Article',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 18',id:'9648646',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9648646'},
-{name:'Sync Issues / Server Errors',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 18',id:'9654065',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654065'},
-{name:'App Reset Guide',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 18',id:'9654149',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654149'},
-{name:'Repairs & Replacements',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 18',id:'9671818',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9671818'},
-{name:'Lists Not Showing',status:'published',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:'Mar 18',id:'9655189',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9655189'},
-{name:'Cross-links: Zebra Printers (3)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'cl-zebra'},
-{name:'Cross-links: Labels (1)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'cl-labels'},
-{name:'Descriptions: 29 articles live',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'desc-29'},
-{name:'Grammar: Payment Method fixed',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'gram-1'},
-{name:'268 Article Descriptions',status:'suggested',sugDate:'Mar 7',id:'batch-desc'},
-{name:'238 Cross-Link Updates',status:'suggested',sugDate:'Mar 8',id:'batch-cl'},
-{name:'40 Thin Article Expansions',status:'suggested',sugDate:'Mar 8',id:'batch-thin'},
-{name:'25 Grammar Fixes',status:'suggested',sugDate:'Mar 8',id:'batch-gram'},
-{name:'NEW: Lists Not Populating (gap fill)',status:'drafted',sugDate:'Mar 18',draftDate:'Mar 18',id:'14112549',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=14112549'},
-{name:'NEW: List Population Troubleshooting',status:'drafted',sugDate:'Mar 18',draftDate:'Mar 18',id:'14112539',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=14112539'}
-];
-const IMPROVE=[
-{id:'9648646',name:'Password Reset',views:1890,sad:100,esc:9,status:'done'},
-{id:'9654065',name:'Sync / Server Errors',views:1786,sad:100,esc:9,status:'done'},
-{id:'9654149',name:'App Reset Guide',views:1634,sad:60,esc:7,status:'done'},
-{id:'desc',name:'Add 239 Descriptions (29 done)',status:'review'},
-{id:'links',name:'Cross-Link 230 Articles (8 done)',status:'queued'},
-{id:'thin',name:'Expand 40 Thin Articles',status:'queued'},
-{id:'gram',name:'Fix 24 Grammar Issues (1 done)',status:'queued'}
-];
-const WATCH=[
-{icon:'📉',cls:'r',title:'CSAT Trending Down',short:'~51%→43% in 3 wks',detail:'Top negatives: Product & Policy Feedback, not Fin quality.'},
-{icon:'⚡',cls:'a',title:'Resolution Dip Feb 9',short:'Dropped to 65%',detail:'Correlates with 100% sad on Password Reset and Sync articles.'},
-{icon:'🔀',cls:'a',title:'315 Bypass Fin',short:'29% skip AI',detail:'Largest opportunity. Route more through Fin = ~113 more resolutions/month.'},
-{icon:'📧',cls:'b',title:'Email Underserved',short:'23 vs 1,077 chat',detail:'Fin may not be on email.'},
-{icon:'📈',cls:'g',title:'Involvement 80.5% Today',short:'Hit target on Mar 17',detail:'Single-day spike. Monitor if sustained.'}
-];
+const E=[{id:'james',n:'James Janas',s:'James',sh:[8,17],tm:'call',c:'#f97316',ns:2496,sf:0,cs:4.88,cn:96},{id:'danny',n:'Daniel Marco',s:'Danny M',sh:[8,17],tm:'call',c:'#a3e635',ns:2249,sf:0,cs:4.64,cn:84},{id:'shelby',n:'Shelby Randall',s:'Shelby',sh:[9,18],tm:'digital',c:'#22d3ee',ns:2140,sf:0,cs:4.79,cn:48},{id:'rachel',n:'Rachel Jones',s:'Rachel',sh:[8,17],tm:'call',c:'#84cc16',ns:2111,sf:0,cs:4.71,cn:77},{id:'trinnis',n:'Trinnis Morrow',s:'Trinnis',sh:[8,17],tm:'call',c:'#3b82f6',ns:1703,sf:836,cs:4.91,cn:46},{id:'gilber',n:'Gilber Chen',s:'Gilber',sh:[8,17],tm:'call',c:'#6366f1',ns:0,sf:2162,cs:0,cn:0},{id:'jason',n:'Jason Seltzer',s:'Jason S',sh:[8,17],tm:'digital',c:'#fb7185',ns:1120,sf:43,cs:4.90,cn:20},{id:'jacob',n:'Jacob Clark',s:'Jacob C',sh:[8,17],tm:'call',c:'#a855f7',ns:1049,sf:480,cs:5.0,cn:11},{id:'tiana',n:'Tiana Johnson',s:'Tiana',sh:[9,18],tm:'call',c:'#c084fc',ns:296,sf:1608,cs:4.67,cn:6},{id:'kevin',n:'Kevin Searcy',s:'Kevin',sh:[9,18],tm:'call',c:'#34d399',ns:0,sf:1407,cs:0,cn:0},{id:'sebastian',n:'Sebastian BF',s:'Sebastian',sh:[9,18],tm:'call',c:'#d946ef',ns:0,sf:1065,cs:0,cn:0},{id:'justin',n:'Justin Daly',s:'Justin',sh:[10,19],tm:'digital',c:'#0ea5e9',ns:301,sf:1040,cs:5.0,cn:6},{id:'victoria',n:'Victoria Brodie',s:'Victoria',sh:[10,19],tm:'call',c:'#ec4899',ns:554,sf:1017,cs:5.0,cn:18},{id:'asia',n:'Asia Carruthers',s:'Asia',sh:[8,17],tm:'digital',c:'#06b6d4',ns:609,sf:449,cs:4.84,cn:19},{id:'brandon',n:'Brandon Lawson',s:'Brandon',sh:[10,19],tm:'call',c:'#f43f5e',ns:194,sf:258,cs:4.5,cn:2},{id:'mason',n:'Mason',s:'Mason',sh:[8,17],tm:'call',c:'#8b5cf6',nt:'Start 3/23',ns:0,sf:0,cs:0,cn:0},{id:'connor',n:'Connor',s:'Connor',sh:[10,19],tm:'call',c:'#fb923c',nt:'Start 3/23',ns:0,sf:0,cs:0,cn:0},{id:'andrew',n:'Andrew',s:'Andrew',sh:[8,17],tm:'digital',c:'#14b8a6',ns:0,sf:0,cs:0,cn:0},{id:'tbh3',n:'TBH #3',s:'TBH #3',sh:[9,18],tm:'call',c:'#64748b',nt:'Open Req',ns:0,sf:0,cs:0,cn:0}];
+const H=[7,8,9,10,11,12,13,14,15,16,17,18,19,20],HL=['7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p'],MO=['Oct','Nov','Dec','Jan','Feb','Mar'];
+let att={};E.forEach(e=>att[e.id]=true);
+let pto={},ptoMo=new Date(2026,2),ptoSel=null,ptoDrag=false,ptoDragMode=null;
+let upD={ns:null,rc:null,sf:null,ac:null};
+let cp={wh:7,aht:20,tu:85,wd:22};
+let scOn={};E.forEach(e=>scOn[e.id]=true);
+let clog={};E.forEach(e=>clog[e.id]=[]);
+let selSC=E[0].id;
+const NS={c:{Oct:3509,Nov:2350,Dec:2502,Jan:2748,Feb:2731,Mar:1724},cl:{Oct:3514,Nov:2329,Dec:2547,Jan:2725,Feb:2774,Mar:1714}};
+const SFC={c:{Oct:2510,Nov:2178,Dec:2395,Jan:2474,Feb:2175,Mar:1264},cl:{Oct:2437,Nov:2008,Dec:2117,Jan:2207,Feb:2735,Mar:1281}};
+const RC={h:15366,ab:2070};
+const AC={Oct:{h:2115,ab:230,r:'94.9%',aht:480,qt:310},Nov:{h:1853,ab:387,r:'93.8%',aht:525,qt:900},Dec:{h:2114,ab:711,r:'89.0%',aht:600,qt:3300},Jan:{h:2272,ab:803,r:'86.5%',aht:600,qt:3400},Feb:{h:2287,ab:576,r:'90.6%',aht:640,qt:1800},Mar:{h:1279,ab:215,r:'93.0%',aht:700,qt:600}};
+const PRO={c:{Oct:539,Nov:179,Dec:54,Jan:10,Feb:74,Mar:83},cl:{Oct:421,Nov:175,Dec:88,Jan:56,Feb:91,Mar:72}};
+const CST={Oct:{a:4.86,n:97},Nov:{a:4.83,n:58},Dec:{a:4.75,n:75},Jan:{a:4.74,n:78},Feb:{a:4.87,n:86},Mar:{a:4.69,n:49}};
+function gs(e){const s=[],l=e.sh[1]-e.sh[0],lu=Math.floor(l/2);for(let h=e.sh[0];h<e.sh[1];h++){if(h===e.sh[0]+lu)s.push({h,t:'lunch'});else if(h===e.sh[0]+2)s.push({h,t:'break'});else s.push({h,t:e.tm==='call'?'call':'digital'});}return s;}
+function sp(d,w,h,c){const mx=Math.max(...d),mn=Math.min(...d),r=mx-mn||1;return`<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${c}" stroke-width="1.5" points="${d.map((v,i)=>`${(i/(d.length-1))*w},${h-((v-mn)/r)*h}`).join(' ')}"/></svg>`;}
+function fm(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function isPto(id){const d=new Date(),y=d.getFullYear(),m=d.getMonth(),dy=d.getDate();return!!pto[`${id}-${y}-${m}-${dy}`];}
+document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('a'));document.querySelectorAll('.tc').forEach(x=>x.classList.remove('a'));b.classList.add('a');document.getElementById('t-'+b.dataset.t).classList.add('a');}));
 
-let curView='all',curDays=30,escFilterVal='all';
-const f=n=>n.toLocaleString();
-const ks=(v,t,m)=>{if(m==='handoff'||m==='avgR')return v<=t?'g':v<=t*1.5?'y':'r';return v>=t?'g':v>=t*.85?'y':'r'};
-const kl=s=>({g:'ON TARGET',y:'NEAR',r:'BELOW'}[s]);
-const tt=(v,inv)=>{if(!v)return'<span class="tg fl">—</span>';const u=v>0;if(inv)return u?`<span class="tg dn">↑${Math.abs(v)}%</span>`:`<span class="tg up">↓${Math.abs(v)}%</span>`;return u?`<span class="tg up">↑${v}%</span>`:`<span class="tg dn">↓${Math.abs(v)}%</span>`};
+function rLead(){const c=document.getElementById('t-lead');const tNS=Object.values(NS.c).reduce((a,b)=>a+b,0),tSF=Object.values(SFC.c).reduce((a,b)=>a+b,0);
+let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="st" style="margin:0;border:none;padding:0">📋 Weekly Leadership Summary</div><div style="font-size:10px;color:var(--tm)">Week of ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div></div>`;
+h+=`<div class="lsec"><h3>📊 Snapshot</h3><div class="lkr">
+<div class="lk"><div class="lkv">${fm(tNS+tSF)}</div><div class="lkl">Total Cases YTD</div></div>
+<div class="lk"><div class="lkv" style="color:var(--grn)">90.6%</div><div class="lkl">Answer Rate (Feb)</div><div class="mt tu">↑ from 86.5%</div></div>
+<div class="lk"><div class="lkv" style="color:var(--red)">154%</div><div class="lkl">Utilization</div><div class="mt td">🔴 Critical</div></div>
+<div class="lk"><div class="lkv">4.80</div><div class="lkl">Avg CSAT</div>${sp(MO.map(m=>CST[m]?.a||0),50,14,'#059669')}</div>
+</div><div class="lkr" style="margin-top:8px">
+<div class="lk"><div class="lkv">${fm(NS.c.Mar)}</div><div class="lkl">NS Cases Mar</div></div>
+<div class="lk"><div class="lkv">${fm(SFC.c.Mar)}</div><div class="lkl">SF Cases Mar</div></div>
+<div class="lk"><div class="lkv">${fm(AC.Mar.h)}</div><div class="lkl">Connect Mar</div></div>
+<div class="lk"><div class="lkv">${fm(RC.h)}</div><div class="lkl">RC SS YTD</div></div>
+</div></div>`;
+h+=`<div class="lsec"><h3>📈 Trends</h3><div class="lkr">
+<div class="lk"><div class="lkl">NS Created</div>${sp(MO.map(m=>NS.c[m]),70,20,'#2563eb')}</div>
+<div class="lk"><div class="lkl">SF Created</div>${sp(MO.map(m=>SFC.c[m]),70,20,'#7c3aed')}</div>
+<div class="lk"><div class="lkl">Connect</div>${sp(MO.map(m=>AC[m].h),70,20,'#059669')}</div>
+<div class="lk"><div class="lkl">CSAT</div>${sp(MO.map(m=>CST[m]?.a||0),70,20,'#d97706')}</div>
+</div></div>`;
+h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="lsec"><h3>🏆 Wins</h3>
+<div class="wi"><span>✅</span>CSAT 4.80/5.0 across 443 surveys — excellent under pressure</div>
+<div class="wi"><span>✅</span>Connect answer rate recovered 93.0% Mar from 86.5% Jan</div>
+<div class="wi"><span>✅</span>James Janas: 2,496 NS cases, 4.88 CSAT — top performer</div></div>
+<div class="lsec"><h3>⚠️ Risks</h3>
+<div class="ris"><span>🔴</span>154% utilization — 4 critical months. Burnout imminent.</div>
+<div class="ris"><span>🔴</span>Dec/Jan queue times 3,000-3,400s. Customer impact.</div>
+<div class="ris"><span>🟡</span>Staffing gaps: 12 vs 16 baseline. TBH#3 still open.</div></div></div>`;
+h+=`<div class="lsec"><h3>📌 Actions</h3><table class="kt"><thead><tr><th>P</th><th>Action</th><th>Owner</th><th>Status</th></tr></thead><tbody>
+<tr><td><span class="tier tr">P1</span></td><td>Fill TBH #3</td><td>Danny</td><td>Recruiting</td></tr>
+<tr><td><span class="tier tr">P1</span></td><td>Onboard Mason & Connor 3/23</td><td>Dan Johnson</td><td>Pending</td></tr>
+<tr><td><span class="tier ty">P2</span></td><td>CSM accountability — Cooper</td><td>Danny</td><td>In Progress</td></tr>
+<tr><td><span class="tier ty">P2</span></td><td>Customer messaging standards</td><td>Danny/Dan</td><td>Drafting</td></tr>
+</tbody></table></div>`;
+c.innerHTML=h;}
 
-function renderMetrics(d){
-const cards=[
-{icon:'💬',label:'Volume',value:f(d.total),detail:`${f(d.chat)} chat · ${f(d.email)} email`,trend:tt(8),color:'blu',scope:'all'},
-{icon:'🤖',label:'Involvement',value:d.invRate+'%',detail:`${f(d.involved)}/${f(d.total)}`,trend:tt(d.invT),color:'cyn',kv:d.invRate,kt:KPI.invRate,km:'invRate',scope:'external'},
-{icon:'⚡',label:'Automation',value:d.autoRate+'%',detail:`${f(d.resolved)} auto`,trend:tt(d.autoT),color:'grn',kv:d.autoRate,kt:KPI.autoRate,km:'autoRate',scope:'external'},
-{icon:'✅',label:'Resolution',value:d.resRate+'%',detail:`${f(d.resolved)}/${f(d.involved)}`,trend:tt(d.resT),color:'pur',kv:d.resRate,kt:KPI.resRate,km:'resRate',scope:'external'},
-{icon:'🔀',label:'Handoff',value:d.handoff+'%',detail:`${f(d.escalated)} esc`,trend:tt(d.handT,1),color:'red',kv:d.handoff,kt:KPI.handoff,km:'handoff',scope:'all'},
-{icon:'⭐',label:'AI CSAT',value:d.csat+'%',detail:`${f(d.positive)}/${f(d.totalRated)}`,trend:tt(d.csatT),color:'amb',kv:d.csat,kt:KPI.csat,km:'csat',scope:'external'},
-{icon:'👤',label:'Agent CSAT',value:d.hCsat+'%',detail:'Live chat',trend:tt(d.hcT),color:'pk',kv:d.hCsat,kt:KPI.hCsat,km:'hCsat',scope:'internal'},
-{icon:'⏱',label:'Avg Response',value:d.avgR+'m',detail:'First reply',trend:tt(d.rT,1),color:'blu',kv:d.avgR,kt:KPI.avgR,km:'avgR',scope:'internal'}
-];
-document.getElementById('MG').innerHTML=cards.filter(c=>curView==='all'||c.scope===curView||c.scope==='all').map(c=>{const s=c.kv!=null?ks(c.kv,c.kt,c.km):null;const tgt=c.kt!=null?(c.km==='handoff'||c.km==='avgR'?`≤${c.kt}${c.km==='avgR'?'m':'%'}`:`${c.kt}%`):'';return`<div class="mc ${c.color}" onclick="openMetM('${c.label}')"><div class="mc-top"><div class="mi">${c.icon}</div>${s?`<div class="kp ${s}"><div class="kpp"></div>${kl(s)}</div>`:''}</div><div class="ml">${c.label}</div><div class="mv">${c.value}</div><div class="md2">${c.detail} ${c.trend}</div>${tgt?`<div class="kt">Target: ${tgt}</div>`:''}</div>`}).join('')}
+function rSched(){const c=document.getElementById('t-sched');E.forEach(e=>{if(isPto(e.id))att[e.id]=false;});
+let cn=0,dn=0;const now=new Date().getHours();E.forEach(e=>{if(!att[e.id])return;const m={};gs(e).forEach(a=>m[a.h]=a.t);if(m[now]==='call')cn++;if(m[now]==='digital')dn++;});
+const tot=cn+dn,bs=tot<4?'crit':tot<6?'warn':'ok';
+const gc=`80px repeat(14,1fr)`;
+let h=`<div class="qhb ${bs}"><strong>Queue:</strong> ${bs==='crit'?'🔴 CRITICAL':bs==='warn'?'🟡 WARNING':'🟢 HEALTHY'} | 📞 ${cn} | 💬 ${dn} | Total: ${tot} | <span style="color:var(--tm)">Min: 4</span></div>`;
+h+=`<div class="slay"><div class="roster" style="max-height:none"><h3>Team Roster</h3>`;
+E.forEach(e=>{const on=att[e.id],op=isPto(e.id),ini=e.s[0];
+h+=`<div class="ri"><div class="sd ${on?'on':'off'}"></div><div class="av" style="background:${e.c}15;color:${e.c}">${ini}</div><div class="info"><div class="nm">${e.s}${op?'<span class="ptag">PTO</span>':''}</div><div class="rl">${e.tm==='call'?'📞':'💬'}${e.nt?' · '+e.nt:''}</div></div><div class="tog ${on?'on':''}" data-e="${e.id}"></div></div>`;});
+h+=`</div><div>`;
+h+=`<div class="sgc"><div class="shr" style="grid-template-columns:${gc}"><div class="shc">Agent</div>`;HL.forEach(l=>h+=`<div class="shc">${l}</div>`);
+h+=`</div><div class="sbody">`;
+E.forEach(e=>{const on=att[e.id],m={};gs(e).forEach(a=>m[a.h]=a.t);
+h+=`<div class="srow ${on?'':'abs'}" style="grid-template-columns:${gc}"><div class="snc"><div class="sd ${on?'on':'off'}"></div>${e.s.split(' ')[0]}</div>`;
+H.forEach(hr=>{const t=m[hr];if(t){const lb={call:'CALL',digital:'DGTL',lunch:'LUNCH',break:'BRK'},cl=t==='call'?'sb-c':t==='digital'?'sb-d':t==='lunch'?'sb-l':'sb-b';h+=`<div class="sc"><div class="sb ${cl}">${lb[t]}</div></div>`;}else h+=`<div class="sc"><div class="sb"></div></div>`;});h+=`</div>`;});
+h+=`</div>`;
+['Call','Digital','Total'].forEach((lbl,li)=>{h+=`<div class="crow" style="grid-template-columns:${gc}"><div class="clbl">${lbl}</div>`;
+H.forEach(hr=>{let cnt=0;E.forEach(e=>{if(!att[e.id])return;const m={};gs(e).forEach(a=>m[a.h]=a.t);if(li===0&&m[hr]==='call')cnt++;if(li===1&&m[hr]==='digital')cnt++;if(li===2&&(m[hr]==='call'||m[hr]==='digital'))cnt++;});h+=`<div class="ccnt ${cnt===0?'dng':cnt<=2?'wrn':'gd'}">${cnt}</div>`;});h+=`</div>`;});
+h+=`</div>`;
+const offP=E.filter(e=>!att[e.id]&&e.id!=='tbh3');
+if(offP.length>0){let cc=0,dc=0;E.forEach(e=>{if(!att[e.id])return;if(e.tm==='call')cc++;else dc++;});
+h+=`<div class="pbox"><h4>💡 Adjustments (${offP.length} out)</h4>`;
+if(cc<6)h+=`<div class="pi">Consider shifting digital agent to phone — only ${cc} call agents</div>`;
+if(dc<2)h+=`<div class="pi">Digital at ${dc} — defer non-urgent tickets</div>`;
+h+=`<div class="pi">Stagger lunches: 11a/12p/1p rotation</div><div class="pi">Move breaks to 3p-4p (lower volume window)</div>`;
+if(cc+dc<8)h+=`<div class="pi">⚠️ Below min staffing — escalate for coverage</div>`;h+=`</div>`;}
+const yr=ptoMo.getFullYear(),mo=ptoMo.getMonth(),dim=new Date(yr,mo+1,0).getDate();
+h+=`<div class="ptos"><h3 style="font-size:11px;font-weight:700;margin-bottom:6px">📅 PTO Calendar</h3>
+<div class="pton"><button id="pp">◀</button><span style="font-size:11px;font-weight:700">${ptoMo.toLocaleString('default',{month:'long',year:'numeric'})}</span><button id="pn">▶</button>
+<span style="margin-left:auto;font-size:8px;color:var(--tm)">Click name → click days (click again to remove)</span></div>
+<div class="ptog" style="grid-template-columns:80px repeat(${dim},1fr)"><div class="ptohc"></div>`;
+for(let d=1;d<=dim;d++){const dow=new Date(yr,mo,d).getDay();h+=`<div class="ptohc" style="${dow===0||dow===6?'color:var(--red)':''}">${d}</div>`;}
+E.forEach(e=>{h+=`<div class="ptonc ${ptoSel===e.id?'sel':''}" data-pe="${e.id}">${e.s.split(' ')[0]}</div>`;
+for(let d=1;d<=dim;d++){const k=`${e.id}-${yr}-${mo}-${d}`,dow=new Date(yr,mo,d).getDay();
+h+=`<div class="ptodc ${pto[k]?'pon':''} ${dow===0||dow===6?'wknd':''}" data-pe="${e.id}" data-pd="${d}"></div>`;}});
+h+=`</div></div></div></div>`;
+c.innerHTML=h;
+c.querySelectorAll('.tog').forEach(t=>t.addEventListener('click',()=>{att[t.dataset.e]=!att[t.dataset.e];rSched();}));
+document.getElementById('pp')?.addEventListener('click',()=>{ptoMo=new Date(ptoMo.getFullYear(),ptoMo.getMonth()-1);rSched();});
+document.getElementById('pn')?.addEventListener('click',()=>{ptoMo=new Date(ptoMo.getFullYear(),ptoMo.getMonth()+1);rSched();});
+c.querySelectorAll('.ptonc').forEach(n=>n.addEventListener('click',()=>{ptoSel=n.dataset.pe;rSched();}));
+c.querySelectorAll('.ptodc').forEach(cell=>{
+cell.addEventListener('mousedown',ev=>{if(!ptoSel||cell.dataset.pe!==ptoSel)return;const k=`${cell.dataset.pe}-${yr}-${mo}-${cell.dataset.pd}`;ptoDragMode=pto[k]?false:true;pto[k]=ptoDragMode;ptoDrag=true;rSched();ev.preventDefault();});
+cell.addEventListener('mouseenter',()=>{if(!ptoDrag||cell.dataset.pe!==ptoSel)return;const k=`${cell.dataset.pe}-${yr}-${mo}-${cell.dataset.pd}`;pto[k]=ptoDragMode;rSched();});});
+document.addEventListener('mouseup',()=>ptoDrag=false);}
 
-function renderFunnel(d){const t=d.total;document.getElementById('FN').innerHTML=[['Total',100,f(t),'blu'],['Involved',d.involved/t*100,f(d.involved),'cyn'],['Resolved',d.resolved/t*100,f(d.resolved),'grn'],['Escalated',d.escalated/t*100,f(d.escalated),'amb'],['Bypass',d.notInvolved/t*100,f(d.notInvolved),'red'],['Pending',Math.max(d.pending/t*100,.5),f(d.pending),'pur']].map(s=>`<div class="fs"><div class="fl2">${s[0]}</div><div class="ft2"><div class="fb ${s[3]}" style="width:${s[1]}%"></div></div><div class="fv">${s[2]}</div></div>`).join('')}
+function rMetrics(){const c=document.getElementById('t-metrics');
+const ups=[{k:'ns',i:'📦',l:'NetSuite'},{k:'rc',i:'📞',l:'RingCentral'},{k:'sf',i:'☁️',l:'Salesforce'},{k:'ac',i:'🔌',l:'Amazon Connect'}];
+let h=`<div class="st">📤 Upload</div><div class="upa">`;ups.forEach(u=>{const d=upD[u.k];h+=`<div class="upc ${d?'done':''}" id="up-${u.k}"><div style="font-size:18px;margin-bottom:3px">${d?'✅':u.i}</div><div style="font-size:10px;font-weight:600">${u.l}</div><div style="font-size:8px;color:var(--tm)">${d?d.nm:'CSV'}</div><input type="file" accept=".csv" data-k="${u.k}"></div>`;});h+=`</div>`;
+const cards=[{l:'NS Cases YTD',v:fm(Object.values(NS.c).reduce((a,b)=>a+b,0)),s:MO.map(m=>NS.c[m]),sc:'#2563eb'},{l:'SF Cases YTD',v:fm(Object.values(SFC.c).reduce((a,b)=>a+b,0)),s:MO.map(m=>SFC.c[m]),sc:'#7c3aed'},{l:'Connect Handled Feb',v:fm(AC.Feb.h),s:MO.map(m=>AC[m].h),sc:'#0891b2'},{l:'Abandon Feb',v:fm(AC.Feb.ab),s:MO.map(m=>AC[m].ab),sc:'#dc2626'},{l:'Avg CSAT',v:CST.Feb?.a||'—',s:MO.map(m=>CST[m]?.a||0),sc:'#d97706'},{l:'Proactive YTD',v:fm(Object.values(PRO.c).reduce((a,b)=>a+b,0)),s:MO.map(m=>PRO.c[m]),sc:'#14b8a6'}];
+h+=`<div class="st">📈 Key Metrics</div><div class="mg">`;cards.forEach(cd=>{h+=`<div class="mc"><div class="ml">${cd.l} ${sp(cd.s,45,14,cd.sc)}</div><div class="mv">${cd.v}</div></div>`;});h+=`</div>`;
+h+=`<div class="lsec" style="border-left:3px solid var(--amb)"><h3>👁️ Watch List</h3>
+<div class="ris"><span>🔴</span><strong>Queue Times:</strong> Oct 310s → Dec 3,300s → Jan 3,400s → Feb 1,800s</div>
+<div class="ris"><span>🟡</span><strong>CSAT Mar:</strong> 4.69 — lowest month. Hold-time frustration.</div></div>`;
+h+=`<div class="tcw"><div class="tct">📦 NetSuite</div><table class="kt"><thead><tr><th>Metric</th>`;MO.forEach(m=>h+=`<th>${m}</th>`);h+=`<th>YTD</th></tr></thead><tbody>`;
+h+=`<tr><td>Created</td>${MO.map(m=>`<td>${fm(NS.c[m])}</td>`).join('')}<td style="font-weight:700">${fm(Object.values(NS.c).reduce((a,b)=>a+b,0))}</td></tr>`;
+h+=`<tr><td>Closed</td>${MO.map(m=>`<td>${fm(NS.cl[m])}</td>`).join('')}<td style="font-weight:700">${fm(Object.values(NS.cl).reduce((a,b)=>a+b,0))}</td></tr></tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">☁️ Salesforce</div><table class="kt"><thead><tr><th>Metric</th>`;MO.forEach(m=>h+=`<th>${m}</th>`);h+=`<th>YTD</th></tr></thead><tbody>`;
+h+=`<tr><td>Created</td>${MO.map(m=>`<td>${fm(SFC.c[m])}</td>`).join('')}<td style="font-weight:700">${fm(Object.values(SFC.c).reduce((a,b)=>a+b,0))}</td></tr>`;
+h+=`<tr><td>Closed</td>${MO.map(m=>`<td>${fm(SFC.cl[m])}</td>`).join('')}<td style="font-weight:700">${fm(Object.values(SFC.cl).reduce((a,b)=>a+b,0))}</td></tr></tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">🔌 Amazon Connect</div><table class="kt"><thead><tr><th>Metric</th><th>KPI</th>`;MO.forEach(m=>h+=`<th>${m}</th>`);h+=`</tr></thead><tbody>`;
+h+=`<tr><td>Handled</td><td>—</td>${MO.map(m=>`<td>${fm(AC[m].h)}</td>`).join('')}</tr>`;
+h+=`<tr><td>Abandon %</td><td>&lt;3%</td>${MO.map(m=>{const p=((AC[m].ab/(AC[m].h+AC[m].ab))*100).toFixed(1);return`<td class="${parseFloat(p)<=3?'kh':parseFloat(p)<=5?'kn':'km'}">${p}%</td>`;}).join('')}</tr>`;
+h+=`<tr><td>Answer Rate</td><td>&gt;95%</td>${MO.map(m=>{const v=parseFloat(AC[m].r);return`<td class="${v>=95?'kh':v>=90?'kn':'km'}">${AC[m].r}</td>`;}).join('')}</tr>`;
+h+=`<tr><td>AHT (s)</td><td>&lt;600</td>${MO.map(m=>`<td class="${AC[m].aht<=600?'kh':AC[m].aht<=660?'kn':'km'}">${AC[m].aht}</td>`).join('')}</tr>`;
+h+=`<tr><td>Queue Time (s)</td><td>&lt;300</td>${MO.map(m=>`<td class="${AC[m].qt<=300?'kh':AC[m].qt<=600?'kn':'km'}">${fm(AC[m].qt)}</td>`).join('')}</tr>`;
+h+=`</tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">⭐ CSAT</div><table class="kt"><thead><tr><th>Metric</th><th>KPI</th>`;MO.forEach(m=>h+=`<th>${m}</th>`);h+=`</tr></thead><tbody>`;
+h+=`<tr><td>Avg Score</td><td>≥4.8</td>${MO.map(m=>{const v=CST[m]?.a||0;return`<td class="${v>=4.8?'kh':v>=4.56?'kn':'km'}">${v.toFixed(2)}</td>`;}).join('')}</tr>`;
+h+=`<tr><td>Surveys</td><td>—</td>${MO.map(m=>`<td>${CST[m]?.n||0}</td>`).join('')}</tr></tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">📞 RingCentral SS (YTD Aggregate)</div><table class="kt"><thead><tr><th>Queue</th><th>Offered</th><th>Handled</th><th>AHT</th><th>Abandons</th><th>% Aband</th></tr></thead><tbody>
+<tr><td>Pharmacy-HC</td><td>12,747</td><td>12,603</td><td>9:11</td><td>1,662</td><td class="km">11.62%</td></tr>
+<tr><td>Food Service</td><td>2,534</td><td>2,492</td><td>9:55</td><td>351</td><td class="km">12.28%</td></tr>
+<tr><td>Warehouse</td><td>277</td><td>271</td><td>9:45</td><td>57</td><td class="km">17.22%</td></tr>
+<tr><td>Outbound</td><td>—</td><td>3,918</td><td>8:06</td><td>0</td><td class="kh">0%</td></tr></tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">🛡️ Proactive</div><table class="kt"><thead><tr><th>Metric</th>`;MO.forEach(m=>h+=`<th>${m}</th>`);h+=`<th>YTD</th></tr></thead><tbody>`;
+h+=`<tr><td>Created</td>${MO.map(m=>`<td>${fm(PRO.c[m])}</td>`).join('')}<td>${fm(Object.values(PRO.c).reduce((a,b)=>a+b,0))}</td></tr>`;
+h+=`<tr><td>Closed</td>${MO.map(m=>`<td>${fm(PRO.cl[m])}</td>`).join('')}<td>${fm(Object.values(PRO.cl).reduce((a,b)=>a+b,0))}</td></tr></tbody></table></div>`;
+c.innerHTML=h;
+c.querySelectorAll('.upc').forEach(cd=>{const inp=cd.querySelector('input');cd.addEventListener('click',()=>inp.click());inp.addEventListener('change',ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{upD[inp.dataset.k]={nm:f.name};rMetrics();};r.readAsText(f);});});}
 
-function renderInsights(){document.getElementById('INS').innerHTML=[
-['cr','⚠ CRITICAL','<strong>CSAT 46.1%</strong> — Product & Policy feedback, not AI quality.'],
-['wa','⚡ OPPORTUNITY','<strong>315 bypass Fin</strong> — 29% untouched by AI.'],
-['po','✓ STRENGTH','<strong>71.6% resolution</strong> — above old target. New target: 95%.'],
-['ib','📊 CONTENT','<strong>82% missing descriptions</strong> — #1 lever for AI matching.']
-].map(i=>`<div class="ii ${i[0]}"><div class="it2">${i[1]}</div><div class="ix">${i[2]}</div></div>`).join('')}
+function rCap(){const c=document.getElementById('t-cap');const cph=60/cp.aht,cpd=cph*cp.wh,cpm=cpd*cp.wd;
+let h=`<div class="st">⚙️ Parameters</div><div class="cpp">
+<div class="pp"><label>Work Hrs/Day</label><input type="number" id="c1" value="${cp.wh}" min="1" max="12"></div>
+<div class="pp"><label>AHT (min)</label><input type="number" id="c2" value="${cp.aht}" min="1" max="120"></div>
+<div class="pp"><label>Target Util %</label><input type="number" id="c3" value="${cp.tu}" min="50" max="100"></div>
+<div class="pp"><label>Workdays/Mo</label><input type="number" id="c4" value="${cp.wd}" min="15" max="25"></div></div>`;
+h+=`<div class="st">🔮 Scenario Planner</div><div class="scg">`;
+E.filter(e=>e.id!=='tbh3').forEach(e=>{const on=scOn[e.id];h+=`<div class="scc ${on?'':'off'}" data-sc="${e.id}"><div class="tog ${on?'on':''}" style="pointer-events:none"></div>${e.s}</div>`;});h+=`</div>`;
+const act=E.filter(e=>scOn[e.id]&&e.id!=='tbh3'),tMo=act.length*cpm,dem=7924,du=((dem/tMo)*100).toFixed(1),gap=tMo-dem;
+h+=`<div class="mg">
+<div class="mc"><div class="ml">Cases/Hr</div><div class="mv">${cph.toFixed(1)}</div></div>
+<div class="mc"><div class="ml">Cases/Day</div><div class="mv">${cpd.toFixed(0)}</div></div>
+<div class="mc"><div class="ml">Agents</div><div class="mv" style="color:${act.length<10?'var(--red)':'var(--grn)'}">${act.length}</div></div>
+<div class="mc"><div class="ml">Monthly Cap</div><div class="mv">${fm(tMo.toFixed(0))}</div></div>
+<div class="mc"><div class="ml">Peak (Jan)</div><div class="mv" style="color:var(--red)">${fm(dem)}</div></div>
+<div class="mc"><div class="ml">Util</div><div class="mv" style="color:${parseFloat(du)>100?'var(--red)':'var(--grn)'}">${du}%</div></div>
+<div class="mc"><div class="ml">${gap>0?'Surplus':'Shortfall'}</div><div class="mv" style="color:${gap>0?'var(--grn)':'var(--red)'}">${gap>0?'+':''}${fm(gap.toFixed(0))}</div></div></div>`;
+h+=`<div class="st">👤 Per-Employee</div><div class="tcw"><table class="kt"><thead><tr><th>Name</th><th>Queue</th><th>/Day</th><th>/Mo</th><th>Util</th></tr></thead><tbody>`;
+act.forEach(e=>{const gc=cp.tu>100?'var(--red)':cp.tu>85?'var(--amb)':'var(--grn)';
+h+=`<tr><td style="color:${e.c};font-weight:700">${e.s}</td><td>${e.tm==='call'?'📞':'💬'}</td><td>${cpd.toFixed(0)}</td><td>${cpm.toFixed(0)}</td><td><span style="color:${gc};font-weight:700">${cp.tu}%</span><div class="gauge"><div class="gf" style="width:${Math.min(cp.tu,100)}%;background:${gc}"></div></div></td></tr>`;});
+h+=`</tbody></table></div>`;
+h+=`<div class="lsec" style="border-left:3px solid var(--blue)"><h3>💡 Hire Impact</h3><table class="kt"><thead><tr><th>Scenario</th><th>Agents</th><th>Cap</th><th>vs Demand</th><th>Util</th><th>Status</th></tr></thead><tbody>`;
+[0,1,2,3,4].forEach(x=>{const n=act.length+x,cap=n*cpm,ut=((dem/cap)*100).toFixed(0),g=cap-dem,lb=x===0?'Current':x===2?'+2 (3/23)':'+'+x;
+h+=`<tr><td>${lb}</td><td>${n}</td><td>${fm(cap.toFixed(0))}</td><td style="color:${g>0?'var(--grn)':'var(--red)'}">${g>0?'+':''}${fm(g.toFixed(0))}</td><td style="color:${parseFloat(ut)>100?'var(--red)':parseFloat(ut)>85?'var(--amb)':'var(--grn)';font-weight:700">${ut}%</td><td>${parseFloat(ut)>100?'🔴':parseFloat(ut)>85?'🟡':'🟢'}</td></tr>`;});
+h+=`</tbody></table></div>`;
+c.innerHTML=h;
+['c1','c2','c3','c4'].forEach((id,i)=>{document.getElementById(id)?.addEventListener('input',ev=>{const m=['wh','aht','tu','wd'];cp[m[i]]=parseFloat(ev.target.value)||1;rCap();});});
+c.querySelectorAll('.scc').forEach(cd=>cd.addEventListener('click',()=>{scOn[cd.dataset.sc]=!scOn[cd.dataset.sc];rCap();}));}
 
-function renderKB(){document.getElementById('KB').innerHTML=`<div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div><div style="font-size:8px;color:var(--tx3)">Need Work</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--amb)">288<span style="font-size:9px;color:var(--tx3);font-weight:400">/327</span></div></div><div style="text-align:right"><div style="font-size:8px;color:var(--tx3)">Good</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--grn)">39</div></div></div><div class="hb"><div class="hs" style="width:2%;background:var(--red)"></div><div class="hs" style="width:84%;background:var(--amb)"></div><div class="hs" style="width:11%;background:var(--blu)"></div><div class="hs" style="width:3%;background:var(--grn)"></div></div><div class="hl"><div class="li"><div class="ld" style="background:var(--red)"></div>Critical(6)</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Mod(274)</div><div class="li"><div class="ld" style="background:var(--blu)"></div>Minor(37)</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Good(9)</div></div>${[['Missing Descriptions','239 (73%)','var(--red)'],['No Cross-Links','230 (71%)','var(--amb)'],['Thin Content (<200w)','40 (12%)','var(--amb)'],['Grammar Issues','24 (7%)','var(--tx3)']].map(r=>`<div class="sr" onclick="openKBM('${r[0]}')"><span class="srl">${r[0]}</span><span class="srv" style="color:${r[2]}">${r[1]}</span></div>`).join('')}</div>`}
+function rScore(){const c=document.getElementById('t-score');const act=E.filter(e=>e.id!=='tbh3'&&(e.ns>0||e.sf>0));
+const ranked=act.map(e=>({e,tot:e.ns+e.sf})).sort((a,b)=>b.tot-a.tot);
+let h=`<div class="st">🏆 Stack Ranking</div><div class="tcw"><table class="kt"><thead><tr><th>#</th><th>Agent</th><th>Q</th><th>NS</th><th>SF</th><th>Total</th><th>CSAT</th><th>Surveys</th><th>Tier</th></tr></thead><tbody>`;
+ranked.forEach((r,i)=>{const rc=i<3?'r'+(i+1):'ro',t=r.e.cn>0?(r.e.cs>=4.8?'tg':r.e.cs>=4.5?'ty':'tr'):'ty',tl=t==='tg'?'Excellent':t==='ty'?'Good':'Focus';
+h+=`<tr><td><span class="rb ${rc}">${i+1}</span></td><td style="color:${r.e.c};font-weight:700">${r.e.s}</td><td>${r.e.tm==='call'?'📞':'💬'}</td><td>${fm(r.e.ns)}</td><td>${fm(r.e.sf)}</td><td style="font-weight:700">${fm(r.tot)}</td><td class="${r.e.cn>0?(r.e.cs>=4.8?'kh':r.e.cs>=4.5?'kn':'km'):''}">${r.e.cn>0?r.e.cs.toFixed(2):'—'}</td><td>${r.e.cn||'—'}</td><td><span class="tier ${t}">${tl}</span></td></tr>`;});
+h+=`</tbody></table></div>`;
+h+=`<div class="st">👤 Individual</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:11px;font-weight:600">Select:</span><select class="scsel" id="sce">`;
+act.forEach(e=>h+=`<option value="${e.id}" ${e.id===selSC?'selected':''}>${e.s}</option>`);h+=`</select></div>`;
+const se=E.find(e=>e.id===selSC);
+if(se){const tc=se.ns+se.sf,ga=act.reduce((a,r)=>a+r.ns+r.sf,0)/act.length;
+const rings=[{l:'Total',v:tc,mx:5000,c:'var(--blue)'},{l:'NS',v:se.ns,mx:3000,c:'var(--pur)'},{l:'SF',v:se.sf,mx:2500,c:'var(--cyan)'},{l:'CSAT',v:se.cn>0?se.cs:0,mx:5,c:'var(--grn)'},{l:'Surveys',v:se.cn,mx:100,c:'var(--amb)'}];
+h+=`<div class="scgrid">`;rings.forEach(rm=>{const p=Math.min((rm.v/rm.mx)*100,100),ci=2*Math.PI*42,of=ci-(p/100)*ci;
+h+=`<div class="src"><div class="sr"><svg viewBox="0 0 100 100"><circle class="srbg" cx="50" cy="50" r="42"/><circle class="srf" cx="50" cy="50" r="42" stroke="${rm.c}" stroke-dasharray="${ci}" stroke-dashoffset="${of}"/></svg><div class="srv" style="color:${rm.c}">${typeof rm.v==='number'&&rm.v%1!==0?rm.v.toFixed(2):rm.v}</div></div><div class="srl">${rm.l}</div></div>`;});h+=`</div>`;
+const comps=[{l:'Total Cases',i:tc,g:Math.round(ga),mx:5000,hi:true}];
+if(se.cn>0){const gcsa=act.filter(e=>e.cn>0);const gcav=gcsa.reduce((a,e)=>a+e.cs,0)/gcsa.length;comps.push({l:'CSAT',i:se.cs,g:parseFloat(gcav.toFixed(2)),mx:5,hi:true});}
+h+=`<div style="display:flex;gap:12px;margin-bottom:6px;font-size:9px;color:var(--t2)"><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:var(--cyan)"></div>${se.s}</div><div style="display:flex;align-items:center;gap:3px"><div style="width:7px;height:7px;border-radius:50%;background:var(--tm)"></div>Group</div></div>`;
+h+=`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px">`;
+comps.forEach(co=>{const ip=(co.i/co.mx)*100,gp=(co.g/co.mx)*100,ok=co.hi?co.i>=co.g:co.i<=co.g,ic=ok?'var(--grn)':'var(--red)';
+h+=`<div class="cbrw"><div class="cbnm">${co.l}</div><div class="cbc"><div class="cbbg"></div><div class="cbg" style="width:${gp}%;background:var(--tm)"></div><div class="cbi" style="width:${ip}%;background:${ic}"></div></div><div class="cbv"><span style="color:${ic};font-weight:600">${typeof co.i==='number'&&co.i%1!==0?co.i.toFixed(2):fm(co.i)}</span><span style="color:var(--tm)">${typeof co.g==='number'&&co.g%1!==0?co.g.toFixed(2):fm(co.g)}</span></div></div>`;});h+=`</div>`;
+const logs=clog[selSC]||[];
+h+=`<div class="csec"><h3 style="font-size:12px;font-weight:700;margin-bottom:6px">📝 Coaching — ${se.s}</h3>`;
+if(!logs.length)h+=`<p style="font-size:10px;color:var(--tm);margin-bottom:6px">No notes yet.</p>`;
+logs.forEach((l,i)=>h+=`<div class="ce"><div class="ceh"><span>${l.d}</span><span style="cursor:pointer;color:var(--red)" data-dl="${i}">✕</span></div><div class="cet">${l.t}</div></div>`);
+h+=`<div class="crow2"><input class="cinp" id="ci" placeholder="Add note..."><button class="cbtn" id="ca">Add</button></div></div>`;}
+c.innerHTML=h;
+document.getElementById('sce')?.addEventListener('change',ev=>{selSC=ev.target.value;rScore();});
+document.getElementById('ca')?.addEventListener('click',()=>{const t=document.getElementById('ci')?.value.trim();if(!t)return;if(!clog[selSC])clog[selSC]=[];clog[selSC].push({d:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),t});rScore();});
+c.querySelectorAll('[data-dl]').forEach(b=>b.addEventListener('click',()=>{clog[selSC].splice(parseInt(b.dataset.dl),1);rScore();}));}
 
-function renderImprove(){document.getElementById('IMP').innerHTML=IMPROVE.map((a,i)=>{const st=a.status==='done'?'do':a.status==='drafted'?'rv':a.status==='review'?'rv':'qu';const stL=a.status==='done'?'DONE ✓':a.status==='drafted'?'DRAFTED':a.status==='review'?'REVIEW':'QUEUED';const sub=a.views?`${f(a.views)}v·${a.sad}%·${a.esc}esc`:a.id==='desc'?'239 remaining':a.id==='links'?'230 remaining':a.id==='thin'?'<200w':'24 remaining';return`<div class="imi" onclick="openImpM(${i})"><div class="imr">${i+1}</div><div><div class="imn">${a.name}</div><div class="ims">${sub}</div></div><div class="bp ${st}">${stL}</div></div>`}).join('')}
-
-function renderWatch(){document.getElementById('WAT').innerHTML=WATCH.map((w,i)=>`<div class="wi" onclick="openWatM(${i})"><div class="wk ${w.cls}">${w.icon}</div><div><div class="wt">${w.title}</div><div class="wd">${w.short}</div></div></div>`).join('')}
-
-// ★ NEW: Live Escalation Feed
-function renderEscFeed(){
-const filters=['all','no-content','sla-miss','bypass'];
-document.getElementById('escFilter').innerHTML=filters.map(f=>`<div class="esc-fb ${f===escFilterVal?'on':''}" onclick="escFilterVal='${f}';renderEscFeed()">${f==='all'?'All ('+ESC.length+')':f==='no-content'?'🔴 No Content':f==='sla-miss'?'⏱ SLA Miss':'🔀 Bypass'}</div>`).join('');
-let filtered=ESC;
-if(escFilterVal==='no-content')filtered=ESC.filter(e=>e.noContent);
-if(escFilterVal==='sla-miss')filtered=ESC.filter(e=>e.sla==='miss');
-if(escFilterVal==='bypass')filtered=ESC.filter(e=>!e.fin);
-document.getElementById('escCount').textContent=filtered.length+' Today';
-document.getElementById('escFeed').innerHTML=filtered.map(e=>{const cls=e.noContent?'no-content':!e.fin?'bypass':e.articles.length?'tried':'no-content';return`<div class="esc-row ${cls}" onclick="openEscM('${e.id}')"><div><div class="esc-title">${e.title}</div><div style="font-size:8px;color:var(--tx3);margin-top:1px">${e.articles.length?e.articles.slice(0,2).join(', ')+(e.articles.length>2?' +'+( e.articles.length-2):''):'No articles found'}</div></div><div class="esc-team">${e.team}</div><div class="esc-sla ${e.sla}">${e.sla==='hit'?'HIT':e.sla==='miss'?'MISS':'—'}</div></div>`}).join('')}
-
-// ★ NEW: Topic Heatmap
-function renderHeatmap(){
-const topics={};ESC.forEach(e=>{topics[e.cat]=(topics[e.cat]||0)+1});
-const sorted=Object.entries(topics).sort((a,b)=>b[1]-a[1]);
-const max=sorted[0]?sorted[0][1]:1;
-const colors=['var(--red)','var(--amb)','var(--blu)','var(--pur)','var(--cyn)','var(--grn)','var(--tx3)'];
-document.getElementById('hmBody').innerHTML=sorted.map((s,i)=>`<div class="hm-row"><div class="hm-label">${s[0]}</div><div class="hm-bar-bg"><div class="hm-bar" style="width:${s[1]/max*100}%;background:${colors[i%colors.length]}"></div></div><div class="hm-val">${s[1]}</div></div>`).join('')}
-
-// ★ NEW: Content Gaps
-function renderGaps(){
-const gaps=ESC.filter(e=>e.noContent&&e.fin);
-document.getElementById('gapCount').textContent=gaps.length+' Gaps';
-document.getElementById('gapList').innerHTML=gaps.map(g=>`<div class="gap-row" onclick="openGapM('${g.id}')"><div class="gap-topic">${g.title}</div><div class="gap-sub">Team: ${g.team} · No articles matched · <strong>Create article to deflect</strong></div></div>`).join('')}
-
-// ★ NEW: Overworked Articles
-function renderOverworked(){
-const articleCount={};ESC.forEach(e=>{e.articles.forEach(a=>{articleCount[a]=(articleCount[a]||0)+1})});
-const sorted=Object.entries(articleCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
-document.getElementById('owList').innerHTML=sorted.map((s,i)=>`<div class="ow-row" onclick="openOwM('${s[0]}')"><div class="ow-rank">${i+1}</div><div><div class="ow-name">${s[0]}</div><div style="font-size:8px;color:var(--tx3)">${s[1]>3?'⚠ Overloaded — consider splitting':'Referenced in escalations'}</div></div><div class="ow-count">${s[1]}×</div></div>`).join('')}
-
-function renderProgress(){const pub=PROGRESS.filter(p=>p.status==='published').length;const draft=PROGRESS.filter(p=>p.status==='drafted').length;const total=PROGRESS.length;const pct=Math.round((pub*100+draft*50)/total);document.getElementById('progBar').style.width=pct+'%';document.getElementById('progPct').textContent=pct+'%';
-document.getElementById('progList').innerHTML=PROGRESS.map(p=>{const cls=p.status==='published'?'pub':p.status==='drafted'?'dra':'sug';const dates=p.status==='published'?`${p.sugDate}→Published ${p.pubDate||''}`:p.status==='drafted'?`${p.sugDate}→Drafted ${p.draftDate}`:`Suggested ${p.sugDate}`;const link=p.iUrl?` <a href="${p.iUrl}" target="_blank" style="font-size:8px;color:var(--blu);text-decoration:none;font-weight:600">↗</a>`:'';const actions=p.status==='suggested'?` <button class="mbtn" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--blu-s);color:var(--blu);border:1px solid rgba(37,99,235,.2)" onclick="event.stopPropagation();toast('Creating draft for: ${p.name}')">Create Draft</button> <button class="mbtn" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--grn-s);color:var(--grn);border:1px solid var(--grn-b)" onclick="event.stopPropagation();toast('Publishing: ${p.name}')">Publish Live</button>`:'';return`<div class="prog-item"><div class="prog-dot ${cls}"></div><div class="prog-label"><strong>${p.name}</strong>${link}${actions}</div><div class="prog-date">${dates}</div></div>`}).join('')}
-
-function renderROI(d){const r=d.resolved,h=r*(ROI_B.aht/60),a=h*12,fte=a/ROI_B.annualHrs,grossSv=fte*ROI_B.loadedCost,netSv=grossSv-ROI_B.intercomAnnual,roi=netSv>0?(netSv/ROI_B.intercomAnnual*100):0,pb=netSv>0?Math.round(ROI_B.intercomAnnual/grossSv*12*10)/10:0;
-document.getElementById('roiSavings').textContent='$'+Math.round(netSv).toLocaleString();document.getElementById('roiHrs').textContent=Math.round(h);document.getElementById('roiFTE').textContent=fte.toFixed(1);document.getElementById('roiROI').textContent=Math.round(roi)+'%';document.getElementById('roiCases').textContent=f(r)+'/mo';document.getElementById('roiPayback').textContent=pb?pb+'mo':'—';
-// Cost per ticket
-const humanCost=(ROI_B.aht/60)*(ROI_B.loadedCost/ROI_B.annualHrs);const blend=(r*0+d.escalated*humanCost)/d.total;
-document.getElementById('costHuman').textContent='$'+humanCost.toFixed(2);document.getElementById('costBlend').textContent='$'+blend.toFixed(2);
-document.getElementById('costDetails').innerHTML=`<div class="cost-row"><span>Cost avoided (AI resolved)</span><div class="cost-val" style="color:var(--grn)">$${Math.round(r*humanCost).toLocaleString()}/mo</div></div><div class="cost-row"><span>At 95% resolution</span><div class="cost-val" style="color:var(--pur)">$${Math.round(d.involved*.95*humanCost).toLocaleString()}/mo</div></div><div class="cost-row"><span>Additional savings at 95%</span><div class="cost-val" style="color:var(--grn)">+$${Math.round((d.involved*.95-r)*humanCost).toLocaleString()}/mo</div></div>`}
-
-// ★ NEW: SLA Performance
-function renderSLA(){
-const teams={};ESC.forEach(e=>{if(!teams[e.team])teams[e.team]={hit:0,miss:0,na:0};teams[e.team][e.sla]++});
-document.getElementById('slaTeams').innerHTML=Object.entries(teams).map(([t,v])=>{const rate=v.hit+v.miss>0?Math.round(v.hit/(v.hit+v.miss)*100):0;return`<div class="sla-row"><div class="sla-team">${t}</div><div class="sla-val" style="color:var(--grn)">${v.hit}</div><div class="sla-val" style="color:var(--red)">${v.miss}</div></div>`}).join('')}
-
-// ★ NEW: Road to 95%
-function renderRoad(){
-const phases=[
-{num:1,name:'Fix Content',sub:'Descriptions + cross-links for 326 articles',impact:'+8-10%',status:'IN PROGRESS',pct:15,color:'var(--blu)',bg:'var(--blu-s)'},
-{num:2,name:'Fill Content Gaps',sub:'New articles for zero-content escalation topics',impact:'+5-7%',status:'NOT STARTED',pct:0,color:'var(--pur)',bg:'var(--pur-s)'},
-{num:3,name:'Reduce Bypass',sub:'Routing rules + email enablement (315/mo bypass)',impact:'+8-12%',status:'NOT STARTED',pct:0,color:'var(--amb)',bg:'var(--amb-s)'},
-{num:4,name:'Quality Loop',sub:'Weekly escalation review → iterate articles',impact:'+3-5%',status:'DASHBOARD ENABLES',pct:5,color:'var(--grn)',bg:'var(--grn-s)'}
-];
-document.getElementById('roadPhases').innerHTML=phases.map(p=>`<div class="road-phase" style="background:${p.bg}"><div class="road-num" style="background:${p.color}">${p.num}</div><div><div class="road-name">${p.name}</div><div class="road-sub">${p.sub}</div></div><div class="road-impact" style="color:${p.color}">${p.impact}</div><div class="road-status" style="background:${p.color};color:#fff">${p.status}</div></div>`).join('')}
-
-// ═══ MODALS ═══
-function openM(t,b){document.getElementById('mt').textContent=t;document.getElementById('mb').innerHTML=b;document.getElementById('mo').classList.add('show')}
-function closeM(){document.getElementById('mo').classList.remove('show')}
-function toast(m){const t=document.getElementById('toast');document.getElementById('tMsg').textContent='✓ '+m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-
-function openMetM(l){const d=D[curDays];let b=`<div class="ms"><div class="mlbl">Gap Analysis</div><div class="mtxt"><strong>${l}</strong> details for ${curDays}-day period.</div></div>`;
-if(l==='Resolution')b=`<div class="ms"><div class="mlbl">Gap: 71.6% → 95%</div><div class="mtxt">Need <strong>+23.4 percentage points</strong>. At current involved volume (${f(d.involved)}), that means <strong>${Math.round(d.involved*.95-d.resolved)} more resolutions</strong> per month.</div></div><div class="ms"><div class="mlbl">How to Close the Gap</div><ul class="mlist"><li>Phase 1: Fix content (+8-10%) — descriptions, cross-links</li><li>Phase 2: Fill gaps (+5-7%) — new articles for zero-content topics</li><li>Phase 3: Reduce bypass (+8-12%) — routing + email</li><li>Phase 4: Quality loop (+3-5%) — weekly review</li></ul></div>`;
-if(l==='Automation')b=`<div class="ms"><div class="mlbl">Gap: 51.1% → 80%</div><div class="mtxt">Need <strong>+28.9pp</strong>. Automation = resolved/total. Increasing both resolution rate AND involvement drives this.</div></div><div class="ms"><div class="mlbl">Levers</div><ul class="mlist"><li>Improve resolution rate (content quality)</li><li>Increase involvement (reduce 315 bypass)</li><li>Enable email channel for Fin</li></ul></div>`;
-openM(l,b)}
-
-function openImpM(i){const a=IMPROVE[i];openM(a.name,`${a.views?`<div class="ms" style="display:flex;gap:6px"><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--blu)">${f(a.views)}</div><div style="font-size:8px;color:var(--tx3)">Views</div></div><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--red)">${a.sad}%</div><div style="font-size:8px;color:var(--tx3)">Sad</div></div><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--amb)">${a.esc}</div><div style="font-size:8px;color:var(--tx3)">Esc</div></div></div>`:''}<div class="macts">${a.status==='drafted'?`<a href="https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=${a.id}" target="_blank" class="mbtn pri">↗ Preview in Intercom</a>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-function openWatM(i){const w=WATCH[i];openM(w.title,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${w.detail}</div></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-function openKBM(l){
-const detail={
-'Missing Descriptions':{d:'239 of 327 (73%) still need descriptions — 29 added this week. Descriptions are Fin\'s primary search metadata — the #1 lever for AI matching.',r:['Push all 268 as drafts to review','Push all 268 live (low risk — only adds metadata)','Estimated +5-10% resolution improvement']},
-'No Cross-Links':{d:'230 articles (71%) have zero links — 8 cross-linked this week to related articles. Dead-end articles cause escalations because Fin can\'t guide users to the next step.',r:['Add 2-3 cross-links per article','Prioritize troubleshooting articles','Map related articles by category']},
-'Thin Content (<200w)':{d:'40 articles under 200 words — not enough content for Fin to resolve. 6 articles are under 50 words (video-only with no text).',r:['Expand to 300+ words minimum','Add troubleshooting steps, FAQs, edge cases','Merge video-only articles with written guides']},
-'Grammar Issues':{d:'24 articles have grammar or formatting issues — 1 fixed this week (double spaces, typos, inconsistent capitalization). These reduce Fin\'s confidence in matching.',r:['Auto-fix double spaces and typos','Standardize formatting across articles','Low risk — safe to push directly to production']}
-}[l]||{d:'Details for '+l,r:[]};
-openM('KB: '+l,`<div class="ms"><div class="mlbl">Impact Assessment</div><div class="mtxt">${detail.d}</div></div><div class="ms"><div class="mlbl">Recommendations</div><ul class="mlist">${detail.r.map(r=>'<li>'+r+'</li>').join('')}</ul></div><div class="macts"><button class="mbtn pri" onclick="toast('To push fixes, ask Claude to run this batch. Dashboard buttons trigger the request.');closeM()">📝 Fix & Send to Draft</button><button class="mbtn suc" onclick="toast('To push live, ask Claude to run this batch. Dashboard buttons trigger the request.');closeM()">🚀 Fix & Make Live</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-function openEscM(id){const e=ESC.find(x=>x.id===id);if(!e)return;openM(e.title,`<div class="ms"><div class="mlbl">Conversation Details</div><div class="mtxt"><strong>Team:</strong> ${e.team} · <strong>SLA:</strong> ${e.sla} · <strong>Fin:</strong> ${e.fin?'Yes':'Bypassed'}</div></div><div class="ms"><div class="mlbl">Articles Fin Referenced</div>${e.articles.length?`<ul class="mlist">${e.articles.map(a=>'<li>'+a+'</li>').join('')}</ul>`:'<div class="mtxt" style="color:var(--red)"><strong>No content sources found.</strong> This is a content gap — Fin had nothing to offer.</div>'}</div><div class="macts"><a href="${e.url}" target="_blank" class="mbtn pri">↗ Open in Intercom</a>${e.noContent?'<button class="mbtn suc" onclick="toast(\'Draft article created\');closeM()">📝 Create Article</button>':''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-function openGapM(id){const e=ESC.find(x=>x.id===id);if(!e)return;openM('Content Gap: '+e.title,`<div class="ms"><div class="mlbl">What Happened</div><div class="mtxt">Customer asked about <strong>"${e.title}"</strong> and Fin found <strong>zero matching articles</strong> in your help center. The conversation was routed to <strong>${e.team}</strong>.</div></div><div class="ms"><div class="mlbl">Recommended Action</div><div class="mtxt">Create a new article covering this topic. Estimated deflection: <strong>2-5 conversations/month</strong> based on topic frequency.</div></div><div class="macts"><a href="${e.url}" target="_blank" class="mbtn pri">↗ View Conversation</a><button class="mbtn suc" onclick="toast('Draft article created for: ${e.title}');closeM()">📝 Create Draft Article</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-function openOwM(name){const convos=ESC.filter(e=>e.articles.includes(name));openM('Overworked: '+name,`<div class="ms"><div class="mlbl">Referenced in ${convos.length} escalations</div><div class="mtxt">This article is being used as a catch-all. Fin references it but customers still escalate — suggesting the article doesn't fully answer their question.</div></div><div class="ms"><div class="mlbl">Conversations</div><ul class="mlist">${convos.map(c=>`<li><a href="${c.url}" target="_blank" style="color:var(--blu)">${c.title}</a> (${c.team})</li>`).join('')}</ul></div><div class="ms"><div class="mlbl">Recommendation</div><div class="mtxt">${convos.length>3?'<strong>Consider splitting</strong> this article into more specific sub-topics so Fin can match more precisely.':'Monitor — may need content expansion.'}</div></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-// ═══ CONTROLS ═══
-function setV(v,el){document.querySelectorAll('.tog-o').forEach(o=>o.classList.remove('on'));el.classList.add('on');curView=v;renderMetrics(D[curDays])}
-function setP(days,btn){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curDays=days;renderMetrics(D[days]);renderFunnel(D[days]);renderROI(D[days]);const to=new Date('2026-03-06'),fr=new Date(to);fr.setDate(fr.getDate()-days);document.getElementById('df').value=fr.toISOString().split('T')[0];document.getElementById('dt').value=to.toISOString().split('T')[0];document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=days+'D'}
-function applyC(){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));const fr=new Date(document.getElementById('df').value+'T00:00:00'),to=new Date(document.getElementById('dt').value+'T00:00:00'),days=Math.round((to-fr)/864e5);let c=30;[7,14,30,90].forEach(d=>{if(Math.abs(d-days)<Math.abs(c-days))c=d});curDays=c;renderMetrics(D[c]);renderFunnel(D[c]);renderROI(D[c]);document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=days+'D'}
-function fdr(f,t){return f.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+t.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-
-// ═══ INIT ═══
-renderMetrics(D[30]);renderFunnel(D[30]);renderInsights();renderKB();renderImprove();renderWatch();
-renderEscFeed();renderHeatmap();renderGaps();renderOverworked();
-renderProgress();renderROI(D[30]);renderSLA();renderRoad();
-document.getElementById('lu').textContent='Updated: '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
-
-// ═══ CHARTS ═══
-Chart.defaults.font.family="'Outfit'";Chart.defaults.color='#9095a4';
-new Chart(document.getElementById('tc').getContext('2d'),{type:'line',data:{labels:['Feb 2','Feb 9','Feb 16','Feb 23','Mar 2'],datasets:[{label:'Involvement',data:[66,72,71,70,72],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.05)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#2563eb',pointBorderWidth:2},{label:'Resolution',data:[84,65,72,77,72],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.04)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#16a34a',pointBorderWidth:2},{label:'CX Score',data:[30,51,43,48,43],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.04)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2}]},options:{responsive:1,maintainAspectRatio:0,interaction:{intersect:0,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:7,boxHeight:7,padding:10,font:{size:9},usePointStyle:1}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:6,bodyFont:{size:9,family:"'JetBrains Mono'"},callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}}},scales:{x:{grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{min:20,max:90,grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"},callback:v=>v+'%'}}}}});
-new Chart(document.getElementById('cx').getContext('2d'),{type:'doughnut',data:{labels:['5','4','3','1-2'],datasets:[{data:[168,97,219,78],backgroundColor:['#16a34a','#7c3aed','#d97706','#dc2626'],borderColor:'#fff',borderWidth:2,borderRadius:3}]},options:{responsive:1,maintainAspectRatio:1,cutout:'72%',plugins:{legend:{display:0}}}});
-// Heatmap chart
-const hmTopics={};ESC.forEach(e=>{hmTopics[e.cat]=(hmTopics[e.cat]||0)+1});const hmSorted=Object.entries(hmTopics).sort((a,b)=>b[1]-a[1]);
-new Chart(document.getElementById('hmChart').getContext('2d'),{type:'bar',data:{labels:hmSorted.map(s=>s[0]),datasets:[{data:hmSorted.map(s=>s[1]),backgroundColor:['#dc2626','#d97706','#2563eb','#7c3aed','#0891b2','#16a34a','#9095a4'],borderRadius:4}]},options:{responsive:1,maintainAspectRatio:0,indexAxis:'y',plugins:{legend:{display:0}},scales:{x:{grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{grid:{display:0},ticks:{font:{size:8}}}}}});
-// ROI chart
-new Chart(document.getElementById('roiChart').getContext('2d'),{type:'bar',data:{labels:ROI_M.map(m=>m.m),datasets:[{type:'bar',label:'Hrs Saved/Mo',data:ROI_M.map(m=>m.res*(ROI_B.aht/60)),backgroundColor:'rgba(37,99,235,.12)',borderColor:'#2563eb',borderWidth:1.5,borderRadius:3,yAxisID:'y',order:2},{type:'line',label:'FTEs Offset',data:ROI_M.map(m=>m.fte),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.06)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2,yAxisID:'y1',order:1}]},options:{responsive:1,maintainAspectRatio:0,interaction:{intersect:0,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:7,boxHeight:7,padding:10,font:{size:9},usePointStyle:1}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:6,bodyFont:{size:9,family:"'JetBrains Mono'"},callbacks:{label:c=>c.datasetIndex===0?' Hrs: '+Math.round(c.parsed.x||c.parsed.y):' FTEs: '+(c.parsed.y).toFixed(2)}}},scales:{x:{grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{position:'left',grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y1:{position:'right',grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}},min:0,max:2.5}}}});
-document.getElementById('roiCum').textContent='$'+ROI_M.reduce((a,m)=>a+m.sv,0).toLocaleString();
+function rSLA(){const c=document.getElementById('t-sla');
+let h=`<div class="st">🎯 SLA Tracker</div>`;
+h+=`<div class="tcw"><div class="tct">📊 SLA Compliance</div><table class="kt"><thead><tr><th>Sev</th><th>SLA</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Backlog</th></tr></thead><tbody>
+<tr><td>SEV 1</td><td>100%</td><td class="kh">100%</td><td>—</td><td>—</td><td class="kh">100%</td><td>—</td><td>—</td><td>0</td></tr>
+<tr><td>SEV 2</td><td>100%</td><td class="kh">100%</td><td class="kh">100%</td><td class="kh">100%</td><td>—</td><td class="kh">100%</td><td>—</td><td>0</td></tr>
+<tr><td>SEV 3 SW</td><td>60%</td><td class="kh">80%</td><td class="km">50%</td><td class="kn">63%</td><td class="kn">63%</td><td class="kh">82%</td><td class="kh">83%</td><td style="font-weight:700">62</td></tr>
+<tr><td>SEV 3 HW</td><td>60%</td><td class="km">43%</td><td class="km">33%</td><td class="kh">100%</td><td class="kh">80%</td><td class="km">0%</td><td class="km">50%</td><td style="font-weight:700">19</td></tr>
+</tbody></table></div>`;
+h+=`<div class="tcw"><div class="tct">⏱️ SEV 3 Close Time (days) & Backlog Age</div><table class="kt"><thead><tr><th>Type</th><th>KPI</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th></tr></thead><tbody>
+<tr><td>SW Close</td><td>90d</td><td class="kh">53</td><td class="km">106</td><td class="km">112</td><td class="kh">77</td><td class="kh">74</td><td class="km">166</td></tr>
+<tr><td>HW Close</td><td>90d</td><td class="km">150</td><td class="km">104</td><td class="kh">56</td><td class="kh">66</td><td>—</td><td class="kh">66</td></tr>
+<tr><td>Backlog Age</td><td>90d</td><td class="km">225</td><td class="km">215</td><td class="km">174</td><td class="km">202</td><td class="km">209</td><td class="km">210</td></tr>
+</tbody></table></div>`;
+const tix=[{id:'SEV3-287',sv:3,t:'Report exports timing out — enterprise',o:'Product',a:134,sl:90,cu:'Giant Eagle'},
+{id:'SEV3-291',sv:3,t:'Android 14 crash — checklist',o:'Product',a:89,sl:90,cu:'Multiple'},
+{id:'SEV3-301',sv:3,t:'Label printer FW connectivity',o:'Product',a:45,sl:90,cu:'Multiple'},
+{id:'SEV3-308',sv:3,t:'API rate limit sync delays',o:'Product',a:21,sl:90,cu:'Enterprise'}];
+h+=`<div class="st" style="margin-top:10px">🎫 Escalations</div>`;
+tix.forEach(t=>{const ov=t.a>t.sl,p=Math.min((t.a/t.sl)*100,100);
+h+=`<div class="slac"><div class="slah"><div style="display:flex;align-items:center;gap:6px"><span class="slsv sv${t.sv}">SEV ${t.sv}</span><strong style="font-size:10px">${t.id}</strong><span style="font-size:9px;color:var(--tm)">${t.cu}</span></div><div style="display:flex;align-items:center;gap:6px"><span class="sltm ${ov?'over':'ok'}">${ov?'⏰ OVERDUE':'✓ SLA'} ${t.a}/${t.sl}d</span><span style="font-size:9px;color:var(--tm)">${t.o}</span></div></div><div style="font-size:10px;margin-bottom:4px">${t.t}</div><div style="display:flex;align-items:center;gap:4px"><div style="flex:1;height:3px;background:var(--inp);border-radius:2px;overflow:hidden"><div style="height:100%;width:${p}%;background:${ov?'var(--red)':p>75?'var(--amb)':'var(--grn)'};border-radius:2px"></div></div><span style="font-size:8px;color:var(--tm)">${p.toFixed(0)}%</span></div></div>`;});
+c.innerHTML=h;}
+rLead();rSched();rMetrics();rCap();rScore();rSLA();
 </script>
-</body></html>
+</body>
+</html>
