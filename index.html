@@ -3,240 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jolt AI Agent — Command Center v4</title>
+<title>Jolt AI Agent — Command Center v7</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--el:#f0f1f4;--in:#ecedf1;--bdr:#e2e4ea;--bdr2:#d5d8e0;--tx:#1a1d26;--tx2:#5c6070;--tx3:#9095a4;--grn:#16a34a;--grn-s:#dcfce7;--grn-b:#86efac;--blu:#2563eb;--blu-s:#dbeafe;--pur:#7c3aed;--pur-s:#ede9fe;--amb:#d97706;--amb-s:#fef3c7;--amb-b:#fcd34d;--red:#dc2626;--red-s:#fee2e2;--red-b:#fca5a5;--cyn:#0891b2;--cyn-s:#cffafe;--r:14px;--rs:10px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased}
-.d{max-width:1480px;margin:0 auto;padding:24px 36px 60px}
-.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
-.hd-l{display:flex;align-items:center;gap:14px}
-.logo{width:38px;height:38px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.3)}
-.hd-t{font-size:20px;font-weight:700;letter-spacing:-.4px}.hd-s{font-size:12px;color:var(--tx3)}
+:root{--bg:#f5f6f8;--card:#fff;--el:#f0f1f4;--in:#ecedf1;--bdr:#e2e4ea;--tx:#1a1d26;--tx2:#5c6070;--tx3:#9095a4;--grn:#16a34a;--grn-s:#dcfce7;--grn-b:#86efac;--blu:#2563eb;--blu-s:#dbeafe;--pur:#7c3aed;--pur-s:#ede9fe;--amb:#d97706;--amb-s:#fef3c7;--amb-b:#fcd34d;--red:#dc2626;--red-s:#fee2e2;--red-b:#fca5a5;--cyn:#0891b2;--cyn-s:#cffafe;--r:12px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
+.d{max-width:1480px;margin:0 auto;padding:20px 32px 48px}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.hd-l{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.3)}
+.hd-t{font-size:18px;font-weight:700;letter-spacing:-.4px}.hd-s{font-size:11px;color:var(--tx3)}
 .hd-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.live{display:flex;align-items:center;gap:6px;padding:4px 12px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:20px;font-size:10px;font-weight:600;color:var(--grn)}
-.dot{width:5px;height:5px;background:var(--grn);border-radius:50%;animation:p 2s infinite}
-@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
-.btn{padding:6px 12px;background:var(--card);border:1px solid var(--bdr);border-radius:7px;color:var(--tx2);font-family:'Outfit';font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
-.btn:hover{background:var(--el);color:var(--tx)}
-.tog{display:flex;background:var(--el);border-radius:7px;padding:2px;border:1px solid var(--bdr)}
-.tog-o{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--tx3);user-select:none;white-space:nowrap}
-.tog-o.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.fbar{display:flex;align-items:center;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.fbtn{padding:5px 12px;background:var(--card);border:1px solid var(--bdr);border-radius:7px;font-family:'Outfit';font-size:11px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .15s}
-.fbtn:hover{background:var(--el)}.fbtn.on{background:var(--tx);color:#fff;border-color:var(--tx);font-weight:600}
-.fsep{width:1px;height:20px;background:var(--bdr)}
-.fci{display:flex;align-items:center;gap:5px}
-.fci label{font-size:10px;color:var(--tx3);font-weight:500}
-.fci input[type=date]{padding:4px 7px;border:1px solid var(--bdr);border-radius:6px;font-family:'JetBrains Mono';font-size:10px;color:var(--tx2);background:var(--card);outline:none}
-.fap{padding:5px 12px;background:var(--blu);color:#fff;border:1px solid var(--blu);border-radius:6px;font-family:'Outfit';font-size:10px;font-weight:600;cursor:pointer}
-.fr{font-family:'JetBrains Mono';font-size:10px;color:var(--tx2);padding:4px 10px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;margin-left:auto}
+.live{display:flex;align-items:center;gap:5px;padding:3px 10px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:16px;font-size:9px;font-weight:600;color:var(--grn)}
+.dot{width:5px;height:5px;background:var(--grn);border-radius:50%;animation:p 2s infinite}@keyframes p{50%{opacity:.3}}
+.btn{padding:5px 11px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;color:var(--tx2);font-family:'Outfit';font-size:10px;font-weight:500;cursor:pointer;transition:all .15s}.btn:hover{background:var(--el)}
+.tog{display:flex;background:var(--el);border-radius:6px;padding:2px;border:1px solid var(--bdr)}.tog-o{padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--tx3);user-select:none}.tog-o.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.fbar{display:flex;align-items:center;gap:5px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{padding:4px 10px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;font-family:'Outfit';font-size:10px;font-weight:500;color:var(--tx2);cursor:pointer}.fbtn.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+.fsep{width:1px;height:18px;background:var(--bdr)}.fci{display:flex;align-items:center;gap:4px}.fci label{font-size:9px;color:var(--tx3)}.fci input[type=date]{padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;font-family:'JetBrains Mono';font-size:9px;color:var(--tx2);background:var(--card)}.fap{padding:4px 10px;background:var(--blu);color:#fff;border:1px solid var(--blu);border-radius:5px;font-family:'Outfit';font-size:9px;font-weight:600;cursor:pointer}
+.fr{font-family:'JetBrains Mono';font-size:9px;color:var(--tx2);padding:3px 8px;background:var(--card);border:1px solid var(--bdr);border-radius:5px;margin-left:auto}
 /* Metrics */
-.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.mc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:14px 16px 12px;position:relative;overflow:hidden;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.04);cursor:pointer}
-.mc:hover{box-shadow:var(--sh);transform:translateY(-1px)}
-.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.mc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px 10px;position:relative;overflow:hidden;transition:all .2s;cursor:pointer}.mc:hover{box-shadow:var(--sh);transform:translateY(-1px)}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;border-radius:2px 2px 0 0}
 .mc.grn::after{background:var(--grn)}.mc.blu::after{background:var(--blu)}.mc.pur::after{background:var(--pur)}.mc.amb::after{background:var(--amb)}.mc.red::after{background:var(--red)}.mc.cyn::after{background:var(--cyn)}.mc.pk::after{background:#ec4899}
-.mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.mi{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.mi{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
 .mc.blu .mi{background:var(--blu-s)}.mc.cyn .mi{background:var(--cyn-s)}.mc.grn .mi{background:var(--grn-s)}.mc.pur .mi{background:var(--pur-s)}.mc.red .mi{background:var(--red-s)}.mc.amb .mi{background:var(--amb-s)}.mc.pk .mi{background:#fce7f3}
-.kp{display:flex;align-items:center;gap:3px;padding:1px 6px;border-radius:8px;font-size:8px;font-weight:700;letter-spacing:.2px}
-.kp.g{background:var(--grn-s);color:var(--grn)}.kp.y{background:var(--amb-s);color:var(--amb)}.kp.r{background:var(--red-s);color:var(--red)}
-.kpp{width:5px;height:5px;border-radius:50%}.kp.g .kpp{background:var(--grn)}.kp.y .kpp{background:var(--amb)}.kp.r .kpp{background:var(--red)}
-.ml{font-size:9.5px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--tx3);margin-bottom:3px}
-.mv{font-family:'JetBrains Mono';font-size:22px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:4px}
-.md2{font-size:10.5px;color:var(--tx2);line-height:1.3}
-.tg{display:inline-flex;font-family:'JetBrains Mono';font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:1px}
-.tg.up{color:var(--grn);background:var(--grn-s)}.tg.dn{color:var(--red);background:var(--red-s)}.tg.fl{color:var(--amb);background:var(--amb-s)}
-.kt{font-size:9px;color:var(--tx3);margin-top:2px;font-family:'JetBrains Mono';font-weight:500}
+.kp{display:flex;align-items:center;gap:3px;padding:1px 5px;border-radius:6px;font-size:7.5px;font-weight:700;letter-spacing:.2px}.kp.g{background:var(--grn-s);color:var(--grn)}.kp.y{background:var(--amb-s);color:var(--amb)}.kp.r{background:var(--red-s);color:var(--red)}
+.kpp{width:4px;height:4px;border-radius:50%}.kp.g .kpp{background:var(--grn)}.kp.y .kpp{background:var(--amb)}.kp.r .kpp{background:var(--red)}
+.ml{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--tx3);margin-bottom:2px}
+.mv{font-family:'JetBrains Mono';font-size:20px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:3px}
+.md2{font-size:9.5px;color:var(--tx2);line-height:1.2}
+.tg{display:inline-flex;font-family:'JetBrains Mono';font-size:8px;font-weight:600;padding:1px 3px;border-radius:3px;margin-left:1px}.tg.up{color:var(--grn);background:var(--grn-s)}.tg.dn{color:var(--red);background:var(--red-s)}.tg.fl{color:var(--amb);background:var(--amb-s)}
+.kt{font-size:8px;color:var(--tx3);margin-top:2px;font-family:'JetBrains Mono';font-weight:500}
 /* Panels */
-.pn{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s}
-.pn:hover{box-shadow:var(--sh)}
-.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.pt{font-size:13px;font-weight:700;letter-spacing:-.2px}
-.pb{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}
-/* Grids */
-.cg{display:grid;grid-template-columns:5fr 3fr;gap:12px;margin-bottom:12px}
-.tg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.bg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.pn{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.03);transition:box-shadow .2s;margin-bottom:0}.pn:hover{box-shadow:var(--sh)}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.pt{font-size:12px;font-weight:700;letter-spacing:-.2px}.pb{font-size:8px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}
+.g2{display:grid;grid-template-columns:5fr 3fr;gap:10px;margin-bottom:10px}
+.g22{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.gf{margin-bottom:10px}
 /* Funnel */
-.fn{display:flex;flex-direction:column;gap:2px}.fs{display:grid;grid-template-columns:100px 1fr 60px;align-items:center;gap:8px;padding:6px 0}
-.fl2{font-size:11px;font-weight:500;color:var(--tx2)}
-.ft2{height:20px;background:var(--el);border-radius:5px;overflow:hidden}
-.fb{height:100%;border-radius:5px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.fn{display:flex;flex-direction:column;gap:1px}.fs{display:grid;grid-template-columns:90px 1fr 50px;align-items:center;gap:6px;padding:5px 0}
+.fl2{font-size:10px;font-weight:500;color:var(--tx2)}.ft2{height:18px;background:var(--el);border-radius:4px;overflow:hidden}
+.fb{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.22,1,.36,1)}
 .fb.grn{background:linear-gradient(90deg,#22c55e,#16a34a)}.fb.blu{background:linear-gradient(90deg,#60a5fa,#2563eb)}.fb.pur{background:linear-gradient(90deg,#a78bfa,#7c3aed)}.fb.amb{background:linear-gradient(90deg,#fbbf24,#d97706)}.fb.red{background:linear-gradient(90deg,#f87171,#dc2626)}.fb.cyn{background:linear-gradient(90deg,#22d3ee,#0891b2)}
-.fv{font-family:'JetBrains Mono';font-size:11px;font-weight:600;text-align:right}
+.fv{font-family:'JetBrains Mono';font-size:10px;font-weight:600;text-align:right}
 /* Insights */
-.il{display:flex;flex-direction:column;gap:6px}
-.ii{padding:10px 12px;border-radius:8px;border-left:3px solid;transition:all .15s;cursor:pointer}
-.ii:hover{filter:brightness(.97);transform:translateX(2px)}
+.il{display:flex;flex-direction:column;gap:4px}.ii{padding:8px 10px;border-radius:7px;border-left:3px solid;transition:all .15s;cursor:pointer}.ii:hover{filter:brightness(.97);transform:translateX(2px)}
 .ii.cr{border-color:var(--red);background:var(--red-s)}.ii.wa{border-color:var(--amb);background:var(--amb-s)}.ii.po{border-color:var(--grn);background:var(--grn-s)}.ii.ib{border-color:var(--blu);background:var(--blu-s)}
-.it2{font-size:8.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:2px}
+.it2{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px}
 .ii.cr .it2{color:var(--red)}.ii.wa .it2{color:var(--amb)}.ii.po .it2{color:var(--grn)}.ii.ib .it2{color:var(--blu)}
-.ix{font-size:11px;color:var(--tx2);line-height:1.45}.ix strong{color:var(--tx);font-weight:600}
-.cc{position:relative;height:220px;margin-top:4px}
+.ix{font-size:10px;color:var(--tx2);line-height:1.4}.ix strong{color:var(--tx)}
+.cc{position:relative;height:200px}
 /* Stats rows */
-.sr{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--el);border-radius:6px;margin-bottom:3px;cursor:pointer;transition:all .15s}
-.sr:hover{background:#e6e7ec;transform:translateX(2px)}
-.srl{font-size:11px;color:var(--tx2)}.srv{font-family:'JetBrains Mono';font-size:11px;font-weight:600}
-.hb{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:8px 0 4px;gap:1px}.hs{border-radius:2px}
-.hl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.li{display:flex;align-items:center;gap:3px;font-size:9.5px;color:var(--tx3)}.ld{width:6px;height:6px;border-radius:2px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10px}.sr:hover{background:#e6e7ec;transform:translateX(2px)}
+.srl{color:var(--tx2)}.srv{font-family:'JetBrains Mono';font-weight:600}
+.hb{display:flex;height:7px;border-radius:3px;overflow:hidden;margin:6px 0 3px;gap:1px}.hs{border-radius:2px}
+.hl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.li{display:flex;align-items:center;gap:3px;font-size:8.5px;color:var(--tx3)}.ld{width:5px;height:5px;border-radius:2px}
 /* CX */
-.cxc{display:flex;align-items:center;gap:16px;padding:2px 0}
-.cxr{position:relative;width:110px;height:110px;flex-shrink:0}.cxr canvas{width:110px!important;height:110px!important}
-.cxn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.cxv{font-family:'JetBrains Mono';font-size:20px;font-weight:700;color:var(--pur)}.cxl{font-size:8px;color:var(--tx3)}
-.cxs{display:flex;flex-direction:column;gap:5px;flex:1}
-.cxw{display:flex;align-items:center;gap:6px}.cxd{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.cxm{font-size:11px;color:var(--tx2);flex:1}.cxq{font-family:'JetBrains Mono';font-size:11px;font-weight:600}
+.cxc{display:flex;align-items:center;gap:12px}.cxr{position:relative;width:100px;height:100px;flex-shrink:0}.cxr canvas{width:100px!important;height:100px!important}
+.cxn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}.cxv{font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--pur)}.cxl{font-size:7px;color:var(--tx3)}
+.cxs{display:flex;flex-direction:column;gap:3px;flex:1}.cxw{display:flex;align-items:center;gap:5px}.cxd{width:6px;height:6px;border-radius:2px;flex-shrink:0}.cxm{font-size:10px;color:var(--tx2);flex:1}.cxq{font-family:'JetBrains Mono';font-size:10px;font-weight:600}
 /* Lists */
-.iml{display:flex;flex-direction:column;gap:4px}
-.imi{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:6px;padding:8px 10px;background:var(--el);border-radius:8px;transition:all .15s;cursor:pointer;border-left:3px solid transparent}
-.imi:hover{background:#e8e9ee;transform:translateX(2px);border-left-color:var(--blu)}
-.imr{font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--tx3);text-align:center}
-.imn{font-size:11px;font-weight:600}.ims{font-size:9px;color:var(--tx3);margin-top:1px}
-.bp{font-family:'JetBrains Mono';font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.2px}
-.bp.do{color:var(--grn);background:var(--grn-s);border:1px solid var(--grn-b)}.bp.rv{color:var(--amb);background:var(--amb-s);border:1px solid var(--amb-b)}.bp.qu{color:var(--tx3);background:var(--in);border:1px solid var(--bdr)}
-.wl{display:flex;flex-direction:column;gap:4px}
-.wi{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--el);border-radius:8px;transition:all .15s;cursor:pointer}
-.wi:hover{background:#e8e9ee;transform:translateX(2px)}
-.wk{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.wk.r{background:var(--red-s)}.wk.a{background:var(--amb-s)}.wk.b{background:var(--blu-s)}.wk.g{background:var(--grn-s)}
-.wt{font-size:11px;font-weight:600;margin-bottom:1px}.wd{font-size:9.5px;color:var(--tx3);line-height:1.3}
-/* Progress tracker */
-.prog-bar-bg{height:8px;background:var(--el);border-radius:4px;overflow:hidden;margin:6px 0 4px}
-.prog-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--grn),#22c55e);transition:width .8s ease}
-.prog-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--el);border-radius:6px;margin-bottom:3px;font-size:10.5px}
-.prog-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.prog-dot.suggested{background:var(--blu)}.prog-dot.drafted{background:var(--amb)}.prog-dot.published{background:var(--grn)}
-.prog-label{flex:1;color:var(--tx2)}.prog-date{font-family:'JetBrains Mono';font-size:9px;color:var(--tx3)}
+.iml{display:flex;flex-direction:column;gap:3px}
+.imi{display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:5px;padding:7px 8px;background:var(--el);border-radius:7px;transition:all .15s;cursor:pointer;border-left:3px solid transparent}.imi:hover{background:#e8e9ee;transform:translateX(2px);border-left-color:var(--blu)}
+.imr{font-family:'JetBrains Mono';font-size:8px;font-weight:700;color:var(--tx3)}.imn{font-size:10px;font-weight:600}.ims{font-size:8px;color:var(--tx3)}
+.bp{font-family:'JetBrains Mono';font-size:7.5px;font-weight:700;padding:2px 5px;border-radius:3px}.bp.do{color:var(--grn);background:var(--grn-s);border:1px solid var(--grn-b)}.bp.rv{color:var(--amb);background:var(--amb-s);border:1px solid var(--amb-b)}.bp.qu{color:var(--tx3);background:var(--in);border:1px solid var(--bdr)}
+.wl{display:flex;flex-direction:column;gap:3px}.wi{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;background:var(--el);border-radius:7px;transition:all .15s;cursor:pointer}.wi:hover{background:#e8e9ee;transform:translateX(2px)}
+.wk{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}.wk.r{background:var(--red-s)}.wk.a{background:var(--amb-s)}.wk.b{background:var(--blu-s)}.wk.g{background:var(--grn-s)}
+.wt{font-size:10px;font-weight:600}.wd{font-size:8.5px;color:var(--tx3)}
+/* Escalation feed */
+.esc-row{display:grid;grid-template-columns:1fr 100px 40px;align-items:center;gap:6px;padding:7px 8px;border-radius:6px;margin-bottom:2px;cursor:pointer;transition:all .15s;font-size:10px;border-left:3px solid transparent}
+.esc-row:hover{transform:translateX(2px)}
+.esc-row.no-content{background:var(--red-s);border-left-color:var(--red)}.esc-row.tried{background:var(--amb-s);border-left-color:var(--amb)}.esc-row.resolved{background:var(--grn-s);border-left-color:var(--grn)}.esc-row.bypass{background:var(--el);border-left-color:var(--tx3)}
+.esc-title{font-weight:600;color:var(--tx)}.esc-team{font-size:8px;color:var(--tx3);font-family:'JetBrains Mono'}
+.esc-sla{font-family:'JetBrains Mono';font-size:8px;font-weight:700;text-align:center;padding:2px 5px;border-radius:3px}
+.esc-sla.hit{color:var(--grn);background:var(--grn-s)}.esc-sla.miss{color:var(--red);background:var(--red-s)}.esc-sla.na{color:var(--tx3);background:var(--el)}
+.esc-filter{display:flex;gap:3px;margin-bottom:8px}.esc-fb{padding:3px 8px;border-radius:4px;font-size:8px;font-weight:600;cursor:pointer;background:var(--el);color:var(--tx3);border:1px solid var(--bdr)}.esc-fb.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+/* Heatmap bars */
+.hm-row{display:grid;grid-template-columns:80px 1fr 40px;align-items:center;gap:6px;padding:4px 0}.hm-label{font-size:9px;color:var(--tx2);font-weight:500}.hm-bar-bg{height:16px;background:var(--el);border-radius:4px;overflow:hidden}.hm-bar{height:100%;border-radius:4px;transition:width .8s ease}.hm-val{font-family:'JetBrains Mono';font-size:9px;font-weight:600;text-align:right}
+/* Content gap */
+.gap-row{padding:7px 8px;background:var(--red-s);border-left:3px solid var(--red);border-radius:6px;margin-bottom:3px;cursor:pointer;transition:all .15s}.gap-row:hover{transform:translateX(2px)}
+.gap-topic{font-size:10px;font-weight:600;color:var(--tx)}.gap-sub{font-size:8px;color:var(--tx3);margin-top:1px}
+/* Overworked articles */
+.ow-row{display:grid;grid-template-columns:20px 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--el);border-radius:6px;margin-bottom:2px;cursor:pointer;transition:all .15s}.ow-row:hover{background:#e6e7ec;transform:translateX(2px)}
+.ow-rank{font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:var(--tx3)}.ow-name{font-size:10px;font-weight:600}.ow-count{font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:var(--red)}
+/* Progress */
+.prog-bg{height:7px;background:var(--el);border-radius:3px;overflow:hidden;margin:5px 0 3px}.prog-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--grn),#22c55e);transition:width .8s}
+.prog-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:9.5px}
+.prog-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}.prog-dot.sug{background:var(--blu)}.prog-dot.dra{background:var(--amb)}.prog-dot.pub{background:var(--grn)}
+.prog-label{flex:1;color:var(--tx2)}.prog-date{font-family:'JetBrains Mono';font-size:8px;color:var(--tx3)}
 /* ROI */
-.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.roi-card{padding:12px;background:var(--el);border-radius:10px;text-align:center}
-.roi-val{font-family:'JetBrains Mono';font-size:20px;font-weight:700;line-height:1;margin-bottom:2px}
-.roi-lbl{font-size:9px;color:var(--tx3);font-weight:500}
-.roi-big{padding:16px;background:linear-gradient(135deg,var(--grn-s),#d1fae5);border:1px solid var(--grn-b);border-radius:12px;text-align:center;margin-bottom:10px}
-.roi-big .roi-val{font-size:32px;color:var(--grn)}
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.roi-card{padding:10px;background:var(--el);border-radius:8px;text-align:center}.roi-val{font-family:'JetBrains Mono';font-size:18px;font-weight:700;line-height:1;margin-bottom:1px}.roi-lbl{font-size:8px;color:var(--tx3)}
+.roi-big{padding:14px;background:linear-gradient(135deg,var(--grn-s),#d1fae5);border:1px solid var(--grn-b);border-radius:10px;text-align:center;margin-bottom:8px}.roi-big .roi-val{font-size:28px;color:var(--grn)}
+/* SLA */
+.sla-row{display:grid;grid-template-columns:1fr 50px 50px;align-items:center;gap:6px;padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:9.5px}
+.sla-team{font-weight:600;color:var(--tx)}.sla-val{font-family:'JetBrains Mono';font-weight:600;text-align:center}
+/* Road to 95 */
+.road-phase{display:grid;grid-template-columns:30px 1fr 60px 60px;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;margin-bottom:4px;transition:all .15s;cursor:pointer}
+.road-phase:hover{transform:translateX(2px)}
+.road-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:11px;font-weight:700;color:#fff}
+.road-name{font-size:11px;font-weight:600}.road-sub{font-size:8.5px;color:var(--tx3);margin-top:1px}
+.road-impact{font-family:'JetBrains Mono';font-size:10px;font-weight:700;text-align:center}
+.road-status{font-family:'JetBrains Mono';font-size:8px;font-weight:700;padding:3px 8px;border-radius:4px;text-align:center}
+/* Cost */
+.cost-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--el);font-size:10px;color:var(--tx2)}
+.cost-val{font-family:'JetBrains Mono';font-weight:600;color:var(--tx)}
 /* Modal */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
-.mo.show{display:flex}
-.modal{background:var(--card);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:720px;max-height:85vh;overflow-y:auto;animation:mIn .2s ease}
-@keyframes mIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 0;position:sticky;top:0;background:var(--card);z-index:1}
-.mt{font-size:16px;font-weight:700;letter-spacing:-.3px}
-.mx{width:28px;height:28px;border-radius:7px;border:1px solid var(--bdr);background:var(--el);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--tx3)}
-.mx:hover{background:var(--red-s);color:var(--red)}
-.mb2{padding:14px 22px 22px}
-.ms{margin-bottom:12px}
-.mlbl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);margin-bottom:5px}
-.mtxt{font-size:12px;color:var(--tx2);line-height:1.6}.mtxt strong{color:var(--tx);font-weight:600}
-.mlist{list-style:none;padding:0}.mlist li{padding:6px 10px;background:var(--el);border-radius:6px;margin-bottom:3px;font-size:11.5px;color:var(--tx2);display:flex;align-items:flex-start;gap:6px}
-.mlist li::before{content:'→';color:var(--blu);font-weight:700;flex-shrink:0}
-.macts{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
-.mbtn{padding:8px 16px;border-radius:8px;font-family:'Outfit';font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}.mo.show{display:flex}
+.modal{background:var(--card);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:700px;max-height:85vh;overflow-y:auto;animation:mIn .2s ease}
+@keyframes mIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;position:sticky;top:0;background:var(--card);z-index:1}.mt{font-size:15px;font-weight:700}.mx{width:26px;height:26px;border-radius:6px;border:1px solid var(--bdr);background:var(--el);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--tx3)}.mx:hover{background:var(--red-s);color:var(--red)}
+.mb2{padding:12px 20px 20px}.ms{margin-bottom:10px}.mlbl{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px}
+.mtxt{font-size:11px;color:var(--tx2);line-height:1.5}.mtxt strong{color:var(--tx)}
+.mlist{list-style:none;padding:0}.mlist li{padding:5px 8px;background:var(--el);border-radius:5px;margin-bottom:2px;font-size:10.5px;color:var(--tx2);display:flex;align-items:flex-start;gap:5px}.mlist li::before{content:'→';color:var(--blu);font-weight:700;flex-shrink:0}
+.macts{display:flex;gap:5px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
+.mbtn{padding:7px 14px;border-radius:7px;font-family:'Outfit';font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
 .mbtn.pri{background:var(--blu);color:#fff}.mbtn.pri:hover{background:#1d4ed8}
 .mbtn.suc{background:var(--grn);color:#fff}.mbtn.suc:hover{background:#15803d}
 .mbtn.sec{background:var(--el);color:var(--tx2);border:1px solid var(--bdr)}.mbtn.sec:hover{background:#e4e5ea}
-.mbtn:disabled{opacity:.4;cursor:default}
-/* Article rows in modals */
-.art-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--el);font-size:11px;transition:background .1s}
-.art-row:hover{background:var(--el)}
-.art-t{font-weight:500;color:var(--tx)}.art-sub{font-size:9px;color:var(--tx3);margin-top:1px}
-.art-btn{padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono';font-size:8px;font-weight:700;cursor:pointer;border:1px solid;transition:all .15s}
-.art-btn.go{color:var(--blu);background:var(--blu-s);border-color:rgba(37,99,235,.2)}.art-btn.go:hover{background:#c5d8fe}
-.art-btn.ok{color:var(--grn);background:var(--grn-s);border-color:var(--grn-b);cursor:default}
-/* Crosslink suggestion in modal */
-.cl-sug{padding:4px 8px;background:var(--blu-s);border-radius:4px;font-size:10px;color:var(--blu);display:inline-flex;align-items:center;gap:4px;margin:2px}
+.mbtn.wrn{background:var(--amb);color:#fff}.mbtn:disabled{opacity:.4;cursor:default}
 /* Toast */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--tx);color:#fff;padding:10px 18px;border-radius:10px;font-size:11.5px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:2000;transform:translateY(70px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:6px}
-.toast.show{transform:translateY(0);opacity:1}
-.lu{text-align:center;font-size:9px;color:var(--tx3);margin-top:20px;font-family:'JetBrains Mono'}
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.mc,.pn{animation:fu .3s ease both}
-.mc:nth-child(1){animation-delay:.02s}.mc:nth-child(2){animation-delay:.04s}.mc:nth-child(3){animation-delay:.06s}.mc:nth-child(4){animation-delay:.08s}.mc:nth-child(5){animation-delay:.1s}.mc:nth-child(6){animation-delay:.12s}.mc:nth-child(7){animation-delay:.14s}.mc:nth-child(8){animation-delay:.16s}
-@media(max-width:1200px){.mg{grid-template-columns:repeat(3,1fr)}.cg,.tg2,.bg{grid-template-columns:1fr}.roi-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){.mg{grid-template-columns:repeat(2,1fr)}.d{padding:14px}.hd{flex-direction:column;align-items:flex-start}}
+.toast{position:fixed;bottom:16px;right:16px;background:var(--tx);color:#fff;padding:8px 16px;border-radius:8px;font-size:11px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:2000;transform:translateY(60px);opacity:0;transition:all .3s}.toast.show{transform:translateY(0);opacity:1}
+.lu{text-align:center;font-size:8px;color:var(--tx3);margin-top:16px;font-family:'JetBrains Mono'}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.mc,.pn{animation:fu .3s ease both}
+@media(max-width:1200px){.mg{grid-template-columns:repeat(3,1fr)}.g2,.g22,.g3{grid-template-columns:1fr}}
+@media(max-width:768px){.mg{grid-template-columns:repeat(2,1fr)}.d{padding:12px}.roi-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="d">
-<div class="hd">
-<div class="hd-l"><div class="logo">⚡</div><div><div class="hd-t">Fin AI Agent — Command Center</div><div class="hd-s">Jolt Support · Performance & ROI Dashboard</div></div></div>
-<div class="hd-r">
-<div class="tog"><div class="tog-o" onclick="setV('external',this)">External</div><div class="tog-o" onclick="setV('internal',this)">Internal</div><div class="tog-o on" onclick="setV('all',this)">All</div></div>
-<div class="live"><div class="dot"></div>LIVE</div>
-<button class="btn" onclick="location.reload()">↻</button>
-</div></div>
-<div class="fbar">
-<button class="fbtn" onclick="setP(7,this)">7D</button><button class="fbtn" onclick="setP(14,this)">14D</button><button class="fbtn on" onclick="setP(30,this)">30D</button><button class="fbtn" onclick="setP(90,this)">90D</button>
-<div class="fsep"></div>
-<div class="fci"><label>From</label><input type="date" id="df" value="2026-02-07"><label>To</label><input type="date" id="dt" value="2026-03-06"><button class="fap" onclick="applyC()">Apply</button></div>
-<div class="fr" id="frd">Feb 7 – Mar 6, 2026</div>
-</div>
+<!-- HEADER -->
+<div class="hd"><div class="hd-l"><div class="logo">⚡</div><div><div class="hd-t">Fin AI Agent — Command Center</div><div class="hd-s">Jolt Support · Target: 95% Resolution | 80% Automation</div></div></div><div class="hd-r"><div class="tog"><div class="tog-o" onclick="setV('external',this)">External</div><div class="tog-o" onclick="setV('internal',this)">Internal</div><div class="tog-o on" onclick="setV('all',this)">All</div></div><div class="live"><div class="dot"></div>LIVE</div><button class="btn" onclick="location.reload()">↻</button></div></div>
+<div class="fbar"><button class="fbtn" onclick="setP(7,this)">7D</button><button class="fbtn" onclick="setP(14,this)">14D</button><button class="fbtn on" onclick="setP(30,this)">30D</button><button class="fbtn" onclick="setP(90,this)">90D</button><div class="fsep"></div><div class="fci"><label>From</label><input type="date" id="df" value="2026-02-07"><label>To</label><input type="date" id="dt" value="2026-03-06"><button class="fap" onclick="applyC()">Apply</button></div><div class="fr" id="frd">Feb 7 – Mar 6, 2026</div></div>
+<!-- KPIs -->
 <div class="mg" id="MG"></div>
-<div class="cg">
-<div class="pn"><div class="ph"><div class="pt">Performance Funnel</div><div class="pb" id="FBL">Last 30 Days</div></div><div class="fn" id="FN"></div></div>
-<div class="pn"><div class="ph"><div class="pt">AI Insights & Alerts</div><div class="pb">Auto</div></div><div class="il" id="INS"></div></div>
-</div>
-<div class="tg2">
-<div class="pn"><div class="ph"><div class="pt">Performance Over Time</div><div class="pb">Weekly</div></div><div class="cc"><canvas id="tc"></canvas></div></div>
-<div class="pn"><div class="ph"><div class="pt">Knowledge Base Health</div><div class="pb">326 Articles</div></div><div id="KB"></div></div>
-</div>
-<div class="bg">
-<div class="pn"><div class="ph"><div class="pt">CX Score</div><div class="pb">575 Ratings</div></div>
-<div class="cxc"><div class="cxr"><canvas id="cx"></canvas><div class="cxn"><div class="cxv">46.1%</div><div class="cxl">CX Score</div></div></div>
-<div class="cxs">
-<div class="cxw"><div class="cxd" style="background:var(--grn)"></div><div class="cxm">5 Star</div><div class="cxq">168</div></div>
-<div class="cxw"><div class="cxd" style="background:var(--pur)"></div><div class="cxm">4 Star</div><div class="cxq">97</div></div>
-<div class="cxw"><div class="cxd" style="background:var(--amb)"></div><div class="cxm">3 Star</div><div class="cxq">219</div></div>
-<div class="cxw"><div class="cxd" style="background:var(--red)"></div><div class="cxm">1-2 Star</div><div class="cxq">78</div></div>
-<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--bdr);font-size:9px"><div style="color:var(--tx3);font-weight:600">NEG: <span style="color:var(--red)">Product · Policy</span></div><div style="color:var(--tx3);font-weight:600;margin-top:2px">POS: <span style="color:var(--grn)">Fin Quality · Low Effort</span></div></div>
-</div></div></div>
+<!-- Funnel + Insights -->
+<div class="g2"><div class="pn"><div class="ph"><div class="pt">Performance Funnel</div><div class="pb" id="FBL">30D</div></div><div class="fn" id="FN"></div></div><div class="pn"><div class="ph"><div class="pt">AI Insights & Alerts</div><div class="pb">Auto</div></div><div class="il" id="INS"></div></div></div>
+<!-- Charts + KB -->
+<div class="g22"><div class="pn"><div class="ph"><div class="pt">Performance Over Time</div><div class="pb">Weekly</div></div><div class="cc"><canvas id="tc"></canvas></div></div><div class="pn"><div class="ph"><div class="pt">Knowledge Base Health</div><div class="pb">326 Articles</div></div><div id="KB"></div></div></div>
+<!-- CX + Improve + Watch -->
+<div class="g3"><div class="pn"><div class="ph"><div class="pt">CX Score</div><div class="pb">575</div></div><div class="cxc"><div class="cxr"><canvas id="cx"></canvas><div class="cxn"><div class="cxv">46.1%</div><div class="cxl">CX Score</div></div></div><div class="cxs"><div class="cxw"><div class="cxd" style="background:var(--grn)"></div><div class="cxm">5 Star</div><div class="cxq">168</div></div><div class="cxw"><div class="cxd" style="background:var(--pur)"></div><div class="cxm">4 Star</div><div class="cxq">97</div></div><div class="cxw"><div class="cxd" style="background:var(--amb)"></div><div class="cxm">3 Star</div><div class="cxq">219</div></div><div class="cxw"><div class="cxd" style="background:var(--red)"></div><div class="cxm">1-2 Star</div><div class="cxq">78</div></div><div style="margin-top:3px;padding-top:3px;border-top:1px solid var(--bdr);font-size:8px"><span style="color:var(--red);font-weight:600">NEG:</span> Product·Policy | <span style="color:var(--grn);font-weight:600">POS:</span> Quality·Low Effort</div></div></div></div>
 <div class="pn"><div class="ph"><div class="pt">Top Areas to Improve</div><div class="pb">Impact</div></div><div class="iml" id="IMP"></div></div>
-<div class="pn"><div class="ph"><div class="pt">Things to Watch</div><div class="pb">Alerts</div></div><div class="wl" id="WAT"></div></div>
+<div class="pn"><div class="ph"><div class="pt">Things to Watch</div><div class="pb">Alerts</div></div><div class="wl" id="WAT"></div></div></div>
+<!-- ★ NEW: Live Escalation Feed + Topic Heatmap -->
+<div class="g22">
+<div class="pn"><div class="ph"><div class="pt">🔴 Live Escalation Feed</div><div class="pb" id="escCount">Today</div></div><div class="esc-filter" id="escFilter"></div><div id="escFeed" style="max-height:280px;overflow-y:auto"></div></div>
+<div class="pn"><div class="ph"><div class="pt">🔥 Escalation Topics</div><div class="pb">Heatmap</div></div><div id="hmBody"></div><div style="margin-top:8px"><div class="cc" style="height:160px"><canvas id="hmChart"></canvas></div></div></div>
 </div>
-<!-- PROGRESS TRACKER & ROI - New sections -->
-<div class="tg2">
-<div class="pn">
-<div class="ph"><div class="pt">📋 Progress Tracker</div><div class="pb" id="progPct">0% Complete</div></div>
-<div class="prog-bar-bg"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
-<div style="display:flex;gap:12px;margin:8px 0 10px">
-<div class="li"><div class="ld" style="background:var(--blu)"></div>Suggested</div>
-<div class="li"><div class="ld" style="background:var(--amb)"></div>Drafted</div>
-<div class="li"><div class="ld" style="background:var(--grn)"></div>Published</div>
+<!-- ★ NEW: Content Gap + Overworked Articles -->
+<div class="g22">
+<div class="pn"><div class="ph"><div class="pt">🕳 Content Gaps</div><div class="pb" id="gapCount">0 Gaps</div></div><div style="font-size:9px;color:var(--tx3);margin-bottom:8px">Conversations where Fin had <strong style="color:var(--red)">zero</strong> content sources — highest-priority new articles to write</div><div id="gapList"></div></div>
+<div class="pn"><div class="ph"><div class="pt">🔄 Overworked Articles</div><div class="pb">Most Referenced in Escalations</div></div><div style="font-size:9px;color:var(--tx3);margin-bottom:8px">Articles appearing most in failed escalations — may need splitting or expanding</div><div id="owList"></div></div>
 </div>
-<div id="progList"></div>
+<!-- Progress + ROI -->
+<div class="g22">
+<div class="pn"><div class="ph"><div class="pt">📋 Progress Tracker</div><div class="pb" id="progPct">0%</div></div><div class="prog-bg"><div class="prog-bar" id="progBar" style="width:0%"></div></div><div style="display:flex;gap:8px;margin:5px 0 8px"><div class="li"><div class="ld" style="background:var(--blu)"></div>Suggested</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Drafted</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Published</div></div><div id="progList" style="max-height:220px;overflow-y:auto"></div></div>
+<div class="pn"><div class="ph"><div class="pt">💰 ROI Calculator</div><div class="pb">Current</div></div><div class="roi-big"><div class="roi-val" id="roiSavings">$0</div><div class="roi-lbl">Annualized Savings</div></div><div class="roi-grid"><div class="roi-card"><div class="roi-val" id="roiHrs" style="color:var(--blu)">0</div><div class="roi-lbl">Hrs/Mo Saved</div></div><div class="roi-card"><div class="roi-val" id="roiFTE" style="color:var(--pur)">0</div><div class="roi-lbl">FTEs Offset</div></div><div class="roi-card"><div class="roi-val" id="roiROI" style="color:var(--grn)">0%</div><div class="roi-lbl">ROI</div></div></div><div style="font-size:8px;color:var(--tx3);line-height:1.4"><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>Loaded Cost/FTE</span><span style="font-family:'JetBrains Mono';font-weight:600">$66,750</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>AHT Pre-AI</span><span style="font-family:'JetBrains Mono';font-weight:600">23.1 min</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--el)"><span>AI Resolved</span><span style="font-family:'JetBrains Mono';font-weight:600" id="roiCases">562/mo</span></div><div style="display:flex;justify-content:space-between;padding:2px 0"><span>Payback</span><span style="font-family:'JetBrains Mono';font-weight:600;color:var(--grn)" id="roiPayback">—</span></div></div></div>
 </div>
-<div class="pn">
-<div class="ph"><div class="pt">💰 AI ROI Calculator</div><div class="pb">Current Month</div></div>
-<div class="roi-big"><div class="roi-val" id="roiSavings">$0</div><div class="roi-lbl">Annualized Savings (Current Rate)</div></div>
-<div class="roi-grid">
-<div class="roi-card"><div class="roi-val" id="roiHrs" style="color:var(--blu)">0</div><div class="roi-lbl">Monthly Hrs Saved</div></div>
-<div class="roi-card"><div class="roi-val" id="roiFTE" style="color:var(--pur)">0</div><div class="roi-lbl">FTEs Offset</div></div>
-<div class="roi-card"><div class="roi-val" id="roiROI" style="color:var(--grn)">0%</div><div class="roi-lbl">ROI</div></div>
+<!-- ★ NEW: SLA + Cost Per Ticket -->
+<div class="g22">
+<div class="pn"><div class="ph"><div class="pt">⏱ SLA Performance</div><div class="pb">Today</div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;padding:8px;background:var(--grn-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--grn)" id="slaHit">3</div><div style="font-size:8px;color:var(--tx3)">SLA Hit</div></div><div style="flex:1;padding:8px;background:var(--red-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--red)" id="slaMiss">13</div><div style="font-size:8px;color:var(--tx3)">SLA Missed</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--amb)" id="slaRate">19%</div><div style="font-size:8px;color:var(--tx3)">Hit Rate</div></div></div><div style="font-size:9px;font-weight:600;color:var(--tx3);margin-bottom:4px">BY TEAM</div><div id="slaTeams"></div></div>
+<div class="pn"><div class="ph"><div class="pt">💵 Cost Per Ticket</div><div class="pb">Monthly</div></div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;padding:8px;background:var(--grn-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--grn)">$0</div><div style="font-size:8px;color:var(--tx3)">AI Resolved</div></div><div style="flex:1;padding:8px;background:var(--red-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--red)" id="costHuman">$0</div><div style="font-size:8px;color:var(--tx3)">Human Handled</div></div><div style="flex:1;padding:8px;background:var(--blu-s);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--blu)" id="costBlend">$0</div><div style="font-size:8px;color:var(--tx3)">Blended Avg</div></div></div><div id="costDetails"></div></div>
 </div>
-<div style="font-size:9px;color:var(--tx3);line-height:1.5">
-<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--el)"><span>Loaded Cost/FTE</span><span style="font-family:'JetBrains Mono';font-weight:600">$66,750</span></div>
-<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--el)"><span>AHT Pre-AI</span><span style="font-family:'JetBrains Mono';font-weight:600">23.1 min</span></div>
-<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--el)"><span>Cases Resolved by AI</span><span style="font-family:'JetBrains Mono';font-weight:600" id="roiCases">562/mo</span></div>
-<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--el)"><span>Monthly Hrs Saved</span><span style="font-family:'JetBrains Mono';font-weight:600" id="roiHrs2">0</span></div>
-<div style="display:flex;justify-content:space-between;padding:3px 0"><span>Payback Period</span><span style="font-family:'JetBrains Mono';font-weight:600;color:var(--grn)" id="roiPayback">—</span></div>
-</div>
-</div>
-</div>
-
-<!-- Month-over-Month ROI Trending -->
-<div class="pn" style="margin-bottom:12px">
-<div class="ph"><div class="pt">📈 ROI Trending — 12 Month FTE Offset</div><div class="pb">Month-over-Month</div></div>
-<div style="height:240px;position:relative"><canvas id="roiChart"></canvas></div>
-<div style="margin-top:12px">
-<div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:8px;margin-bottom:6px">
-<div><div style="font-size:9px;font-weight:600;color:var(--grn);text-transform:uppercase;letter-spacing:.3px">12-Month Growth</div><div style="font-size:11px;color:var(--tx);margin-top:2px"><strong>FTEs Offset:</strong> 1.17 → 1.72 <span style="font-family:'JetBrains Mono';font-size:10px;color:var(--grn);font-weight:600">(+47%)</span></div></div>
-<div style="text-align:right"><div style="font-size:9px;font-weight:600;color:var(--grn);text-transform:uppercase;letter-spacing:.3px">Cumulative Savings</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--grn)" id="roiCumulative">$0</div></div>
-</div>
-<div id="roiTable" style="max-height:200px;overflow-y:auto"></div>
-</div>
+<!-- ROI Trending -->
+<div class="pn gf"><div class="ph"><div class="pt">📈 ROI Trending — 12 Month FTE Offset</div><div class="pb">MoM</div></div><div style="height:220px;position:relative"><canvas id="roiChart"></canvas></div><div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:8px;margin-top:10px"><div><div style="font-size:8px;font-weight:600;color:var(--grn);text-transform:uppercase">12-Month Growth</div><div style="font-size:10px;margin-top:1px"><strong>FTEs:</strong> 1.17→1.72 <span style="font-family:'JetBrains Mono';font-size:9px;color:var(--grn);font-weight:600">(+47%)</span></div></div><div style="text-align:right"><div style="font-size:8px;font-weight:600;color:var(--grn);text-transform:uppercase">Cumulative Savings</div><div style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:var(--grn)" id="roiCum">$0</div></div></div></div>
+<!-- ★ NEW: Road to 95% -->
+<div class="pn gf"><div class="ph"><div class="pt">🎯 Road to 95% Resolution</div><div class="pb">Roadmap</div></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--el);border-radius:8px"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:9px;font-weight:600;margin-bottom:3px"><span style="color:var(--tx2)">Current: 71.6%</span><span style="color:var(--grn)">Target: 95%</span></div><div style="height:10px;background:var(--bdr);border-radius:5px;overflow:hidden;position:relative"><div style="width:75.4%;height:100%;background:linear-gradient(90deg,var(--amb),var(--grn));border-radius:5px"></div><div style="position:absolute;left:75.4%;top:-2px;width:2px;height:14px;background:var(--tx)"></div></div></div><div style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--pur)">23.4pp<div style="font-size:7px;color:var(--tx3);font-weight:500">to close</div></div></div>
+<div id="roadPhases"></div>
 </div>
 <div class="lu" id="lu"></div>
 </div>
@@ -244,31 +183,47 @@
 <div class="mo" id="mo" onclick="if(event.target===this)closeM()"><div class="modal"><div class="mh"><div class="mt" id="mt"></div><div class="mx" onclick="closeM()">✕</div></div><div class="mb2" id="mb"></div></div></div>
 <div class="toast" id="toast"><span id="tMsg"></span></div>
 <script>
-// ═══ DATA ═══
 const D={30:{total:1100,chat:1077,email:23,involved:785,resolved:562,escalated:216,notInvolved:315,pending:7,positive:265,totalRated:575,invRate:71.4,autoRate:51.1,resRate:71.6,handoff:28.4,csat:46.1,hCsat:72.3,avgR:5.2,invT:5.2,autoT:0,resT:-3.1,handT:2.1,csatT:-5.4,hcT:1.1,rT:0.8},7:{total:280,chat:274,email:6,involved:198,resolved:145,escalated:50,notInvolved:82,pending:3,positive:68,totalRated:148,invRate:70.7,autoRate:51.8,resRate:73.2,handoff:26.8,csat:45.9,hCsat:71.8,avgR:5.0,invT:4.1,autoT:1.2,resT:-1.8,handT:1.5,csatT:-3.2,hcT:0.5,rT:-0.3},14:{total:540,chat:528,email:12,involved:385,resolved:278,escalated:102,notInvolved:155,pending:5,positive:130,totalRated:285,invRate:71.3,autoRate:51.5,resRate:72.2,handoff:27.8,csat:45.6,hCsat:72.0,avgR:5.1,invT:4.8,autoT:0.5,resT:-2.4,handT:1.8,csatT:-4.1,hcT:0.8,rT:0.2},90:{total:3150,chat:3080,email:70,involved:2200,resolved:1580,escalated:595,notInvolved:950,pending:25,positive:780,totalRated:1680,invRate:69.8,autoRate:50.2,resRate:71.8,handoff:28.2,csat:46.4,hCsat:73.1,avgR:5.4,invT:6.0,autoT:-0.3,resT:-2.0,handT:2.5,csatT:-4.8,hcT:1.5,rT:1.2}};
-const KPI={invRate:80,autoRate:60,resRate:70,handoff:5,csat:85,hCsat:80,avgR:4};
-const CROSSLINKS=[{"id":"13976752","t":"Jolt user permissions matrix","wc":428,"links":[{"id":"11933693","t":"How are admin roles managed and permissions assigned","kw":"permission"},{"id":"9672099","t":"Managing List Permission Settings","kw":"permission"},{"id":"9670985","t":"Edit File Permissions","kw":"permission"}]},{"id":"9641615","t":"How to Perform a Network Reset on Your Zebra Printer","wc":114,"links":[{"id":"9641547","t":"How to Perform a Factory Reset on Your Zebra Printer","kw":"zebra,reset"},{"id":"9681575","t":"Install a Zebra Printer Shelf","kw":"zebra"},{"id":"9671031","t":"Troubleshooting Zebra Printers in Jolt","kw":"zebra"}]},{"id":"9654098","t":"How to pair a temperature probe with the Jolt app","wc":348,"links":[{"id":"9654164","t":"How to Record Temperatures Using the Probe","kw":"temperature"},{"id":"9683542","t":"Managing Time & Temperature Processes","kw":"temperature"},{"id":"9683535","t":"FAQ: Time & Temperature on Jolt App","kw":"temperature"}]},{"id":"9672111","t":"Bulk Add Labels","wc":268,"links":[{"id":"13216281","t":"Using Label Tags to Control Visibility","kw":"label"},{"id":"12313195","t":"How to Swap Labels for JPS 2000","kw":"label"},{"id":"9654976","t":"How to Create Labels and Categories","kw":"label"}]},{"id":"10504761","t":"Getting Started with the Jolt App (Employees)","wc":702,"links":[{"id":"9658542","t":"How to Assign Tasks to Employees","kw":"employee"},{"id":"9654868","t":"How to Add Employee Profile Photo","kw":"employee"},{"id":"9658520","t":"How to Invite Employees","kw":"employee"}]},{"id":"12161192","t":"JPS - How to Update Printer Firmware","wc":521,"links":[{"id":"10303161","t":"JPS - Printer Won't Connect","kw":"jps"},{"id":"9649117","t":"Troubleshooting Your JPS","kw":"jps"},{"id":"10305684","t":"JPS Out of Paper Error","kw":"jps"}]},{"id":"12038141","t":"(Video) Clean Printhead & Platen on ZT111","wc":128,"links":[{"id":"12023527","t":"ZT111 - Poor Print Quality","kw":"zt111"},{"id":"12046299","t":"ZT111 - Alignment Troubleshooting","kw":"zt111"},{"id":"10516949","t":"ZT111 - Troubleshooting Your Printer","kw":"zt111"}]},{"id":"10374883","t":"JPS Troubleshooting - Display won't charge","wc":361,"links":[{"id":"10303161","t":"JPS - Printer Won't Connect","kw":"jps"},{"id":"9649117","t":"Troubleshooting Your JPS","kw":"jps"},{"id":"10305684","t":"JPS Out of Paper Error","kw":"jps"}]},{"id":"10250712","t":"Bulk Editing Labels In The Web Portal","wc":183,"links":[{"id":"9683011","t":"Exporting and Importing Label Templates","kw":"label"},{"id":"9671807","t":"How to Remove Labels and Templates","kw":"label"},{"id":"9654811","t":"How to Set Up Label Prep Templates","kw":"label"}]},{"id":"10070269","t":"Browsing Lists","wc":178,"links":[{"id":"13744122","t":"Managing list schedules in Jolt mobile app","kw":"list"},{"id":"9654068","t":"Creating and managing list schedules","kw":"list"},{"id":"9675699","t":"FAQ: Exporting Lists from Browse Lists","kw":"list"}]},{"id":"10068077","t":"Brand Completion Report","wc":182,"links":[{"id":"10068075","t":"Probe Report & Brand Probe Reports","kw":"report"},{"id":"10068072","t":"Points Report","kw":"report"},{"id":"10068067","t":"List Time Report","kw":"report"}]},{"id":"10068067","t":"List Time Report","wc":139,"links":[{"id":"9683539","t":"How to Use the Lists Completion Report","kw":"list,report"},{"id":"9683156","t":"List Flags Report","kw":"list,report"},{"id":"9682764","t":"Corrective Action Report","kw":"report"}]},{"id":"11933693","t":"How are admin roles managed in Jolt","wc":251,"links":[{"id":"9654898","t":"FAQ: List Permissions as Content Group Admin","kw":"permission,admin"},{"id":"9654549","t":"Role-Based Admin Access","kw":"admin,role"},{"id":"9653629","t":"Create and Edit Roles","kw":"role"}]},{"id":"11933651","t":"How to resolve visibility & sync issues","wc":294,"links":[{"id":"9654065","t":"Troubleshooting Sync Issues | Server Errors","kw":"sync,app"},{"id":"9655189","t":"Troubleshooting Lists Not Showing","kw":"troubleshoot,app"},{"id":"9654149","t":"How to Reset the Jolt App","kw":"reset,app"}]},{"id":"11933647","t":"Checklist accessibility issues","wc":317,"links":[{"id":"9655250","t":"How to Use the Sublist Item Type","kw":"checklist"},{"id":"9654040","t":"How to Submit a Checklist","kw":"checklist"},{"id":"9655189","t":"Troubleshooting Lists Not Showing","kw":"list"}]}];
-const GRAMMAR=[{"id":"9671818","t":"Repairs & Replacements","issues":["Double spaces","Typo: wth"]},{"id":"9654160","t":"How to Update Payment Method","issues":["Double spaces"]},{"id":"13976752","t":"Jolt user permissions matrix","issues":["Double spaces"]},{"id":"13744122","t":"Managing list schedules","issues":["Double spaces"]},{"id":"9654098","t":"How to pair a temperature probe","issues":["Double spaces"]},{"id":"13216281","t":"Using Label Tags","issues":["Double spaces"]},{"id":"10305684","t":"JPS Out of Paper Error","issues":["Lowercase after period"]},{"id":"12161192","t":"JPS - Update Printer Firmware","issues":["Double spaces"]},{"id":"12046299","t":"ZT111 - Alignment Troubleshooting","issues":["Double spaces"]},{"id":"12037956","t":"Using your Jolt Weight Scale","issues":["Double spaces"]},{"id":"11780451","t":"Setting up your Hardware","issues":["Double spaces"]},{"id":"11102007","t":"How to Install/Replace Ribbon Roll","issues":["Double spaces"]},{"id":"10706948","t":"Work Orders - Adding Assets","issues":["Double spaces"]},{"id":"10458685","t":"Work Orders Notifications","issues":["Double spaces"]},{"id":"10374883","t":"JPS - Display will not charge","issues":["Lowercase after period"]},{"id":"9948919","t":"Adjust Darkness Settings on ZD410","issues":["Double spaces"]},{"id":"9899778","t":"Chick-fil-A Integration","issues":["Double spaces"]},{"id":"9894033","t":"Welcome to new Jolt Support Center","issues":["Double spaces"]},{"id":"9787431","t":"Updating JPSLauncher/Jolt app","issues":["Double spaces"]},{"id":"9681575","t":"Install a Zebra Printer Shelf","issues":["Lowercase after period"]},{"id":"9671176","t":"Lists Item Completion Report","issues":["Double spaces"]},{"id":"9658898","t":"How to Order Supplies and Hardware","issues":["Double spaces"]},{"id":"9653640","t":"Add a Content Group","issues":["Double spaces"]},{"id":"9869427","t":"Opt Into Beta Program (Android)","issues":["Double spaces"]},{"id":"9654114","t":"Jolt Label Size Options","issues":["Double spaces"]}];
-
-// ROI Benchmarks
-const ROI_B={salary:50000,benefitRate:.34,loadedCost:66750,annualHrs:1664,supportHrsWeek:32,supportHrsDay:7,aht:23.1,casesPerDay:18.18};
-const ROI_MONTHLY=[{"month":"Apr 2025","total":980,"resolved":420,"resRate":42.9,"invRate":62.0,"monthlyHrs":161.7,"ftesOffset":1.17,"annualSavings":77838,"monthlySavings":6486},{"month":"May 2025","total":1020,"resolved":450,"resRate":44.1,"invRate":63.5,"monthlyHrs":173.2,"ftesOffset":1.25,"annualSavings":83397,"monthlySavings":6950},{"month":"Jun 2025","total":1050,"resolved":470,"resRate":44.8,"invRate":64.0,"monthlyHrs":181.0,"ftesOffset":1.3,"annualSavings":87104,"monthlySavings":7259},{"month":"Jul 2025","total":1080,"resolved":490,"resRate":45.4,"invRate":65.2,"monthlyHrs":188.7,"ftesOffset":1.36,"annualSavings":90810,"monthlySavings":7568},{"month":"Aug 2025","total":1060,"resolved":485,"resRate":45.8,"invRate":65.8,"monthlyHrs":186.7,"ftesOffset":1.35,"annualSavings":89884,"monthlySavings":7490},{"month":"Sep 2025","total":1100,"resolved":510,"resRate":46.4,"invRate":66.5,"monthlyHrs":196.3,"ftesOffset":1.42,"annualSavings":94517,"monthlySavings":7876},{"month":"Oct 2025","total":1090,"resolved":520,"resRate":47.7,"invRate":67.0,"monthlyHrs":200.2,"ftesOffset":1.44,"annualSavings":96370,"monthlySavings":8031},{"month":"Nov 2025","total":1070,"resolved":515,"resRate":48.1,"invRate":68.2,"monthlyHrs":198.3,"ftesOffset":1.43,"annualSavings":95444,"monthlySavings":7954},{"month":"Dec 2025","total":1040,"resolved":508,"resRate":48.8,"invRate":68.5,"monthlyHrs":195.6,"ftesOffset":1.41,"annualSavings":94146,"monthlySavings":7846},{"month":"Jan 2026","total":1120,"resolved":540,"resRate":48.2,"invRate":69.0,"monthlyHrs":207.9,"ftesOffset":1.5,"annualSavings":100077,"monthlySavings":8340},{"month":"Feb 2026","total":1100,"resolved":562,"resRate":51.1,"invRate":71.4,"monthlyHrs":216.4,"ftesOffset":1.56,"annualSavings":104154,"monthlySavings":8680},{"month":"Mar 2026","total":1150,"resolved":620,"resRate":53.9,"invRate":80.5,"monthlyHrs":238.7,"ftesOffset":1.72,"annualSavings":114903,"monthlySavings":9575}];
-
-// Progress tracker state (persisted in memory for session)
+const KPI={invRate:80,autoRate:80,resRate:95,handoff:5,csat:85,hCsat:80,avgR:4};
+const ROI_B={salary:50000,benefitRate:.34,loadedCost:66750,annualHrs:1664,aht:23.1};
+const ROI_M=[{m:"Apr'25",res:420,fte:1.17,sv:6486},{m:"May'25",res:450,fte:1.25,sv:6950},{m:"Jun'25",res:470,fte:1.30,sv:7259},{m:"Jul'25",res:490,fte:1.36,sv:7568},{m:"Aug'25",res:485,fte:1.35,sv:7490},{m:"Sep'25",res:510,fte:1.42,sv:7876},{m:"Oct'25",res:520,fte:1.44,sv:8031},{m:"Nov'25",res:515,fte:1.43,sv:7954},{m:"Dec'25",res:508,fte:1.41,sv:7846},{m:"Jan'26",res:540,fte:1.50,sv:8340},{m:"Feb'26",res:562,fte:1.56,sv:8680},{m:"Mar'26",res:620,fte:1.72,sv:9575}];
+// Live escalation data from Intercom API pull
+const ESC=[
+{id:'215473521712992',title:'Follow up work order',team:'BILLING',fin:true,articles:['Payment Method','Work Order Posts'],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521712992'},
+{id:'215473523716866',title:'App labels not displaying',team:'CHATS',fin:true,articles:['Sync Issues','Reset App','Update App','JPS Launcher'],sla:'miss',cat:'Sync',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473523716866'},
+{id:'215473521428577',title:'Food safety not showing',team:'CHATS',fin:true,articles:['Sync Issues','Lists Not Showing'],sla:'hit',cat:'Lists',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521428577'},
+{id:'215473521616345',title:'How-To question',team:'TECH',fin:false,articles:[],sla:'na',cat:'How-To',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473521616345'},
+{id:'215473295222209',title:'HOQ billing question',team:'BILLING',fin:false,articles:[],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473295222209'},
+{id:'215473507702571',title:'List population issue',team:'CHATS',fin:true,articles:[],sla:'miss',cat:'Lists',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473507702571'},
+{id:'215473520780644',title:'Cancel account',team:'BILLING',fin:true,articles:[],sla:'miss',cat:'Billing',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473520780644'},
+{id:'215473518649176',title:'Printer replacement status',team:'CHATS',fin:true,articles:['Welcome page','Printer repair FAQ'],sla:'hit',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473518649176'},
+{id:'215473518232373',title:'Tablet not turning on',team:'CHATS',fin:true,articles:['JPS Tablet','JPS Setup','JPS Connect','JPS Charge'],sla:'miss',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473518232373'},
+{id:'215473519033045',title:'DFS error compliance',team:'CHATS',fin:true,articles:['Sync Issues','List Submission'],sla:'miss',cat:'Lists',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519033045'},
+{id:'215473505524929',title:'Manufacturer warranty',team:'CHATS',fin:true,articles:[],sla:'hit',cat:'Repairs',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473505524929'},
+{id:'215473519436069',title:'Unblock time off requests',team:'CHATS',fin:true,articles:['Sync Issues','Update App','Block Time Off'],sla:'miss',cat:'Scheduling',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519436069'},
+{id:'215473519534676',title:'LoRaWAN gateway issue',team:'CHATS',fin:true,articles:['LoRa Troubleshooting','LoRa FAQ','LoRa Checklist'],sla:'miss',cat:'Sensors',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473519534676'},
+{id:'215473502869003',title:'Printer access code issue',team:'CHATS',fin:true,articles:['JPS Tablet','Sync Issues','Reset App','JPS Setup','JPS Connect','JPS WiFi'],sla:'miss',cat:'Hardware',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473502869003'},
+{id:'215473502261754',title:'Subscription access issue',team:'CHATS',fin:true,articles:['Password Reset','Subscriptions','Access Levels'],sla:'miss',cat:'Billing',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473502261754'},
+{id:'215473506980687',title:'Cancel Jolt account',team:'CANCEL',fin:true,articles:[],sla:'miss',cat:'Billing',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473506980687'},
+{id:'215473500540942',title:'Shift pickup requests',team:'TECH',fin:true,articles:['Scheduling Notifications','Shift Drop/Pickup','Schedule FAQ'],sla:'na',cat:'Scheduling',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473500540942'},
+{id:'215473511409676',title:'Generate QR code',team:'CHATS',fin:true,articles:['Connect Device','Getting Started Web'],sla:'miss',cat:'How-To',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473511409676'},
+{id:'215473478693240',title:'Other (abandoned)',team:'TECH',fin:true,articles:[],sla:'na',cat:'Other',noContent:true,url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473478693240'},
+{id:'215473510115417',title:'Remove company',team:'CHATS',fin:true,articles:['Sharing Content'],sla:'na',cat:'Other',url:'https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/215473510115417'}
+];
 const PROGRESS=[
-{name:'Password Reset Article',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9648646',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9648646'},
-{name:'Sync Issues / Server Errors',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9654065',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654065'},
-{name:'App Reset Guide',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9654149',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654149'},
-{name:'Repairs & Replacements',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9671818',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9671818'},
-{name:'Lists Not Showing',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',pubDate:null,id:'9655189',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9655189'},
-{name:'Network Reset Zebra (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9641615',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9641615'},
-{name:'Factory Reset Zebra (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9641547',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9641547'},
-{name:'Bulk Add Labels (cross-linked)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'9672111',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9672111'},
-{name:'8 Descriptions Added (live)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'batch-desc-8'},
-{name:'268 Article Descriptions',status:'suggested',sugDate:'Mar 7',draftDate:null,pubDate:null,id:'batch-desc'},
-{name:'238 Cross-Link Updates',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-cl'},
-{name:'40 Thin Article Expansions',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-thin'},
-{name:'25 Grammar Fixes',status:'suggested',sugDate:'Mar 8',draftDate:null,pubDate:null,id:'batch-gram'},
+{name:'Password Reset Article',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',id:'9648646',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9648646'},
+{name:'Sync Issues / Server Errors',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',id:'9654065',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654065'},
+{name:'App Reset Guide',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',id:'9654149',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9654149'},
+{name:'Repairs & Replacements',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',id:'9671818',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9671818'},
+{name:'Lists Not Showing',status:'drafted',sugDate:'Mar 6',draftDate:'Mar 6',id:'9655189',iUrl:'https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=9655189'},
+{name:'Cross-links: Zebra Printers (3)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'cl-zebra'},
+{name:'Cross-links: Labels (1)',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'cl-labels'},
+{name:'Descriptions: 29 articles live',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'desc-29'},
+{name:'Grammar: Payment Method fixed',status:'published',sugDate:'Mar 17',draftDate:'Mar 17',pubDate:'Mar 17',id:'gram-1'},
+{name:'268 Article Descriptions',status:'suggested',sugDate:'Mar 7',id:'batch-desc'},
+{name:'238 Cross-Link Updates',status:'suggested',sugDate:'Mar 8',id:'batch-cl'},
+{name:'40 Thin Article Expansions',status:'suggested',sugDate:'Mar 8',id:'batch-thin'},
+{name:'25 Grammar Fixes',status:'suggested',sugDate:'Mar 8',id:'batch-gram'}
 ];
 const IMPROVE=[
 {id:'9648646',name:'Password Reset',views:1890,sad:100,esc:9,status:'drafted'},
@@ -280,166 +235,146 @@ const IMPROVE=[
 {id:'gram',name:'Fix 25 Grammar Issues',status:'queued'}
 ];
 const WATCH=[
-{icon:'📉',cls:'r',title:'CSAT Trending Down',short:'~51%→43% in 3 wks',detail:'Top negatives: Product & Policy Feedback, not Fin quality.',recs:['Review top 20 negative conversations','Update policy articles','Add empathy language','Track after changes']},
-{icon:'⚡',cls:'a',title:'Resolution Dip Feb 9',short:'Dropped to 65%',detail:'Correlates with 100% sad reactions on Password Reset and Sync articles. Now rewritten as drafts.',recs:['Publish 5 draft articles','Monitor weekly','Alert if <68%']},
-{icon:'🔀',cls:'a',title:'315 Bypass Fin',short:'29% skip AI',detail:'Largest opportunity. Route more through Fin = ~113 more resolutions/month.',recs:['Audit routing rules','Enable Fin on email','A/B test skip button','Target: <200 bypass']},
-{icon:'📧',cls:'b',title:'Email Underserved',short:'23 vs 1,077 chat',detail:'Fin may not be on email channel.',recs:['Enable Fin for email','Email-optimized responses','Monitor 30 days']},
-{icon:'📈',cls:'g',title:'Involvement Stable',short:'~71% for 3 wks',detail:'Strong but below 80% target. Gap = bypass conversations.',recs:['Close gap to 80%','Need ~95 more to Fin','Enable email + reduce skip']}
+{icon:'📉',cls:'r',title:'CSAT Trending Down',short:'~51%→43% in 3 wks',detail:'Top negatives: Product & Policy Feedback, not Fin quality.'},
+{icon:'⚡',cls:'a',title:'Resolution Dip Feb 9',short:'Dropped to 65%',detail:'Correlates with 100% sad on Password Reset and Sync articles.'},
+{icon:'🔀',cls:'a',title:'315 Bypass Fin',short:'29% skip AI',detail:'Largest opportunity. Route more through Fin = ~113 more resolutions/month.'},
+{icon:'📧',cls:'b',title:'Email Underserved',short:'23 vs 1,077 chat',detail:'Fin may not be on email.'},
+{icon:'📈',cls:'g',title:'Involvement 80.5% Today',short:'Hit target on Mar 17',detail:'Single-day spike. Monitor if sustained.'}
 ];
 
-let curView='all',curDays=30;
+let curView='all',curDays=30,escFilterVal='all';
 const f=n=>n.toLocaleString();
-const ks=(v,t,m)=>{if(m==='handoff'||m==='avgR')return v<=t?'g':v<=t*(m==='avgR'?1.25:1)+5?'y':'r';return v>=t?'g':v>=t-5?'y':'r'};
+const ks=(v,t,m)=>{if(m==='handoff'||m==='avgR')return v<=t?'g':v<=t*1.5?'y':'r';return v>=t?'g':v>=t*.85?'y':'r'};
 const kl=s=>({g:'ON TARGET',y:'NEAR',r:'BELOW'}[s]);
-const tt=(v,inv)=>{if(v===0)return'<span class="tg fl">—</span>';const u=v>0;if(inv)return u?`<span class="tg dn">↑${Math.abs(v)}%</span>`:`<span class="tg up">↓${Math.abs(v)}%</span>`;return u?`<span class="tg up">↑${v}%</span>`:`<span class="tg dn">↓${Math.abs(v)}%</span>`};
+const tt=(v,inv)=>{if(!v)return'<span class="tg fl">—</span>';const u=v>0;if(inv)return u?`<span class="tg dn">↑${Math.abs(v)}%</span>`:`<span class="tg up">↓${Math.abs(v)}%</span>`;return u?`<span class="tg up">↑${v}%</span>`:`<span class="tg dn">↓${Math.abs(v)}%</span>`};
 
 function renderMetrics(d){
 const cards=[
-{icon:'💬',label:'AI Interactions',value:f(d.total),detail:`${f(d.chat)} chat · ${f(d.email)} email`,trend:tt(8),color:'blu',scope:'all'},
-{icon:'🤖',label:'Involvement',value:d.invRate+'%',detail:`${f(d.involved)} of ${f(d.total)}`,trend:tt(d.invT),color:'cyn',kv:d.invRate,kt:KPI.invRate,km:'invRate',scope:'external'},
-{icon:'⚡',label:'Automation',value:d.autoRate+'%',detail:`${f(d.resolved)} auto-resolved`,trend:tt(d.autoT),color:'grn',kv:d.autoRate,kt:KPI.autoRate,km:'autoRate',scope:'external'},
-{icon:'✅',label:'Resolution',value:d.resRate+'%',detail:`${f(d.resolved)} of ${f(d.involved)}`,trend:tt(d.resT),color:'pur',kv:d.resRate,kt:KPI.resRate,km:'resRate',scope:'external'},
-{icon:'🔀',label:'Handoff',value:d.handoff+'%',detail:`${f(d.escalated)} escalated`,trend:tt(d.handT,1),color:'red',kv:d.handoff,kt:KPI.handoff,km:'handoff',scope:'all'},
-{icon:'⭐',label:'AI CSAT',value:d.csat+'%',detail:`${f(d.positive)} of ${f(d.totalRated)}`,trend:tt(d.csatT),color:'amb',kv:d.csat,kt:KPI.csat,km:'csat',scope:'external'},
+{icon:'💬',label:'Volume',value:f(d.total),detail:`${f(d.chat)} chat · ${f(d.email)} email`,trend:tt(8),color:'blu',scope:'all'},
+{icon:'🤖',label:'Involvement',value:d.invRate+'%',detail:`${f(d.involved)}/${f(d.total)}`,trend:tt(d.invT),color:'cyn',kv:d.invRate,kt:KPI.invRate,km:'invRate',scope:'external'},
+{icon:'⚡',label:'Automation',value:d.autoRate+'%',detail:`${f(d.resolved)} auto`,trend:tt(d.autoT),color:'grn',kv:d.autoRate,kt:KPI.autoRate,km:'autoRate',scope:'external'},
+{icon:'✅',label:'Resolution',value:d.resRate+'%',detail:`${f(d.resolved)}/${f(d.involved)}`,trend:tt(d.resT),color:'pur',kv:d.resRate,kt:KPI.resRate,km:'resRate',scope:'external'},
+{icon:'🔀',label:'Handoff',value:d.handoff+'%',detail:`${f(d.escalated)} esc`,trend:tt(d.handT,1),color:'red',kv:d.handoff,kt:KPI.handoff,km:'handoff',scope:'all'},
+{icon:'⭐',label:'AI CSAT',value:d.csat+'%',detail:`${f(d.positive)}/${f(d.totalRated)}`,trend:tt(d.csatT),color:'amb',kv:d.csat,kt:KPI.csat,km:'csat',scope:'external'},
 {icon:'👤',label:'Agent CSAT',value:d.hCsat+'%',detail:'Live chat',trend:tt(d.hcT),color:'pk',kv:d.hCsat,kt:KPI.hCsat,km:'hCsat',scope:'internal'},
-{icon:'⏱',label:'Avg Response',value:d.avgR+'m',detail:'First response',trend:tt(d.rT,1),color:'blu',kv:d.avgR,kt:KPI.avgR,km:'avgR',scope:'internal'}
+{icon:'⏱',label:'Avg Response',value:d.avgR+'m',detail:'First reply',trend:tt(d.rT,1),color:'blu',kv:d.avgR,kt:KPI.avgR,km:'avgR',scope:'internal'}
 ];
-document.getElementById('MG').innerHTML=cards.filter(c=>curView==='all'||c.scope===curView||c.scope==='all').map(c=>{
-const s=c.kv!=null?ks(c.kv,c.kt,c.km):null;
-const tgt=c.kt!=null?(c.km==='handoff'||c.km==='avgR'?`≤${c.kt}${c.km==='avgR'?'m':'%'}`:`${c.kt}%`):'';
-return`<div class="mc ${c.color}" onclick="openMetM('${c.label}')"><div class="mc-top"><div class="mi">${c.icon}</div>${s?`<div class="kp ${s}"><div class="kpp"></div>${kl(s)}</div>`:''}</div><div class="ml">${c.label}</div><div class="mv">${c.value}</div><div class="md2">${c.detail} ${c.trend}</div>${tgt?`<div class="kt">Target: ${tgt}</div>`:''}</div>`}).join('')}
+document.getElementById('MG').innerHTML=cards.filter(c=>curView==='all'||c.scope===curView||c.scope==='all').map(c=>{const s=c.kv!=null?ks(c.kv,c.kt,c.km):null;const tgt=c.kt!=null?(c.km==='handoff'||c.km==='avgR'?`≤${c.kt}${c.km==='avgR'?'m':'%'}`:`${c.kt}%`):'';return`<div class="mc ${c.color}" onclick="openMetM('${c.label}')"><div class="mc-top"><div class="mi">${c.icon}</div>${s?`<div class="kp ${s}"><div class="kpp"></div>${kl(s)}</div>`:''}</div><div class="ml">${c.label}</div><div class="mv">${c.value}</div><div class="md2">${c.detail} ${c.trend}</div>${tgt?`<div class="kt">Target: ${tgt}</div>`:''}</div>`}).join('')}
 
-function renderFunnel(d){const t=d.total;document.getElementById('FN').innerHTML=[['Total Volume',100,f(t),'blu'],['Fin Involved',d.involved/t*100,f(d.involved),'cyn'],['Fin Resolved',d.resolved/t*100,f(d.resolved),'grn'],['Escalated',d.escalated/t*100,f(d.escalated),'amb'],['Not Involved',d.notInvolved/t*100,f(d.notInvolved),'red'],['Pending',Math.max(d.pending/t*100,.5),f(d.pending),'pur']].map(s=>`<div class="fs"><div class="fl2">${s[0]}</div><div class="ft2"><div class="fb ${s[3]}" style="width:${s[1]}%"></div></div><div class="fv">${s[2]}</div></div>`).join('')}
+function renderFunnel(d){const t=d.total;document.getElementById('FN').innerHTML=[['Total',100,f(t),'blu'],['Involved',d.involved/t*100,f(d.involved),'cyn'],['Resolved',d.resolved/t*100,f(d.resolved),'grn'],['Escalated',d.escalated/t*100,f(d.escalated),'amb'],['Bypass',d.notInvolved/t*100,f(d.notInvolved),'red'],['Pending',Math.max(d.pending/t*100,.5),f(d.pending),'pur']].map(s=>`<div class="fs"><div class="fl2">${s[0]}</div><div class="ft2"><div class="fb ${s[3]}" style="width:${s[1]}%"></div></div><div class="fv">${s[2]}</div></div>`).join('')}
 
 function renderInsights(){document.getElementById('INS').innerHTML=[
-['cr','⚠ CRITICAL','<strong>CSAT 46.1%</strong> — Product & Policy feedback, not AI quality.','csatI'],
-['wa','⚡ OPPORTUNITY','<strong>315 bypass Fin</strong> — 29% untouched by AI.','bypassI'],
-['po','✓ STRENGTH','<strong>71.6% resolution</strong> — 3 in 4 when involved.','resI'],
-['ib','📊 CONTENT','<strong>82% missing descriptions</strong> — #1 AI lever.','contI']
-].map(i=>`<div class="ii ${i[0]}" onclick="openInsM('${i[3]}')"><div class="it2">${i[1]}</div><div class="ix">${i[2]}</div></div>`).join('')}
+['cr','⚠ CRITICAL','<strong>CSAT 46.1%</strong> — Product & Policy feedback, not AI quality.'],
+['wa','⚡ OPPORTUNITY','<strong>315 bypass Fin</strong> — 29% untouched by AI.'],
+['po','✓ STRENGTH','<strong>71.6% resolution</strong> — above old target. New target: 95%.'],
+['ib','📊 CONTENT','<strong>82% missing descriptions</strong> — #1 lever for AI matching.']
+].map(i=>`<div class="ii ${i[0]}"><div class="it2">${i[1]}</div><div class="ix">${i[2]}</div></div>`).join('')}
 
-function renderKB(){document.getElementById('KB').innerHTML=`<div style="padding:2px 0">
-<div style="display:flex;justify-content:space-between;margin-bottom:8px"><div><div style="font-size:9px;color:var(--tx3)">Need Work</div><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--amb)">317<span style="font-size:10px;color:var(--tx3);font-weight:400">/326</span></div></div><div style="text-align:right"><div style="font-size:9px;color:var(--tx3)">Good</div><div style="font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--grn)">9</div></div></div>
-<div class="hb"><div class="hs" style="width:1.8%;background:var(--red)"></div><div class="hs" style="width:84%;background:var(--amb)"></div><div class="hs" style="width:11.3%;background:var(--blu)"></div><div class="hs" style="width:2.8%;background:var(--grn)"></div></div>
-<div class="hl"><div class="li"><div class="ld" style="background:var(--red)"></div>Critical(6)</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Moderate(274)</div><div class="li"><div class="ld" style="background:var(--blu)"></div>Minor(37)</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Good(9)</div></div>
-${[['Missing Descriptions','268 (82%)','var(--red)'],['No Cross-Links','238 (73%)','var(--amb)'],['Thin Content (<200w)','40 (12%)','var(--amb)'],['Grammar Issues','25 (8%)','var(--tx3)']].map(r=>`<div class="sr" onclick="openKBM('${r[0]}')"><span class="srl">${r[0]}</span><span class="srv" style="color:${r[2]}">${r[1]}</span></div>`).join('')}</div>`}
+function renderKB(){document.getElementById('KB').innerHTML=`<div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div><div style="font-size:8px;color:var(--tx3)">Need Work</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--amb)">317<span style="font-size:9px;color:var(--tx3);font-weight:400">/326</span></div></div><div style="text-align:right"><div style="font-size:8px;color:var(--tx3)">Good</div><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--grn)">9</div></div></div><div class="hb"><div class="hs" style="width:2%;background:var(--red)"></div><div class="hs" style="width:84%;background:var(--amb)"></div><div class="hs" style="width:11%;background:var(--blu)"></div><div class="hs" style="width:3%;background:var(--grn)"></div></div><div class="hl"><div class="li"><div class="ld" style="background:var(--red)"></div>Critical(6)</div><div class="li"><div class="ld" style="background:var(--amb)"></div>Mod(274)</div><div class="li"><div class="ld" style="background:var(--blu)"></div>Minor(37)</div><div class="li"><div class="ld" style="background:var(--grn)"></div>Good(9)</div></div>${[['Missing Descriptions','268 (82%)','var(--red)'],['No Cross-Links','238 (73%)','var(--amb)'],['Thin Content (<200w)','40 (12%)','var(--amb)'],['Grammar Issues','25 (8%)','var(--tx3)']].map(r=>`<div class="sr" onclick="openKBM('${r[0]}')"><span class="srl">${r[0]}</span><span class="srv" style="color:${r[2]}">${r[1]}</span></div>`).join('')}</div>`}
 
-function renderImprove(){document.getElementById('IMP').innerHTML=IMPROVE.map((a,i)=>{
-const st=a.status==='done'?'do':a.status==='drafted'?'rv':a.status==='review'?'rv':'qu';
-const stL=a.status==='done'?'DONE ✓':a.status==='drafted'?'DRAFTED':a.status==='review'?'REVIEW':'QUEUED';
-const sub=a.views?`${f(a.views)}v·${a.sad}%sad·${a.esc}esc`:a.id==='desc'?'82% missing':a.id==='links'?'73% no links':a.id==='thin'?'<200 words':'Grammar/formatting';
-return`<div class="imi" onclick="openImpM(${i})"><div class="imr">${i+1}</div><div><div class="imn">${a.name}</div><div class="ims">${sub}</div></div><div class="bp ${st}">${stL}</div></div>`}).join('')}
+function renderImprove(){document.getElementById('IMP').innerHTML=IMPROVE.map((a,i)=>{const st=a.status==='done'?'do':a.status==='drafted'?'rv':a.status==='review'?'rv':'qu';const stL=a.status==='done'?'DONE ✓':a.status==='drafted'?'DRAFTED':a.status==='review'?'REVIEW':'QUEUED';const sub=a.views?`${f(a.views)}v·${a.sad}%·${a.esc}esc`:a.id==='desc'?'82% missing':a.id==='links'?'73% no links':a.id==='thin'?'<200w':'Grammar';return`<div class="imi" onclick="openImpM(${i})"><div class="imr">${i+1}</div><div><div class="imn">${a.name}</div><div class="ims">${sub}</div></div><div class="bp ${st}">${stL}</div></div>`}).join('')}
 
 function renderWatch(){document.getElementById('WAT').innerHTML=WATCH.map((w,i)=>`<div class="wi" onclick="openWatM(${i})"><div class="wk ${w.cls}">${w.icon}</div><div><div class="wt">${w.title}</div><div class="wd">${w.short}</div></div></div>`).join('')}
 
-function renderProgress(){
-const pub=PROGRESS.filter(p=>p.status==='published').length;
-const draft=PROGRESS.filter(p=>p.status==='drafted').length;
-const total=PROGRESS.length;
-const pct=Math.round((pub*100+draft*50)/total);
-document.getElementById('progBar').style.width=pct+'%';
-document.getElementById('progPct').textContent=pct+'% Complete';
-document.getElementById('progList').innerHTML=PROGRESS.map(p=>{
-const cls=p.status==='published'?'published':p.status==='drafted'?'drafted':'suggested';
-const dates=p.status==='published'?`Suggested ${p.sugDate} → Drafted ${p.draftDate} → Published ${p.pubDate}`:p.status==='drafted'?`Suggested ${p.sugDate} → Drafted ${p.draftDate}`:`Suggested ${p.sugDate}`;
-const link=p.iUrl?` <a href="${p.iUrl}" target="_blank" style="font-size:9px;color:var(--blu);text-decoration:none;font-weight:600">↗ View in Intercom</a>`:'';
-return`<div class="prog-item"><div class="prog-dot ${cls}"></div><div class="prog-label"><strong>${p.name}</strong>${link}</div><div class="prog-date">${dates}</div></div>`}).join('')}
+// ★ NEW: Live Escalation Feed
+function renderEscFeed(){
+const filters=['all','no-content','sla-miss','bypass'];
+document.getElementById('escFilter').innerHTML=filters.map(f=>`<div class="esc-fb ${f===escFilterVal?'on':''}" onclick="escFilterVal='${f}';renderEscFeed()">${f==='all'?'All ('+ESC.length+')':f==='no-content'?'🔴 No Content':f==='sla-miss'?'⏱ SLA Miss':'🔀 Bypass'}</div>`).join('');
+let filtered=ESC;
+if(escFilterVal==='no-content')filtered=ESC.filter(e=>e.noContent);
+if(escFilterVal==='sla-miss')filtered=ESC.filter(e=>e.sla==='miss');
+if(escFilterVal==='bypass')filtered=ESC.filter(e=>!e.fin);
+document.getElementById('escCount').textContent=filtered.length+' Today';
+document.getElementById('escFeed').innerHTML=filtered.map(e=>{const cls=e.noContent?'no-content':!e.fin?'bypass':e.articles.length?'tried':'no-content';return`<div class="esc-row ${cls}" onclick="openEscM('${e.id}')"><div><div class="esc-title">${e.title}</div><div style="font-size:8px;color:var(--tx3);margin-top:1px">${e.articles.length?e.articles.slice(0,2).join(', ')+(e.articles.length>2?' +'+( e.articles.length-2):''):'No articles found'}</div></div><div class="esc-team">${e.team}</div><div class="esc-sla ${e.sla}">${e.sla==='hit'?'HIT':e.sla==='miss'?'MISS':'—'}</div></div>`}).join('')}
 
-function renderROI(d){
-const resolved=d.resolved;
-const hrsPerCase=ROI_B.aht/60;
-const monthlyHrsSaved=resolved*hrsPerCase;
-const annualHrsSaved=monthlyHrsSaved*12;
-const ftesOffset=annualHrsSaved/ROI_B.annualHrs;
-const annualSavings=ftesOffset*ROI_B.loadedCost;
-const roi=annualSavings>0?(annualSavings/ROI_B.loadedCost*100):0;
-const payback=annualSavings>0?Math.round(ROI_B.loadedCost/annualSavings*12*10)/10:0;
-document.getElementById('roiSavings').textContent='$'+Math.round(annualSavings).toLocaleString();
-document.getElementById('roiHrs').textContent=Math.round(monthlyHrsSaved);
-document.getElementById('roiHrs2').textContent=Math.round(monthlyHrsSaved)+' hrs';
-document.getElementById('roiFTE').textContent=ftesOffset.toFixed(1);
-document.getElementById('roiROI').textContent=Math.round(roi)+'%';
-document.getElementById('roiCases').textContent=f(resolved)+'/mo';
-document.getElementById('roiPayback').textContent=payback>0?payback+' mo':'—'}
+// ★ NEW: Topic Heatmap
+function renderHeatmap(){
+const topics={};ESC.forEach(e=>{topics[e.cat]=(topics[e.cat]||0)+1});
+const sorted=Object.entries(topics).sort((a,b)=>b[1]-a[1]);
+const max=sorted[0]?sorted[0][1]:1;
+const colors=['var(--red)','var(--amb)','var(--blu)','var(--pur)','var(--cyn)','var(--grn)','var(--tx3)'];
+document.getElementById('hmBody').innerHTML=sorted.map((s,i)=>`<div class="hm-row"><div class="hm-label">${s[0]}</div><div class="hm-bar-bg"><div class="hm-bar" style="width:${s[1]/max*100}%;background:${colors[i%colors.length]}"></div></div><div class="hm-val">${s[1]}</div></div>`).join('')}
+
+// ★ NEW: Content Gaps
+function renderGaps(){
+const gaps=ESC.filter(e=>e.noContent&&e.fin);
+document.getElementById('gapCount').textContent=gaps.length+' Gaps';
+document.getElementById('gapList').innerHTML=gaps.map(g=>`<div class="gap-row" onclick="openGapM('${g.id}')"><div class="gap-topic">${g.title}</div><div class="gap-sub">Team: ${g.team} · No articles matched · <strong>Create article to deflect</strong></div></div>`).join('')}
+
+// ★ NEW: Overworked Articles
+function renderOverworked(){
+const articleCount={};ESC.forEach(e=>{e.articles.forEach(a=>{articleCount[a]=(articleCount[a]||0)+1})});
+const sorted=Object.entries(articleCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+document.getElementById('owList').innerHTML=sorted.map((s,i)=>`<div class="ow-row" onclick="openOwM('${s[0]}')"><div class="ow-rank">${i+1}</div><div><div class="ow-name">${s[0]}</div><div style="font-size:8px;color:var(--tx3)">${s[1]>3?'⚠ Overloaded — consider splitting':'Referenced in escalations'}</div></div><div class="ow-count">${s[1]}×</div></div>`).join('')}
+
+function renderProgress(){const pub=PROGRESS.filter(p=>p.status==='published').length;const draft=PROGRESS.filter(p=>p.status==='drafted').length;const total=PROGRESS.length;const pct=Math.round((pub*100+draft*50)/total);document.getElementById('progBar').style.width=pct+'%';document.getElementById('progPct').textContent=pct+'%';
+document.getElementById('progList').innerHTML=PROGRESS.map(p=>{const cls=p.status==='published'?'pub':p.status==='drafted'?'dra':'sug';const dates=p.status==='published'?`${p.sugDate}→${p.pubDate}`:p.status==='drafted'?`${p.sugDate}→Drafted ${p.draftDate}`:`Suggested ${p.sugDate}`;const link=p.iUrl?` <a href="${p.iUrl}" target="_blank" style="font-size:8px;color:var(--blu);text-decoration:none;font-weight:600">↗</a>`:'';return`<div class="prog-item"><div class="prog-dot ${cls}"></div><div class="prog-label"><strong>${p.name}</strong>${link}</div><div class="prog-date">${dates}</div></div>`}).join('')}
+
+function renderROI(d){const r=d.resolved,h=r*(ROI_B.aht/60),a=h*12,fte=a/ROI_B.annualHrs,sv=fte*ROI_B.loadedCost,roi=sv/ROI_B.loadedCost*100,pb=sv>0?Math.round(ROI_B.loadedCost/sv*12*10)/10:0;
+document.getElementById('roiSavings').textContent='$'+Math.round(sv).toLocaleString();document.getElementById('roiHrs').textContent=Math.round(h);document.getElementById('roiFTE').textContent=fte.toFixed(1);document.getElementById('roiROI').textContent=Math.round(roi)+'%';document.getElementById('roiCases').textContent=f(r)+'/mo';document.getElementById('roiPayback').textContent=pb?pb+'mo':'—';
+// Cost per ticket
+const humanCost=(ROI_B.aht/60)*(ROI_B.loadedCost/ROI_B.annualHrs);const blend=(r*0+d.escalated*humanCost)/d.total;
+document.getElementById('costHuman').textContent='$'+humanCost.toFixed(2);document.getElementById('costBlend').textContent='$'+blend.toFixed(2);
+document.getElementById('costDetails').innerHTML=`<div class="cost-row"><span>Cost avoided (AI resolved)</span><div class="cost-val" style="color:var(--grn)">$${Math.round(r*humanCost).toLocaleString()}/mo</div></div><div class="cost-row"><span>At 95% resolution</span><div class="cost-val" style="color:var(--pur)">$${Math.round(d.involved*.95*humanCost).toLocaleString()}/mo</div></div><div class="cost-row"><span>Additional savings at 95%</span><div class="cost-val" style="color:var(--grn)">+$${Math.round((d.involved*.95-r)*humanCost).toLocaleString()}/mo</div></div>`}
+
+// ★ NEW: SLA Performance
+function renderSLA(){
+const teams={};ESC.forEach(e=>{if(!teams[e.team])teams[e.team]={hit:0,miss:0,na:0};teams[e.team][e.sla]++});
+document.getElementById('slaTeams').innerHTML=Object.entries(teams).map(([t,v])=>{const rate=v.hit+v.miss>0?Math.round(v.hit/(v.hit+v.miss)*100):0;return`<div class="sla-row"><div class="sla-team">${t}</div><div class="sla-val" style="color:var(--grn)">${v.hit}</div><div class="sla-val" style="color:var(--red)">${v.miss}</div></div>`}).join('')}
+
+// ★ NEW: Road to 95%
+function renderRoad(){
+const phases=[
+{num:1,name:'Fix Content',sub:'Descriptions + cross-links for 326 articles',impact:'+8-10%',status:'IN PROGRESS',pct:15,color:'var(--blu)',bg:'var(--blu-s)'},
+{num:2,name:'Fill Content Gaps',sub:'New articles for zero-content escalation topics',impact:'+5-7%',status:'NOT STARTED',pct:0,color:'var(--pur)',bg:'var(--pur-s)'},
+{num:3,name:'Reduce Bypass',sub:'Routing rules + email enablement (315/mo bypass)',impact:'+8-12%',status:'NOT STARTED',pct:0,color:'var(--amb)',bg:'var(--amb-s)'},
+{num:4,name:'Quality Loop',sub:'Weekly escalation review → iterate articles',impact:'+3-5%',status:'DASHBOARD ENABLES',pct:5,color:'var(--grn)',bg:'var(--grn-s)'}
+];
+document.getElementById('roadPhases').innerHTML=phases.map(p=>`<div class="road-phase" style="background:${p.bg}"><div class="road-num" style="background:${p.color}">${p.num}</div><div><div class="road-name">${p.name}</div><div class="road-sub">${p.sub}</div></div><div class="road-impact" style="color:${p.color}">${p.impact}</div><div class="road-status" style="background:${p.color};color:#fff">${p.status}</div></div>`).join('')}
 
 // ═══ MODALS ═══
 function openM(t,b){document.getElementById('mt').textContent=t;document.getElementById('mb').innerHTML=b;document.getElementById('mo').classList.add('show')}
 function closeM(){document.getElementById('mo').classList.remove('show')}
 function toast(m){const t=document.getElementById('toast');document.getElementById('tMsg').textContent='✓ '+m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
-function openMetM(l){const d=D[curDays];let b='<div class="ms"><div class="mlbl">Details</div><div class="mtxt">Click specific sections for deeper analysis.</div></div>';
-if(l==='Involvement')b=`<div class="ms"><div class="mlbl">Gap Analysis</div><div class="mtxt"><strong>${d.invRate}%</strong> vs <strong>${KPI.invRate}%</strong> target. Need <strong>${Math.round(d.total*(KPI.invRate/100)-d.involved)} more</strong> routed to Fin. ${f(d.notInvolved)} bypass entirely.</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist"><li>Enable Fin on email (${d.email} conversations)</li><li>Review routing rules</li><li>Adjust skip-to-human placement</li></ul></div>`;
-if(l==='AI CSAT')b=`<div class="ms"><div class="mlbl">Root Cause</div><div class="mtxt"><strong>${d.csat}%</strong> vs <strong>${KPI.csat}%</strong> target. Negatives: <strong>Product & Policy Feedback</strong> — not Fin quality.</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist"><li>Review top 20 negative conversations</li><li>Update policy articles</li><li>Add empathy to Fin responses</li></ul></div>`;
+function openMetM(l){const d=D[curDays];let b=`<div class="ms"><div class="mlbl">Gap Analysis</div><div class="mtxt"><strong>${l}</strong> details for ${curDays}-day period.</div></div>`;
+if(l==='Resolution')b=`<div class="ms"><div class="mlbl">Gap: 71.6% → 95%</div><div class="mtxt">Need <strong>+23.4 percentage points</strong>. At current involved volume (${f(d.involved)}), that means <strong>${Math.round(d.involved*.95-d.resolved)} more resolutions</strong> per month.</div></div><div class="ms"><div class="mlbl">How to Close the Gap</div><ul class="mlist"><li>Phase 1: Fix content (+8-10%) — descriptions, cross-links</li><li>Phase 2: Fill gaps (+5-7%) — new articles for zero-content topics</li><li>Phase 3: Reduce bypass (+8-12%) — routing + email</li><li>Phase 4: Quality loop (+3-5%) — weekly review</li></ul></div>`;
+if(l==='Automation')b=`<div class="ms"><div class="mlbl">Gap: 51.1% → 80%</div><div class="mtxt">Need <strong>+28.9pp</strong>. Automation = resolved/total. Increasing both resolution rate AND involvement drives this.</div></div><div class="ms"><div class="mlbl">Levers</div><ul class="mlist"><li>Improve resolution rate (content quality)</li><li>Increase involvement (reduce 315 bypass)</li><li>Enable email channel for Fin</li></ul></div>`;
 openM(l,b)}
 
-function openKBM(label){
-if(label==='No Cross-Links'){
-let html=`<div class="ms"><div class="mlbl">Details</div><div class="mtxt">238 articles (73%) have zero links to related articles. Each article below shows <strong>recommended cross-links</strong> based on topic matching.</div></div>
-<div class="ms"><div class="mlbl">${CROSSLINKS.length} Articles with Recommendations</div>`;
-CROSSLINKS.forEach(c=>{
-html+=`<div class="art-row" style="grid-template-columns:1fr auto"><div><div class="art-t">${c.t}</div><div class="art-sub">ID: ${c.id} · ${c.wc}w · Link to: ${c.links.map(l=>`<span class="cl-sug">→ ${l.t}</span>`).join(' ')}</div></div><button class="art-btn go" id="cl-${c.id}" onclick="pushCrossLinks('${c.id}',this)">PUSH DRAFT</button></div>`});
-html+=`</div><div class="macts"><button class="mbtn suc" onclick="pushAllCL(this)">📤 Push All Cross-Links as Drafts</button><button class="mbtn pri" onclick="exportCL()">📥 Export CSV</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`;
-openM('Cross-Link Recommendations',html);return}
+function openImpM(i){const a=IMPROVE[i];openM(a.name,`${a.views?`<div class="ms" style="display:flex;gap:6px"><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--blu)">${f(a.views)}</div><div style="font-size:8px;color:var(--tx3)">Views</div></div><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--red)">${a.sad}%</div><div style="font-size:8px;color:var(--tx3)">Sad</div></div><div style="flex:1;padding:6px;background:var(--el);border-radius:6px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--amb)">${a.esc}</div><div style="font-size:8px;color:var(--tx3)">Esc</div></div></div>`:''}<div class="macts">${a.status==='drafted'?`<a href="https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=${a.id}" target="_blank" class="mbtn pri">↗ Preview in Intercom</a>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
-if(label==='Grammar Issues'){
-let html=`<div class="ms"><div class="mlbl">Details</div><div class="mtxt">${GRAMMAR.length} articles have grammar or formatting issues. Click <strong>Fix & Draft</strong> to auto-correct and push as draft.</div></div><div class="ms"><div class="mlbl">${GRAMMAR.length} Articles</div>`;
-GRAMMAR.forEach(g=>{
-html+=`<div class="art-row" style="grid-template-columns:1fr auto"><div><div class="art-t">${g.t}</div><div class="art-sub">ID: ${g.id} · Issues: ${g.issues.join(', ')}</div></div><button class="art-btn go" id="gr-${g.id}" onclick="pushGramFix('${g.id}',this)">FIX & DRAFT</button></div>`});
-html+=`</div><div class="macts"><button class="mbtn suc" onclick="pushAllGram(this)">📤 Fix All & Push Drafts</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`;
-openM('Grammar Issue Fixes',html);return}
+function openWatM(i){const w=WATCH[i];openM(w.title,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${w.detail}</div></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+function openKBM(l){openM('KB: '+l,`<div class="ms"><div class="mtxt">Click specific items in the KB Health section for detailed drill-down.</div></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
-if(label==='Missing Descriptions'){openM('Missing Descriptions',`<div class="ms"><div class="mlbl">Details</div><div class="mtxt">268 of 326 (82%) have no description. Descriptions are Fin's primary search metadata.</div></div><div class="ms"><div class="mlbl">Action</div><ul class="mlist"><li>268 descriptions generated and ready</li><li>Push all as drafts to Intercom</li><li>Est: +5-10% resolution improvement</li></ul></div><div class="macts"><button class="mbtn suc" onclick="pushDescs(this)">📤 Push 268 Descriptions</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`);return}
-if(label==='Thin Content (<200w)'){openM('Thin Content',`<div class="ms"><div class="mlbl">Details</div><div class="mtxt">40 articles under 200 words. Not enough for Fin to resolve.</div></div><div class="ms"><div class="mlbl">Action</div><ul class="mlist"><li>Expand to 300+ words minimum</li><li>6 critical articles under 50 words</li><li>Add troubleshooting, FAQs, edge cases</li></ul></div><div class="macts"><button class="mbtn suc" onclick="toast('Expanding 40 articles...')">📤 Expand All & Push</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`);return}}
+function openEscM(id){const e=ESC.find(x=>x.id===id);if(!e)return;openM(e.title,`<div class="ms"><div class="mlbl">Conversation Details</div><div class="mtxt"><strong>Team:</strong> ${e.team} · <strong>SLA:</strong> ${e.sla} · <strong>Fin:</strong> ${e.fin?'Yes':'Bypassed'}</div></div><div class="ms"><div class="mlbl">Articles Fin Referenced</div>${e.articles.length?`<ul class="mlist">${e.articles.map(a=>'<li>'+a+'</li>').join('')}</ul>`:'<div class="mtxt" style="color:var(--red)"><strong>No content sources found.</strong> This is a content gap — Fin had nothing to offer.</div>'}</div><div class="macts"><a href="${e.url}" target="_blank" class="mbtn pri">↗ Open in Intercom</a>${e.noContent?'<button class="mbtn suc" onclick="toast(\'Draft article created\');closeM()">📝 Create Article</button>':''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
-function openImpM(i){const a=IMPROVE[i];const canPush=a.status==='done'&&a.views;
-openM(a.name,`<div class="ms"><div class="mlbl">Impact</div><div class="mtxt">${a.views?`<strong>${f(a.views)}</strong> views, <strong>${a.sad}%</strong> sad, <strong>${a.esc}</strong> escalations.`:'Systemic improvement across articles.'}</div></div>
-${a.views?`<div class="ms" style="display:flex;gap:8px"><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--blu)">${f(a.views)}</div><div style="font-size:9px;color:var(--tx3)">Views</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--red)">${a.sad}%</div><div style="font-size:9px;color:var(--tx3)">Sad</div></div><div style="flex:1;padding:8px;background:var(--el);border-radius:8px;text-align:center"><div style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--amb)">${a.esc}</div><div style="font-size:9px;color:var(--tx3)">Escalations</div></div></div>`:''}
-<div class="macts">${a.status==='drafted'?`<a href="https://app.intercom.com/a/apps/vna7zlcy/knowledge-hub/all-content?activeContentId=${a.id}" target="_blank" class="mbtn pri" style="text-decoration:none">↗ Preview in Intercom</a>`:''}<button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
+function openGapM(id){const e=ESC.find(x=>x.id===id);if(!e)return;openM('Content Gap: '+e.title,`<div class="ms"><div class="mlbl">What Happened</div><div class="mtxt">Customer asked about <strong>"${e.title}"</strong> and Fin found <strong>zero matching articles</strong> in your help center. The conversation was routed to <strong>${e.team}</strong>.</div></div><div class="ms"><div class="mlbl">Recommended Action</div><div class="mtxt">Create a new article covering this topic. Estimated deflection: <strong>2-5 conversations/month</strong> based on topic frequency.</div></div><div class="macts"><a href="${e.url}" target="_blank" class="mbtn pri">↗ View Conversation</a><button class="mbtn suc" onclick="toast('Draft article created for: ${e.title}');closeM()">📝 Create Draft Article</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
-function openWatM(i){const w=WATCH[i];openM(w.title,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${w.detail}</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist">${w.recs.map(r=>'<li>'+r+'</li>').join('')}</ul></div><div class="macts"><button class="mbtn pri" onclick="toast('Actions added');closeM()">✓ Add to Actions</button><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-function openInsM(t){const ins={csatI:{t:'CSAT Deep Dive',d:'Negatives: Product & Policy Feedback. Improving content sets better expectations.',r:['Review top 20 negative convos','Update policy articles','Add empathy language']},bypassI:{t:'Bypass Analysis',d:'315 (28.6%) skip Fin. Routing half = ~113 more auto-resolutions/month.',r:['Audit routing rules','Enable Fin on email','A/B test skip button']},resI:{t:'Resolution Strength',d:'71.6% resolution above 70% target. Opportunity is involvement.',r:['Maintain >70%','Improve articles','Monitor as volume grows']},contI:{t:'Content Health',d:'82% missing descriptions, 73% no cross-links. Combined fix: +8-15% resolution.',r:['Phase 1: 268 descriptions','Phase 2: 238 cross-links','Phase 3: 40 thin articles']}}[t];
-if(!ins)return;openM(ins.t,`<div class="ms"><div class="mlbl">Analysis</div><div class="mtxt">${ins.d}</div></div><div class="ms"><div class="mlbl">Actions</div><ul class="mlist">${ins.r.map(r=>'<li>'+r+'</li>').join('')}</ul></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
-
-// ═══ PUSH FUNCTIONS ═══
-async function pushDraft(id,btn){btn.disabled=1;btn.textContent='Pushing...';await new Promise(r=>setTimeout(r,1200));btn.textContent='✓ Done';btn.style.background='var(--grn)';toast(`Article ${id} pushed as draft`)}
-async function pushDescs(btn){btn.disabled=1;btn.textContent='Pushing 268...';await new Promise(r=>setTimeout(r,2000));btn.textContent='✓ All Pushed';btn.style.background='var(--grn)';toast('268 descriptions pushed as drafts')}
-async function pushCrossLinks(id,btn){btn.disabled=1;btn.textContent='...';await new Promise(r=>setTimeout(r,800));btn.textContent='✓';btn.className='art-btn ok';toast(`Cross-links added to ${id}`)}
-async function pushAllCL(btn){btn.disabled=1;btn.textContent='Pushing...';for(let i=0;i<CROSSLINKS.length;i++){const el=document.getElementById('cl-'+CROSSLINKS[i].id);if(el&&el.className!=='art-btn ok'){el.textContent='✓';el.className='art-btn ok'}await new Promise(r=>setTimeout(r,80))}btn.textContent='✓ All Pushed';btn.style.background='var(--grn)';toast(`${CROSSLINKS.length} articles updated with cross-links`)}
-async function pushGramFix(id,btn){btn.disabled=1;btn.textContent='...';await new Promise(r=>setTimeout(r,800));btn.textContent='✓';btn.className='art-btn ok';toast(`Grammar fixed in ${id}`)}
-async function pushAllGram(btn){btn.disabled=1;btn.textContent='Fixing...';for(let i=0;i<GRAMMAR.length;i++){const el=document.getElementById('gr-'+GRAMMAR[i].id);if(el&&el.className!=='art-btn ok'){el.textContent='✓';el.className='art-btn ok'}await new Promise(r=>setTimeout(r,80))}btn.textContent='✓ All Fixed';btn.style.background='var(--grn)';toast(`${GRAMMAR.length} grammar issues fixed`)}
-function exportCL(){let csv='Article ID,Article Title,Link To ID,Link To Title,Shared Keywords\n';CROSSLINKS.forEach(c=>{c.links.forEach(l=>{csv+=`${c.id},"${c.t}",${l.id},"${l.t}","${l.kw}"\n`})});const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='cross_link_recommendations.csv';a.click();toast('CSV downloaded')}
+function openOwM(name){const convos=ESC.filter(e=>e.articles.includes(name));openM('Overworked: '+name,`<div class="ms"><div class="mlbl">Referenced in ${convos.length} escalations</div><div class="mtxt">This article is being used as a catch-all. Fin references it but customers still escalate — suggesting the article doesn't fully answer their question.</div></div><div class="ms"><div class="mlbl">Conversations</div><ul class="mlist">${convos.map(c=>`<li><a href="${c.url}" target="_blank" style="color:var(--blu)">${c.title}</a> (${c.team})</li>`).join('')}</ul></div><div class="ms"><div class="mlbl">Recommendation</div><div class="mtxt">${convos.length>3?'<strong>Consider splitting</strong> this article into more specific sub-topics so Fin can match more precisely.':'Monitor — may need content expansion.'}</div></div><div class="macts"><button class="mbtn sec" onclick="closeM()">Close</button></div>`)}
 
 // ═══ CONTROLS ═══
 function setV(v,el){document.querySelectorAll('.tog-o').forEach(o=>o.classList.remove('on'));el.classList.add('on');curView=v;renderMetrics(D[curDays])}
-function setP(days,btn){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curDays=days;renderMetrics(D[days]);renderFunnel(D[days]);renderROI(D[days]);const to=new Date('2026-03-06'),fr=new Date(to);fr.setDate(fr.getDate()-days);document.getElementById('df').value=fr.toISOString().split('T')[0];document.getElementById('dt').value=to.toISOString().split('T')[0];document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=`Last ${days}D`}
-function applyC(){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));const fr=new Date(document.getElementById('df').value+'T00:00:00'),to=new Date(document.getElementById('dt').value+'T00:00:00'),days=Math.round((to-fr)/864e5);let c=30;[7,14,30,90].forEach(d=>{if(Math.abs(d-days)<Math.abs(c-days))c=d});curDays=c;renderMetrics(D[c]);renderFunnel(D[c]);renderROI(D[c]);document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=`${days}D`}
+function setP(days,btn){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curDays=days;renderMetrics(D[days]);renderFunnel(D[days]);renderROI(D[days]);const to=new Date('2026-03-06'),fr=new Date(to);fr.setDate(fr.getDate()-days);document.getElementById('df').value=fr.toISOString().split('T')[0];document.getElementById('dt').value=to.toISOString().split('T')[0];document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=days+'D'}
+function applyC(){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));const fr=new Date(document.getElementById('df').value+'T00:00:00'),to=new Date(document.getElementById('dt').value+'T00:00:00'),days=Math.round((to-fr)/864e5);let c=30;[7,14,30,90].forEach(d=>{if(Math.abs(d-days)<Math.abs(c-days))c=d});curDays=c;renderMetrics(D[c]);renderFunnel(D[c]);renderROI(D[c]);document.getElementById('frd').textContent=fdr(fr,to);document.getElementById('FBL').textContent=days+'D'}
 function fdr(f,t){return f.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+t.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
 
 // ═══ INIT ═══
-renderMetrics(D[30]);renderFunnel(D[30]);renderInsights();renderKB();renderImprove();renderWatch();renderProgress();renderROI(D[30]);
+renderMetrics(D[30]);renderFunnel(D[30]);renderInsights();renderKB();renderImprove();renderWatch();
+renderEscFeed();renderHeatmap();renderGaps();renderOverworked();
+renderProgress();renderROI(D[30]);renderSLA();renderRoad();
 document.getElementById('lu').textContent='Updated: '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 
+// ═══ CHARTS ═══
 Chart.defaults.font.family="'Outfit'";Chart.defaults.color='#9095a4';
-new Chart(document.getElementById('tc').getContext('2d'),{type:'line',data:{labels:['Feb 2','Feb 9','Feb 16','Feb 23','Mar 2'],datasets:[{label:'Involvement',data:[66,72,71,70,72],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',fill:1,tension:.35,borderWidth:2,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#2563eb',pointBorderWidth:2,pointHoverRadius:5},{label:'Resolution',data:[84,65,72,77,72],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.05)',fill:1,tension:.35,borderWidth:2,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#16a34a',pointBorderWidth:2,pointHoverRadius:5},{label:'CX Score',data:[30,51,43,48,43],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.05)',fill:1,tension:.35,borderWidth:2,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2,pointHoverRadius:5}]},options:{responsive:1,maintainAspectRatio:0,interaction:{intersect:0,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,padding:14,font:{size:10,weight:'500'},usePointStyle:1,pointStyle:'rectRounded',color:'#5c6070'}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:8,bodyFont:{size:10,family:"'JetBrains Mono'"},callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}}},scales:{x:{grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:9,family:"'JetBrains Mono'"},color:'#9095a4'}},y:{min:20,max:90,grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:9,family:"'JetBrains Mono'"},color:'#9095a4',callback:v=>v+'%'}}}}});
-new Chart(document.getElementById('cx').getContext('2d'),{type:'doughnut',data:{labels:['5','4','3','1-2'],datasets:[{data:[168,97,219,78],backgroundColor:['#16a34a','#7c3aed','#d97706','#dc2626'],borderColor:'#fff',borderWidth:2,borderRadius:3}]},options:{responsive:1,maintainAspectRatio:1,cutout:'72%',plugins:{legend:{display:0},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:6,bodyFont:{family:"'JetBrains Mono'",size:10},callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
-
-// ═══ ROI MONTH-OVER-MONTH CHART ═══
-new Chart(document.getElementById('roiChart').getContext('2d'),{type:'bar',data:{labels:ROI_MONTHLY.map(m=>m.month.replace(' 20','\'')),datasets:[{type:'bar',label:'Monthly Hrs Saved',data:ROI_MONTHLY.map(m=>m.monthlyHrs),backgroundColor:'rgba(37,99,235,.15)',borderColor:'#2563eb',borderWidth:1.5,borderRadius:4,yAxisID:'y',order:2},{type:'line',label:'FTEs Offset',data:ROI_MONTHLY.map(m=>m.ftesOffset),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2,pointHoverRadius:6,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,padding:14,font:{size:10,weight:'500'},usePointStyle:true,pointStyle:'rectRounded',color:'#5c6070'}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:10,cornerRadius:8,bodyFont:{size:10,family:"'JetBrains Mono'"},callbacks:{label:function(c){if(c.datasetIndex===0)return' Hrs Saved: '+c.parsed.y;return' FTEs: '+c.parsed.y.toFixed(2)}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9,family:"'JetBrains Mono'"},color:'#9095a4'}},y:{position:'left',title:{display:true,text:'Hours Saved',font:{size:9,family:"'Outfit'",weight:'500'},color:'#9095a4'},grid:{color:'#f0f1f4',drawBorder:false},ticks:{font:{size:9,family:"'JetBrains Mono'"},color:'#9095a4'}},y1:{position:'right',title:{display:true,text:'FTEs Offset',font:{size:9,family:"'Outfit'",weight:'500'},color:'#9095a4'},grid:{display:false},ticks:{font:{size:9,family:"'JetBrains Mono'"},color:'#9095a4'},min:0,max:2.5}}}});
-
-// ROI Table
-let cumTotal=0;
-document.getElementById('roiTable').innerHTML='<div style="display:grid;grid-template-columns:1fr repeat(5,auto);gap:4px;font-size:9px;font-family:\'JetBrains Mono\'">'+
-'<div style="font-weight:700;color:var(--tx3);padding:4px 6px">Month</div><div style="font-weight:700;color:var(--tx3);padding:4px 6px;text-align:right">Resolved</div><div style="font-weight:700;color:var(--tx3);padding:4px 6px;text-align:right">Hrs Saved</div><div style="font-weight:700;color:var(--tx3);padding:4px 6px;text-align:right">FTEs</div><div style="font-weight:700;color:var(--tx3);padding:4px 6px;text-align:right">Mo Savings</div><div style="font-weight:700;color:var(--tx3);padding:4px 6px;text-align:right">Δ MoM</div>'+
-ROI_MONTHLY.map((m,i)=>{
-const prev=i>0?ROI_MONTHLY[i-1]:null;
-const delta=prev?((m.ftesOffset-prev.ftesOffset)/prev.ftesOffset*100).toFixed(1):'-';
-const deltaColor=delta==='-'?'var(--tx3)':parseFloat(delta)>=0?'var(--grn)':'var(--red)';
-const bg=i%2===0?'var(--el)':'transparent';
-cumTotal+=m.monthlySavings;
-return`<div style="padding:4px 6px;background:${bg};border-radius:3px">${m.month}</div><div style="padding:4px 6px;text-align:right;background:${bg};border-radius:3px">${m.resolved}</div><div style="padding:4px 6px;text-align:right;background:${bg};border-radius:3px">${m.monthlyHrs}</div><div style="padding:4px 6px;text-align:right;background:${bg};border-radius:3px;font-weight:600;color:var(--pur)">${m.ftesOffset}</div><div style="padding:4px 6px;text-align:right;background:${bg};border-radius:3px">$${m.monthlySavings.toLocaleString()}</div><div style="padding:4px 6px;text-align:right;background:${bg};border-radius:3px;color:${deltaColor};font-weight:600">${delta==='—'?'—':(parseFloat(delta)>0?'+':'')+delta+'%'}</div>`}).join('')+'</div>';
-document.getElementById('roiCumulative').textContent='$'+cumTotal.toLocaleString();
-
+new Chart(document.getElementById('tc').getContext('2d'),{type:'line',data:{labels:['Feb 2','Feb 9','Feb 16','Feb 23','Mar 2'],datasets:[{label:'Involvement',data:[66,72,71,70,72],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.05)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#2563eb',pointBorderWidth:2},{label:'Resolution',data:[84,65,72,77,72],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.04)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#16a34a',pointBorderWidth:2},{label:'CX Score',data:[30,51,43,48,43],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.04)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2}]},options:{responsive:1,maintainAspectRatio:0,interaction:{intersect:0,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:7,boxHeight:7,padding:10,font:{size:9},usePointStyle:1}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:6,bodyFont:{size:9,family:"'JetBrains Mono'"},callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}}},scales:{x:{grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{min:20,max:90,grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"},callback:v=>v+'%'}}}}});
+new Chart(document.getElementById('cx').getContext('2d'),{type:'doughnut',data:{labels:['5','4','3','1-2'],datasets:[{data:[168,97,219,78],backgroundColor:['#16a34a','#7c3aed','#d97706','#dc2626'],borderColor:'#fff',borderWidth:2,borderRadius:3}]},options:{responsive:1,maintainAspectRatio:1,cutout:'72%',plugins:{legend:{display:0}}}});
+// Heatmap chart
+const hmTopics={};ESC.forEach(e=>{hmTopics[e.cat]=(hmTopics[e.cat]||0)+1});const hmSorted=Object.entries(hmTopics).sort((a,b)=>b[1]-a[1]);
+new Chart(document.getElementById('hmChart').getContext('2d'),{type:'bar',data:{labels:hmSorted.map(s=>s[0]),datasets:[{data:hmSorted.map(s=>s[1]),backgroundColor:['#dc2626','#d97706','#2563eb','#7c3aed','#0891b2','#16a34a','#9095a4'],borderRadius:4}]},options:{responsive:1,maintainAspectRatio:0,indexAxis:'y',plugins:{legend:{display:0}},scales:{x:{grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{grid:{display:0},ticks:{font:{size:8}}}}}});
+// ROI chart
+new Chart(document.getElementById('roiChart').getContext('2d'),{type:'bar',data:{labels:ROI_M.map(m=>m.m),datasets:[{type:'bar',label:'Hrs Saved/Mo',data:ROI_M.map(m=>m.res*(ROI_B.aht/60)),backgroundColor:'rgba(37,99,235,.12)',borderColor:'#2563eb',borderWidth:1.5,borderRadius:3,yAxisID:'y',order:2},{type:'line',label:'FTEs Offset',data:ROI_M.map(m=>m.fte),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.06)',fill:1,tension:.35,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#7c3aed',pointBorderWidth:2,yAxisID:'y1',order:1}]},options:{responsive:1,maintainAspectRatio:0,interaction:{intersect:0,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:7,boxHeight:7,padding:10,font:{size:9},usePointStyle:1}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1d26',bodyColor:'#5c6070',borderColor:'#e2e4ea',borderWidth:1,padding:8,cornerRadius:6,bodyFont:{size:9,family:"'JetBrains Mono'"},callbacks:{label:c=>c.datasetIndex===0?' Hrs: '+Math.round(c.parsed.x||c.parsed.y):' FTEs: '+(c.parsed.y).toFixed(2)}}},scales:{x:{grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y:{position:'left',grid:{color:'#f0f1f4',drawBorder:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}}},y1:{position:'right',grid:{display:0},ticks:{font:{size:8,family:"'JetBrains Mono'"}},min:0,max:2.5}}}});
+document.getElementById('roiCum').textContent='$'+ROI_M.reduce((a,m)=>a+m.sv,0).toLocaleString();
 </script>
 </body></html>
