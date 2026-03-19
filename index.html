@@ -1,185 +1,204 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 
-// ─── CLAUDE API → INTERCOM MCP BRIDGE ───
-const INTERCOM_MCP = { type: "url", url: "https://mcp.intercom.com/mcp", name: "intercom" };
-
-async function askClaude(userPrompt, systemPrompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+// ─── CLAUDE API → INTERCOM MCP ───
+async function callClaude(prompt) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1000,
-      system: systemPrompt || "You are an Intercom help center assistant for Jolt Software (workspace vna7zlcy). Use the Intercom MCP tools to execute requests. Be concise. Author ID for articles is 8946047.",
-      messages: [{ role: "user", content: userPrompt }],
-      mcp_servers: [INTERCOM_MCP],
+      system: "You are an Intercom help center editor for Jolt Software (workspace vna7zlcy, author_id 8946047). Use Intercom MCP tools to execute requests. Be concise in your response.",
+      messages: [{ role: "user", content: prompt }],
+      mcp_servers: [{ type: "url", url: "https://mcp.intercom.com/mcp", name: "intercom" }],
     }),
   });
-  if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  const texts = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
-  const toolResults = (data.content || []).filter(b => b.type === "mcp_tool_result").map(b => {
+  if (!r.ok) throw new Error(`API error ${r.status}`);
+  const d = await r.json();
+  const texts = (d.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+  const tools = (d.content || []).filter(b => b.type === "mcp_tool_use").map(b => b.name);
+  const results = (d.content || []).filter(b => b.type === "mcp_tool_result").map(b => {
     try { return JSON.parse(b.content?.[0]?.text || "{}"); } catch { return b.content?.[0]?.text || ""; }
   });
-  const toolCalls = (data.content || []).filter(b => b.type === "mcp_tool_use").map(b => b.name);
-  return { texts, toolResults, toolCalls, raw: data };
+  return { texts, tools, results };
 }
 
-// ─── STATIC DATA (from audit + live API pulls) ───
+// ─── PROMPTS FOR EACH ACTION ───
+const PROMPTS = {
+  desc_draft: "Find 3 published Intercom articles in the Jolt help center that have no description (empty description field). For each, generate a concise 1-2 sentence description. Update each article with the new description but set state to 'draft'. Return the article IDs and titles.",
+  desc_live: "Find 3 published Intercom articles in the Jolt help center that have no description (empty description field). For each, generate a concise 1-2 sentence description. Update each article with the new description and keep state as 'published'. Return the article IDs and titles.",
+  links_draft: "Find 2 published Intercom articles about Jolt troubleshooting that have no 'Related Articles' section in their body. Add a Related Articles section with 2-3 links to related articles. Save as draft. Return what you changed.",
+  links_live: "Find 2 published Intercom articles about Jolt troubleshooting that have no 'Related Articles' section in their body. Add a Related Articles section with 2-3 links to related articles. Keep published. Return what you changed.",
+  thin_draft: "Find 1 published Intercom article in the Jolt help center that has very short body content (under 200 words). Expand it with additional troubleshooting steps, FAQ, and tips to make it more comprehensive. Save as draft.",
+  thin_live: "Find 1 published Intercom article in the Jolt help center that has very short body content (under 200 words). Expand it with additional troubleshooting steps, FAQ, and tips to make it more comprehensive. Keep published.",
+  gram_draft: "Fetch Intercom article 9671176. Clean all double spaces (replace '  ' with ' ') and fix lowercase letters after periods. Save as draft so it can be reviewed.",
+  gram_live: "Fetch Intercom article 9671176. Clean all double spaces (replace '  ' with ' ') and fix lowercase letters after periods. Update the article and keep it published.",
+  create_draft: (title) => `Create a new Intercom article as DRAFT. Title: "Troubleshooting: ${title}". Write comprehensive HTML body content for Jolt customers about "${title}". Include: overview of the issue, common causes, step-by-step troubleshooting, and when to contact support. Author ID 8946047.`,
+  create_live: (title) => `Create a new Intercom article and set state to PUBLISHED. Title: "Troubleshooting: ${title}". Write comprehensive HTML body content for Jolt customers about "${title}". Include: overview, common causes, step-by-step troubleshooting, and when to contact support. Author ID 8946047.`,
+};
+
+// ─── DATA ───
 const KPI = [
-  { label: "Resolution", val: "71.6%", target: "95%", gap: "+23.4pp", st: "r", icon: "✅" },
-  { label: "Automation", val: "51.1%", target: "80%", gap: "+28.9pp", st: "r", icon: "⚡" },
-  { label: "Involvement", val: "71.4%", target: "80%", gap: "+8.6pp", st: "y", icon: "🤖" },
-  { label: "CSAT", val: "46.1%", target: "85%", gap: "+38.9pp", st: "r", icon: "⭐" },
-  { label: "Handoff", val: "28.4%", target: "≤5%", gap: "-23.4pp", st: "r", icon: "🔀" },
-  { label: "Response", val: "5.2m", target: "≤4m", gap: "-1.2m", st: "y", icon: "⏱" },
+  { l: "Resolution", v: "71.6%", t: "95%", g: "+23.4pp", s: "r", i: "✅" },
+  { l: "Automation", v: "51.1%", t: "80%", g: "+28.9pp", s: "r", i: "⚡" },
+  { l: "Involvement", v: "71.4%", t: "80%", g: "+8.6pp", s: "y", i: "🤖" },
+  { l: "CSAT", v: "46.1%", t: "85%", g: "+38.9pp", s: "r", i: "⭐" },
+  { l: "Handoff", v: "28.4%", t: "≤5%", g: "-23.4pp", s: "r", i: "🔀" },
+  { l: "Response", v: "5.2m", t: "≤4m", g: "-1.2m", s: "y", i: "⏱" },
 ];
-const SC = { g: ["#16a34a", "#dcfce7"], y: ["#d97706", "#fef3c7"], r: ["#dc2626", "#fee2e2"] };
 
 const KB = [
-  { id: "desc", label: "Missing Descriptions", count: 239, pct: "73%", color: "#dc2626",
-    prompt: "List 3 Intercom articles from the Jolt help center that have no description. For each one, generate a 1-2 sentence description and update the article with that description. Return the article IDs and new descriptions." },
-  { id: "links", label: "No Cross-Links", count: 230, pct: "71%", color: "#d97706",
-    prompt: "Find 3 related Jolt Intercom articles about troubleshooting sync issues. Add a 'Related Articles' section to each one linking to the others. Update each article body to include links." },
-  { id: "thin", label: "Thin Content (<200w)", count: 40, pct: "12%", color: "#d97706",
-    prompt: "Search for a short Jolt article about label sizes or printer setup. Expand it with additional troubleshooting steps, FAQs, and tips. Update the article." },
-  { id: "gram", label: "Grammar Issues", count: 12, pct: "4%", color: "#9095a4",
-    prompt: "Fetch Intercom article 9787431. Find any double spaces in the body text and fix them. Also fix any lowercase letters that should be capitalized after periods. Update the article live." },
+  { id: "desc", label: "Missing Descriptions", count: 239, pct: "73%", c: "#dc2626", detail: "239 articles have no description. Descriptions are Fin's #1 matching signal." },
+  { id: "links", label: "No Cross-Links", count: 230, pct: "71%", c: "#d97706", detail: "230 articles have zero links to related content. Dead-end articles cause escalations." },
+  { id: "thin", label: "Thin Content (<200w)", count: 40, pct: "12%", c: "#d97706", detail: "40 articles under 200 words — not enough for Fin to resolve." },
+  { id: "gram", label: "Grammar Issues", count: 12, pct: "4%", c: "#9095a4", detail: "12 remaining cosmetic double-space issues. 13 articles with real typos already fixed." },
 ];
 
 const ESC = [
-  { id: "215473507702571", title: "List population issue", team: "CHATS", sla: "miss", articles: [], noContent: true, cat: "Lists" },
-  { id: "215473520780644", title: "Cancel account", team: "BILLING", sla: "miss", articles: [], noContent: true, cat: "Billing" },
-  { id: "215473505524929", title: "Manufacturer warranty", team: "CHATS", sla: "hit", articles: [], noContent: true, cat: "Repairs" },
-  { id: "215473506980687", title: "Cancel Jolt account", team: "CANCEL", sla: "miss", articles: [], noContent: true, cat: "Billing" },
-  { id: "215473478693240", title: "Other (abandoned)", team: "TECH", sla: "na", articles: [], noContent: true, cat: "Other" },
-  { id: "215473521712992", title: "Follow up work order", team: "BILLING", sla: "miss", articles: ["Payment Method", "Work Order Posts"], noContent: false, cat: "Billing" },
-  { id: "215473523716866", title: "App labels not displaying", team: "CHATS", sla: "miss", articles: ["Sync Issues", "Reset App"], noContent: false, cat: "Sync" },
-  { id: "215473518649176", title: "Printer replacement status", team: "CHATS", sla: "hit", articles: ["Printer repair FAQ"], noContent: false, cat: "Hardware" },
-  { id: "215473519436069", title: "Unblock time off requests", team: "CHATS", sla: "miss", articles: ["Sync Issues", "Block Time Off"], noContent: false, cat: "Scheduling" },
+  { id: "215473507702571", title: "List population issue", team: "CHATS", sla: "miss", arts: [], gap: true },
+  { id: "215473520780644", title: "Cancel account", team: "BILLING", sla: "miss", arts: [], gap: true },
+  { id: "215473505524929", title: "Manufacturer warranty", team: "CHATS", sla: "hit", arts: [], gap: true },
+  { id: "215473506980687", title: "Cancel Jolt account", team: "CANCEL", sla: "miss", arts: [], gap: true },
+  { id: "215473478693240", title: "Other (abandoned)", team: "TECH", sla: "na", arts: [], gap: true },
+  { id: "215473521712992", title: "Follow up work order", team: "BILLING", sla: "miss", arts: ["Payment Method", "Work Orders"] },
+  { id: "215473523716866", title: "App labels not displaying", team: "CHATS", sla: "miss", arts: ["Sync Issues", "Reset App"] },
+  { id: "215473518649176", title: "Printer replacement status", team: "CHATS", sla: "hit", arts: ["Printer repair FAQ"] },
+  { id: "215473519436069", title: "Unblock time off requests", team: "CHATS", sla: "miss", arts: ["Sync Issues", "Block Time Off"] },
 ];
 
-const ROAD = [
-  { n: 1, name: "Fix Content", sub: "Descriptions, cross-links, grammar", impact: "+8-10%", status: "IN PROGRESS", c: "#2563eb", bg: "#dbeafe" },
-  { n: 2, name: "Fill Gaps", sub: "Articles for zero-content topics", impact: "+5-7%", status: "5 GAPS", c: "#7c3aed", bg: "#ede9fe" },
-  { n: 3, name: "Reduce Bypass", sub: "Routing + email enablement", impact: "+8-12%", status: "NOT STARTED", c: "#d97706", bg: "#fef3c7" },
-  { n: 4, name: "Quality Loop", sub: "Weekly escalation review", impact: "+3-5%", status: "ACTIVE", c: "#16a34a", bg: "#dcfce7" },
-];
+const SC = { g: ["#16a34a", "#dcfce7"], y: ["#d97706", "#fef3c7"], r: ["#dc2626", "#fee2e2"] };
+const m = { fontFamily: "'JetBrains Mono', monospace" };
 
-// ─── STYLES ───
-const card = { background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 14 };
-const mono = { fontFamily: "'JetBrains Mono', monospace" };
-const pill = (c, bg) => ({ fontSize: 7, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: bg, color: c });
-const btn = (bg, c = "#fff") => ({ padding: "8px 14px", borderRadius: 7, border: "none", background: bg, color: c, fontFamily: "'Outfit', sans-serif", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 });
-
-// ─── COMPONENT ───
-export default function Dashboard() {
+export default function App() {
   const [modal, setModal] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [apiResult, setApiResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
   const [toast, setToast] = useState(null);
-  const [escF, setEscF] = useState("all");
-  const [actionLog, setActionLog] = useState([]);
+  const [log, setLog] = useState([]);
+  const [ef, setEf] = useState("all");
 
-  const showToast = useCallback((m) => { setToast(m); setTimeout(() => setToast(null), 4000); }, []);
+  const t = useCallback((msg) => { setToast(msg); setTimeout(() => setToast(null), 4500); }, []);
 
-  // ─── THE KEY: Execute real actions via Claude → Intercom ───
-  const execute = useCallback(async (prompt, label) => {
-    setLoading(true);
-    setApiResult(null);
+  const run = useCallback(async (prompt, label) => {
+    setBusy(true); setResult(null);
     try {
-      const r = await askClaude(prompt);
-      setApiResult({ ok: true, texts: r.texts, tools: r.toolCalls, results: r.toolResults });
-      setActionLog(prev => [...prev, { time: new Date().toLocaleTimeString(), label, ok: true }]);
-      showToast(`✅ ${label} — done`);
-    } catch (err) {
-      setApiResult({ ok: false, error: err.message });
-      setActionLog(prev => [...prev, { time: new Date().toLocaleTimeString(), label, ok: false, error: err.message }]);
-      showToast(`❌ ${label} failed: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+      const r = await callClaude(prompt);
+      setResult({ ok: true, ...r });
+      setLog(p => [{ ts: new Date().toLocaleTimeString(), label, ok: true }, ...p].slice(0, 10));
+      t(`✅ ${label}`);
+    } catch (e) {
+      setResult({ ok: false, error: e.message });
+      setLog(p => [{ ts: new Date().toLocaleTimeString(), label, ok: false }, ...p].slice(0, 10));
+      t(`❌ ${e.message}`);
+    } finally { setBusy(false); }
+  }, [t]);
 
-  const fEsc = escF === "all" ? ESC : escF === "gaps" ? ESC.filter(e => e.noContent) : ESC.filter(e => e.sla === "miss");
+  const open = (type, data) => { setModal({ type, ...data }); setResult(null); };
+  const close = () => { setModal(null); setResult(null); };
+  const fesc = ef === "all" ? ESC : ef === "gaps" ? ESC.filter(e => e.gap) : ESC.filter(e => e.sla === "miss");
+
+  const Btn = ({ onClick, bg, children, disabled }) => (
+    <button disabled={disabled || busy} onClick={onClick} style={{
+      padding: "8px 14px", borderRadius: 7, border: "none", fontFamily: "'Outfit'", fontSize: 11, fontWeight: 600,
+      cursor: disabled || busy ? "default" : "pointer", opacity: disabled || busy ? 0.5 : 1,
+      background: bg || "#2563eb", color: bg === "#f0f1f4" ? "#5c6070" : "#fff",
+      ...(bg === "#f0f1f4" ? { border: "1px solid #e2e4ea" } : {}),
+    }}>{busy && bg !== "#f0f1f4" ? "⏳ Working..." : children}</button>
+  );
+
+  const ResultBox = () => result && (
+    <div style={{ marginTop: 10, padding: 10, background: result.ok ? "#dcfce7" : "#fee2e2", border: `1px solid ${result.ok ? "#86efac" : "#fca5a5"}`, borderRadius: 8 }}>
+      <div style={{ fontWeight: 700, fontSize: 11, marginBottom: 4, color: result.ok ? "#16a34a" : "#dc2626" }}>
+        {result.ok ? "✅ Intercom Updated Successfully" : "❌ Error"}
+      </div>
+      <div style={{ ...m, fontSize: 9, whiteSpace: "pre-wrap", maxHeight: 150, overflowY: "auto", lineHeight: 1.5 }}>
+        {result.ok ? (<>
+          {result.tools?.length > 0 && <div style={{ color: "#2563eb", marginBottom: 4 }}>Tools used: {result.tools.join(", ")}</div>}
+          <div>{result.texts}</div>
+        </>) : result.error}
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{ fontFamily: "'Outfit', system-ui", background: "#f5f6f8", minHeight: "100vh", padding: 16, color: "#1a1d26" }}>
+    <div style={{ fontFamily: "'Outfit', system-ui", background: "#f5f6f8", minHeight: "100vh", padding: 14, color: "#1a1d26" }}>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>{`@keyframes pulse{50%{opacity:.3}} *{box-sizing:border-box;margin:0;padding:0}`}</style>
 
-      {/* ── HEADER ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 30, height: 30, background: "linear-gradient(135deg,#16a34a,#15803d)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13 }}>⚡</div>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#16a34a,#15803d)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>⚡</div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -.3 }}>Jolt Fin AI — Command Center</div>
-            <div style={{ fontSize: 9, color: "#9095a4" }}>Buttons call Claude API → Intercom MCP · Live connection</div>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>Jolt Fin AI — Command Center</div>
+            <div style={{ fontSize: 9, color: "#9095a4" }}>Buttons connect live to Intercom via Claude API → MCP</div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ ...pill("#16a34a", "#dcfce7"), display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", border: "1px solid #86efac", borderRadius: 12 }}>
-            <div style={{ width: 5, height: 5, background: "#16a34a", borderRadius: "50%", animation: "pulse 2s infinite" }} />LIVE
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 12, fontSize: 8, fontWeight: 600, color: "#16a34a" }}>
+          <div style={{ width: 4, height: 4, background: "#16a34a", borderRadius: "50%", animation: "pulse 2s infinite" }} />LIVE
         </div>
       </div>
 
-      {/* ── KPIs ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 6, marginBottom: 8 }}>
+      {/* KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 5, marginBottom: 8 }}>
         {KPI.map(k => (
-          <div key={k.label} style={{ ...card, padding: "8px 10px", borderTop: `2.5px solid ${SC[k.st][0]}` }}>
+          <div key={k.l} style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 8, padding: "7px 9px", borderTop: `2px solid ${SC[k.s][0]}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-              <span style={{ fontSize: 12 }}>{k.icon}</span>
-              <span style={pill(SC[k.st][0], SC[k.st][1])}>{k.st === "g" ? "ON TARGET" : k.st === "y" ? "NEAR" : "BELOW"}</span>
+              <span style={{ fontSize: 11 }}>{k.i}</span>
+              <span style={{ fontSize: 7, fontWeight: 700, padding: "1px 4px", borderRadius: 4, background: SC[k.s][1], color: SC[k.s][0] }}>
+                {k.s === "g" ? "ON TARGET" : k.s === "y" ? "NEAR" : "BELOW"}
+              </span>
             </div>
-            <div style={{ fontSize: 8, fontWeight: 600, textTransform: "uppercase", color: "#9095a4" }}>{k.label}</div>
-            <div style={{ ...mono, fontSize: 17, fontWeight: 600, letterSpacing: -.5 }}>{k.val}</div>
-            <div style={{ ...mono, fontSize: 7.5, color: "#9095a4" }}>Target: {k.target} · Gap: {k.gap}</div>
+            <div style={{ fontSize: 7.5, fontWeight: 600, textTransform: "uppercase", color: "#9095a4" }}>{k.l}</div>
+            <div style={{ ...m, fontSize: 16, fontWeight: 600 }}>{k.v}</div>
+            <div style={{ ...m, fontSize: 7, color: "#9095a4" }}>Target: {k.t}</div>
           </div>
         ))}
       </div>
 
-      {/* ── KB HEALTH + ESCALATIONS ── */}
+      {/* KB HEALTH + ESCALATIONS */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-        <div style={card}>
+        {/* KB */}
+        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 700 }}>Knowledge Base Health</span>
-            <span style={{ ...pill("#9095a4", "#f0f1f4"), fontSize: 8 }}>327 ARTICLES</span>
+            <span style={{ fontSize: 11, fontWeight: 700 }}>Knowledge Base Health</span>
+            <span style={{ fontSize: 7.5, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: "#f0f1f4", color: "#9095a4" }}>327</span>
           </div>
           {KB.map(k => (
-            <div key={k.id} onClick={() => { setModal({ type: "kb", kb: k }); setApiResult(null); }}
-              style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "#f0f1f4", borderRadius: 6, marginBottom: 2, cursor: "pointer", fontSize: 11, transition: "background .15s" }}
+            <div key={k.id} onClick={() => open("kb", { kb: k })}
+              style={{ display: "flex", justifyContent: "space-between", padding: "6px 9px", background: "#f0f1f4", borderRadius: 5, marginBottom: 2, cursor: "pointer", fontSize: 10 }}
               onMouseEnter={e => e.currentTarget.style.background = "#e8e9ee"} onMouseLeave={e => e.currentTarget.style.background = "#f0f1f4"}>
               <span style={{ color: "#5c6070" }}>{k.label}</span>
-              <span style={{ ...mono, fontWeight: 600, color: k.color }}>{k.count} ({k.pct})</span>
+              <span style={{ ...m, fontWeight: 600, color: k.c }}>{k.count} ({k.pct})</span>
             </div>
           ))}
-          <div style={{ marginTop: 8, fontSize: 9, color: "#9095a4", lineHeight: 1.4 }}>
-            Click any row → modal with <strong style={{ color: "#16a34a" }}>working action buttons</strong> that push changes to Intercom via Claude API.
+          <div style={{ marginTop: 6, padding: 6, background: "#dcfce7", borderRadius: 5, fontSize: 8.5, color: "#16a34a", fontWeight: 500 }}>
+            Click any row → <strong>Fix & Send to Draft</strong> or <strong>Fix & Make Live</strong>
           </div>
         </div>
 
-        <div style={card}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 700 }}>🔴 Live Escalations</span>
-            <span style={{ ...pill("#9095a4", "#f0f1f4"), fontSize: 8 }}>Today</span>
+        {/* ESC */}
+        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+            <span style={{ fontSize: 11, fontWeight: 700 }}>🔴 Live Escalations</span>
+            <span style={{ fontSize: 7.5, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: "#f0f1f4", color: "#9095a4" }}>Today</span>
           </div>
-          <div style={{ display: "flex", gap: 3, marginBottom: 6 }}>
-            {[["all", `All (${ESC.length})`], ["gaps", "🔴 No Content"], ["miss", "⏱ SLA Miss"]].map(([v, l]) => (
-              <button key={v} onClick={() => setEscF(v)} style={{ padding: "2px 7px", borderRadius: 4, fontSize: 8, fontWeight: 600, cursor: "pointer", border: "1px solid #e2e4ea", background: escF === v ? "#1a1d26" : "#f0f1f4", color: escF === v ? "#fff" : "#9095a4" }}>{l}</button>
+          <div style={{ display: "flex", gap: 2, marginBottom: 5 }}>
+            {[["all", `All (${ESC.length})`], ["gaps", "🔴 Gaps"], ["miss", "⏱ SLA Miss"]].map(([v, l]) => (
+              <button key={v} onClick={() => setEf(v)} style={{ padding: "2px 6px", borderRadius: 3, fontSize: 7.5, fontWeight: 600, cursor: "pointer", border: "1px solid #e2e4ea", background: ef === v ? "#1a1d26" : "#f0f1f4", color: ef === v ? "#fff" : "#9095a4" }}>{l}</button>
             ))}
           </div>
-          <div style={{ maxHeight: 190, overflowY: "auto" }}>
-            {fEsc.map(e => (
-              <div key={e.id} onClick={() => { setModal({ type: "esc", esc: e }); setApiResult(null); }}
-                style={{ display: "grid", gridTemplateColumns: "1fr 60px 36px", alignItems: "center", gap: 4, padding: "5px 7px", borderRadius: 5, marginBottom: 2, cursor: "pointer", fontSize: 10,
-                  background: e.noContent ? "#fee2e2" : "#fef3c7", borderLeft: `3px solid ${e.noContent ? "#dc2626" : "#d97706"}` }}>
+          <div style={{ maxHeight: 180, overflowY: "auto" }}>
+            {fesc.map(e => (
+              <div key={e.id} onClick={() => open("esc", { esc: e })}
+                style={{ display: "grid", gridTemplateColumns: "1fr 55px 32px", gap: 3, padding: "5px 6px", borderRadius: 4, marginBottom: 2, cursor: "pointer", fontSize: 9.5,
+                  background: e.gap ? "#fee2e2" : "#fef3c7", borderLeft: `3px solid ${e.gap ? "#dc2626" : "#d97706"}` }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{e.title}</div>
-                  <div style={{ fontSize: 7.5, color: "#9095a4" }}>{e.articles.length ? e.articles.join(", ") : "No articles"}</div>
+                  <div style={{ fontSize: 7, color: "#9095a4" }}>{e.arts.length ? e.arts.join(", ") : "No articles"}</div>
                 </div>
-                <div style={{ ...mono, fontSize: 7.5, color: "#9095a4" }}>{e.team}</div>
-                <div style={{ ...mono, fontSize: 7.5, fontWeight: 700, textAlign: "center", padding: "1px 3px", borderRadius: 3,
+                <div style={{ ...m, fontSize: 7, color: "#9095a4" }}>{e.team}</div>
+                <div style={{ ...m, fontSize: 7, fontWeight: 700, textAlign: "center", padding: "1px 2px", borderRadius: 2,
                   color: e.sla === "hit" ? "#16a34a" : e.sla === "miss" ? "#dc2626" : "#9095a4",
                   background: e.sla === "hit" ? "#dcfce7" : e.sla === "miss" ? "#fee2e2" : "#f0f1f4" }}>
                   {e.sla === "hit" ? "HIT" : e.sla === "miss" ? "MISS" : "—"}
@@ -190,115 +209,110 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── ROAD TO 95% ── */}
-      <div style={{ ...card, marginBottom: 8 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>🎯 Road to 95% Resolution</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#f0f1f4", borderRadius: 7, marginBottom: 8 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, fontWeight: 600, marginBottom: 2 }}>
-              <span>Current: 71.6%</span><span style={{ color: "#16a34a" }}>Target: 95%</span>
-            </div>
-            <div style={{ height: 7, background: "#e2e4ea", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: "75.4%", height: "100%", background: "linear-gradient(90deg,#d97706,#16a34a)", borderRadius: 4 }} />
-            </div>
-          </div>
-          <div style={{ ...mono, fontSize: 11, fontWeight: 700, color: "#7c3aed" }}>23.4pp</div>
+      {/* ROAD TO 95% */}
+      <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12, marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 5 }}>🎯 Road to 95% Resolution</div>
+        <div style={{ height: 6, background: "#e2e4ea", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
+          <div style={{ width: "75.4%", height: "100%", background: "linear-gradient(90deg,#d97706,#16a34a)", borderRadius: 3 }} />
         </div>
-        {ROAD.map(p => (
-          <div key={p.n} style={{ display: "grid", gridTemplateColumns: "24px 1fr 55px 80px", alignItems: "center", gap: 6, padding: "7px 8px", borderRadius: 6, marginBottom: 2, background: p.bg }}>
-            <div style={{ width: 22, height: 22, borderRadius: "50%", background: p.c, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...mono, fontSize: 10, fontWeight: 700 }}>{p.n}</div>
-            <div><div style={{ fontSize: 10, fontWeight: 600 }}>{p.name}</div><div style={{ fontSize: 8, color: "#9095a4" }}>{p.sub}</div></div>
-            <div style={{ ...mono, fontSize: 9, fontWeight: 700, color: p.c, textAlign: "center" }}>{p.impact}</div>
-            <div style={{ ...mono, fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 3, background: p.c, color: "#fff", textAlign: "center" }}>{p.status}</div>
+        {[
+          { n: 1, nm: "Fix Content", sub: "Descriptions + cross-links + grammar", imp: "+8-10%", st: "IN PROGRESS", c: "#2563eb", bg: "#dbeafe" },
+          { n: 2, nm: "Fill Gaps", sub: "New articles for zero-content topics", imp: "+5-7%", st: "5 GAPS", c: "#7c3aed", bg: "#ede9fe" },
+          { n: 3, nm: "Reduce Bypass", sub: "Routing + email enablement", imp: "+8-12%", st: "NOT STARTED", c: "#d97706", bg: "#fef3c7" },
+          { n: 4, nm: "Quality Loop", sub: "Weekly escalation review", imp: "+3-5%", st: "ACTIVE", c: "#16a34a", bg: "#dcfce7" },
+        ].map(p => (
+          <div key={p.n} style={{ display: "grid", gridTemplateColumns: "22px 1fr 50px 70px", alignItems: "center", gap: 5, padding: "6px 8px", borderRadius: 6, marginBottom: 2, background: p.bg }}>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: p.c, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...m, fontSize: 10, fontWeight: 700 }}>{p.n}</div>
+            <div><div style={{ fontSize: 10, fontWeight: 600 }}>{p.nm}</div><div style={{ fontSize: 7.5, color: "#9095a4" }}>{p.sub}</div></div>
+            <div style={{ ...m, fontSize: 9, fontWeight: 700, color: p.c, textAlign: "center" }}>{p.imp}</div>
+            <div style={{ ...m, fontSize: 7, fontWeight: 700, padding: "2px 4px", borderRadius: 3, background: p.c, color: "#fff", textAlign: "center" }}>{p.st}</div>
           </div>
         ))}
       </div>
 
-      {/* ── ACTION LOG ── */}
-      {actionLog.length > 0 && (
-        <div style={{ ...card, marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>📋 Action Log</div>
-          {actionLog.slice(-5).reverse().map((a, i) => (
-            <div key={i} style={{ display: "flex", gap: 6, fontSize: 10, padding: "3px 0", borderBottom: "1px solid #f0f1f4", color: a.ok ? "#16a34a" : "#dc2626" }}>
-              <span style={{ ...mono, fontSize: 9, color: "#9095a4" }}>{a.time}</span>
-              <span>{a.ok ? "✅" : "❌"} {a.label}</span>
+      {/* ACTION LOG */}
+      {log.length > 0 && (
+        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 5 }}>📋 Action Log</div>
+          {log.slice(0, 5).map((a, i) => (
+            <div key={i} style={{ display: "flex", gap: 5, fontSize: 9.5, padding: "2px 0", borderBottom: "1px solid #f0f1f4" }}>
+              <span style={{ ...m, fontSize: 8, color: "#9095a4", minWidth: 60 }}>{a.ts}</span>
+              <span style={{ color: a.ok ? "#16a34a" : "#dc2626" }}>{a.ok ? "✅" : "❌"} {a.label}</span>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── MODAL ── */}
+      {/* ═══ MODAL ═══ */}
       {modal && (
-        <div onClick={() => { setModal(null); setApiResult(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "24px 16px", overflowY: "auto" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, boxShadow: "0 20px 60px rgba(0,0,0,.15)", width: "100%", maxWidth: 580, maxHeight: "80vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px 0" }}>
+        <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "24px 14px", overflowY: "auto" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, boxShadow: "0 20px 60px rgba(0,0,0,.15)", width: "100%", maxWidth: 560, maxHeight: "82vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px 0" }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{modal.type === "kb" ? `KB: ${modal.kb.label}` : modal.esc.title}</div>
-              <button onClick={() => { setModal(null); setApiResult(null); }} style={{ width: 24, height: 24, borderRadius: 6, border: "1px solid #e2e4ea", background: "#f0f1f4", cursor: "pointer", fontSize: 12, color: "#9095a4" }}>✕</button>
+              <button onClick={close} style={{ width: 24, height: 24, borderRadius: 6, border: "1px solid #e2e4ea", background: "#f0f1f4", cursor: "pointer", fontSize: 12, color: "#9095a4" }}>✕</button>
             </div>
-            <div style={{ padding: "10px 18px 18px" }}>
-              {/* KB Modal */}
+            <div style={{ padding: "10px 16px 16px" }}>
+
+              {/* ── KB MODAL ── */}
               {modal.type === "kb" && (<>
-                <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 2 }}>Impact</div>
-                <div style={{ fontSize: 11, color: "#5c6070", lineHeight: 1.5, marginBottom: 10 }}>
-                  <strong>{modal.kb.count} articles</strong> ({modal.kb.pct}) — {modal.kb.label.toLowerCase()}. Fixing these directly improves Fin's ability to resolve conversations.
+                <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 2 }}>Impact Assessment</div>
+                <div style={{ fontSize: 11, color: "#5c6070", lineHeight: 1.5, marginBottom: 4 }}>{modal.kb.detail}</div>
+                <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 3, marginTop: 8 }}>Recommendations</div>
+                <div style={{ fontSize: 10, color: "#5c6070", lineHeight: 1.6, marginBottom: 10, padding: "6px 8px", background: "#f0f1f4", borderRadius: 6 }}>
+                  {modal.kb.id === "desc" && "→ Push descriptions to articles (Fin's #1 matching signal)\n→ Low risk — only adds metadata, doesn't change article body\n→ Estimated +5-10% resolution improvement"}
+                  {modal.kb.id === "links" && "→ Add 2-3 Related Articles links per article\n→ Helps Fin guide users to next steps\n→ Reduces dead-end escalations"}
+                  {modal.kb.id === "thin" && "→ Expand thin articles to 300+ words\n→ Add troubleshooting steps, FAQs, edge cases\n→ More content = higher Fin resolution confidence"}
+                  {modal.kb.id === "gram" && "→ Fix double spaces and capitalization\n→ Cosmetic but improves professionalism\n→ 13 real typos already fixed this session"}
                 </div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #e2e4ea" }}>
-                  <button disabled={loading} onClick={() => execute(modal.kb.prompt, `Fix ${modal.kb.label} (batch of 3)`)}
-                    style={{ ...btn(loading ? "#9095a4" : "#2563eb") }}>
-                    {loading ? "⏳ Claude is working..." : "🚀 Fix 3 Articles Now"}
-                  </button>
-                  <button onClick={() => { setModal(null); setApiResult(null); }} style={{ ...btn("#f0f1f4", "#5c6070"), border: "1px solid #e2e4ea" }}>Close</button>
+
+                {/* ★ THE TWO BUTTONS ★ */}
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 10, borderTop: "1px solid #e2e4ea" }}>
+                  <Btn bg="#2563eb" onClick={() => run(PROMPTS[modal.kb.id + "_draft"], `${modal.kb.label} → Draft`)}>
+                    📝 Fix & Send to Draft
+                  </Btn>
+                  <Btn bg="#16a34a" onClick={() => run(PROMPTS[modal.kb.id + "_live"], `${modal.kb.label} → Live`)}>
+                    🚀 Fix & Make Live
+                  </Btn>
+                  <Btn bg="#f0f1f4" onClick={close}>Close</Btn>
                 </div>
-                <div style={{ marginTop: 6, fontSize: 9, color: "#9095a4" }}>
-                  This button calls Claude → Claude calls Intercom MCP → articles are updated in your help center. Check Intercom to verify.
+                <div style={{ marginTop: 6, fontSize: 8.5, color: "#9095a4", lineHeight: 1.4 }}>
+                  These buttons call Claude API → Claude calls Intercom MCP → articles are updated in your help center. Check Intercom to verify changes.
                 </div>
+                <ResultBox />
               </>)}
 
-              {/* Escalation Modal */}
+              {/* ── ESCALATION MODAL ── */}
               {modal.type === "esc" && (<>
                 <div style={{ fontSize: 11, color: "#5c6070", marginBottom: 6 }}>
-                  <strong>Team:</strong> {modal.esc.team} · <strong>SLA:</strong> {modal.esc.sla} · <strong>Category:</strong> {modal.esc.cat}
+                  <strong>Team:</strong> {modal.esc.team} · <strong>SLA:</strong> {modal.esc.sla}
                 </div>
-                {modal.esc.articles.length > 0 ? (
+                {modal.esc.arts.length > 0 ? (
                   <div style={{ marginBottom: 8 }}>
                     <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 3 }}>Articles Fin Referenced</div>
-                    {modal.esc.articles.map(a => <div key={a} style={{ padding: "3px 8px", background: "#f0f1f4", borderRadius: 4, marginBottom: 2, fontSize: 10 }}>→ {a}</div>)}
+                    {modal.esc.arts.map(a => <div key={a} style={{ padding: "3px 8px", background: "#f0f1f4", borderRadius: 4, marginBottom: 2, fontSize: 10 }}>→ {a}</div>)}
                   </div>
                 ) : (
                   <div style={{ padding: 8, background: "#fee2e2", borderRadius: 6, fontSize: 11, color: "#dc2626", fontWeight: 600, marginBottom: 8 }}>
-                    ⚠ Content Gap — Fin had zero articles to reference
+                    ⚠ Content Gap — Fin had zero articles to reference. Creating an article will help deflect future conversations like this.
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #e2e4ea" }}>
-                  <a href={`https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/${modal.esc.id}`} target="_blank" rel="noreferrer" style={{ ...btn("#2563eb"), textDecoration: "none" }}>↗ Open in Intercom</a>
-                  {modal.esc.noContent && (
-                    <button disabled={loading} onClick={() => execute(
-                      `Create a new Intercom article as a draft. Title: "Troubleshooting: ${modal.esc.title}". Write a helpful article body in HTML for Jolt customers about "${modal.esc.title}". Include troubleshooting steps, common causes, and when to contact support. Author ID is 8946047.`,
-                      `Create article: ${modal.esc.title}`
-                    )} style={{ ...btn(loading ? "#9095a4" : "#16a34a") }}>
-                      {loading ? "⏳ Creating..." : "📝 Create Draft Article"}
-                    </button>
-                  )}
-                  <button onClick={() => { setModal(null); setApiResult(null); }} style={{ ...btn("#f0f1f4", "#5c6070"), border: "1px solid #e2e4ea" }}>Close</button>
+                  <a href={`https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/${modal.esc.id}`} target="_blank" rel="noreferrer"
+                    style={{ padding: "8px 14px", borderRadius: 7, background: "#2563eb", color: "#fff", fontFamily: "'Outfit'", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>
+                    ↗ Open in Intercom
+                  </a>
+                  {modal.esc.gap && (<>
+                    <Btn bg="#7c3aed" onClick={() => run(PROMPTS.create_draft(modal.esc.title), `Create draft: ${modal.esc.title}`)}>
+                      📝 Create & Send to Draft
+                    </Btn>
+                    <Btn bg="#16a34a" onClick={() => run(PROMPTS.create_live(modal.esc.title), `Publish: ${modal.esc.title}`)}>
+                      🚀 Create & Publish Live
+                    </Btn>
+                  </>)}
+                  <Btn bg="#f0f1f4" onClick={close}>Close</Btn>
                 </div>
+                <ResultBox />
               </>)}
-
-              {/* API Result */}
-              {apiResult && (
-                <div style={{ marginTop: 10, padding: 10, background: apiResult.ok ? "#dcfce7" : "#fee2e2", border: `1px solid ${apiResult.ok ? "#86efac" : "#fca5a5"}`, borderRadius: 8, fontSize: 10, maxHeight: 200, overflowY: "auto" }}>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: apiResult.ok ? "#16a34a" : "#dc2626" }}>
-                    {apiResult.ok ? "✅ Intercom Updated" : "❌ Error"}
-                  </div>
-                  {apiResult.ok ? (
-                    <div style={{ ...mono, fontSize: 9, whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
-                      {apiResult.tools?.length > 0 && <div style={{ marginBottom: 4 }}>Tools called: {apiResult.tools.join(", ")}</div>}
-                      <div>{apiResult.texts}</div>
-                    </div>
-                  ) : (
-                    <div style={{ ...mono, fontSize: 9, color: "#dc2626" }}>{apiResult.error}</div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -306,7 +320,7 @@ export default function Dashboard() {
 
       {/* TOAST */}
       {toast && (
-        <div style={{ position: "fixed", bottom: 16, right: 16, background: "#1a1d26", color: "#fff", padding: "8px 16px", borderRadius: 8, fontSize: 11, fontWeight: 500, boxShadow: "0 8px 30px rgba(0,0,0,.2)", zIndex: 2000, maxWidth: 400 }}>{toast}</div>
+        <div style={{ position: "fixed", bottom: 14, right: 14, background: "#1a1d26", color: "#fff", padding: "8px 14px", borderRadius: 8, fontSize: 11, fontWeight: 500, boxShadow: "0 8px 30px rgba(0,0,0,.2)", zIndex: 2000, maxWidth: 380 }}>{toast}</div>
       )}
     </div>
   );
