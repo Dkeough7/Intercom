@@ -1,60 +1,146 @@
-import { useState, useCallback } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jolt AI Command Center — Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--el:#f0f1f4;--bdr:#e2e4ea;--tx:#1a1d26;--tx2:#5c6070;--tx3:#9095a4;--grn:#16a34a;--grn-s:#dcfce7;--grn-b:#86efac;--blu:#2563eb;--blu-s:#dbeafe;--pur:#7c3aed;--pur-s:#ede9fe;--amb:#d97706;--amb-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;--r:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
+.d{max-width:1400px;margin:0 auto;padding:14px 24px 40px}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hd-l{display:flex;align-items:center;gap:10px}
+.logo{width:30px;height:30px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
+.hd-t{font-size:15px;font-weight:700}.hd-s{font-size:9px;color:var(--tx3)}
+.live{display:flex;align-items:center;gap:4px;padding:2px 8px;background:var(--grn-s);border:1px solid var(--grn-b);border-radius:12px;font-size:8px;font-weight:600;color:var(--grn)}
+.dot{width:5px;height:5px;background:var(--grn);border-radius:50%;animation:p 2s infinite}@keyframes p{50%{opacity:.3}}
+.mg{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:8px}
+.mc{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:7px 9px;position:relative;overflow:hidden}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc.r::after{background:var(--red)}.mc.y::after{background:var(--amb)}.mc.g::after{background:var(--grn)}
+.mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.kp{font-size:7px;font-weight:700;padding:1px 4px;border-radius:4px}
+.kp.r{background:var(--red-s);color:var(--red)}.kp.y{background:var(--amb-s);color:var(--amb)}.kp.g{background:var(--grn-s);color:var(--grn)}
+.ml{font-size:7.5px;font-weight:600;text-transform:uppercase;color:var(--tx3)}.mv{font-family:'JetBrains Mono';font-size:16px;font-weight:600}.mt2{font-family:'JetBrains Mono';font-size:7px;color:var(--tx3)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.pn{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.pt{font-size:11px;font-weight:700}.pb{font-size:7.5px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--el);color:var(--tx3)}
+.sr{display:flex;justify-content:space-between;padding:6px 9px;background:var(--el);border-radius:5px;margin-bottom:2px;cursor:pointer;font-size:10px;transition:all .15s}.sr:hover{background:#e6e7ec;transform:translateX(2px)}
+.hint{margin-top:6px;padding:5px 8px;background:var(--grn-s);border-radius:5px;font-size:8.5px;color:var(--grn);font-weight:500}
+.esc-row{display:grid;grid-template-columns:1fr 55px 32px;gap:3px;padding:5px 6px;border-radius:4px;margin-bottom:2px;cursor:pointer;font-size:9.5px;transition:all .15s}
+.esc-row:hover{transform:translateX(2px)}
+.esc-row.gap{background:var(--red-s);border-left:3px solid var(--red)}.esc-row.tried{background:var(--amb-s);border-left:3px solid var(--amb)}
+.ef{display:flex;gap:2px;margin-bottom:5px}.ef button{padding:2px 6px;border-radius:3px;font-size:7.5px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--el);color:var(--tx3);font-family:'Outfit'}.ef button.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+.road{display:grid;grid-template-columns:22px 1fr 50px 70px;align-items:center;gap:5px;padding:6px 8px;border-radius:6px;margin-bottom:2px}
+.road-n{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:#fff}
+/* Modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}.mo.show{display:flex}
+.modal{background:var(--card);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.15);width:100%;max-width:560px;max-height:82vh;overflow-y:auto;animation:mIn .2s ease}
+@keyframes mIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 0}.mt3{font-size:14px;font-weight:700}
+.mx{width:24px;height:24px;border-radius:6px;border:1px solid var(--bdr);background:var(--el);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--tx3)}.mx:hover{background:var(--red-s);color:var(--red)}
+.mb{padding:10px 16px 16px}
+.mlbl{font-size:8px;font-weight:700;text-transform:uppercase;color:var(--tx3);margin-bottom:3px;margin-top:8px}
+.mtxt{font-size:11px;color:var(--tx2);line-height:1.5}
+.macts{display:flex;gap:6px;flex-wrap:wrap;padding-top:10px;margin-top:8px;border-top:1px solid var(--bdr)}
+.btn{padding:8px 14px;border-radius:7px;border:none;font-family:'Outfit';font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.btn.pri{background:var(--blu);color:#fff}.btn.suc{background:var(--grn);color:#fff}.btn.pur{background:var(--pur);color:#fff}
+.btn.sec{background:var(--el);color:var(--tx2);border:1px solid var(--bdr)}
+.btn:disabled{opacity:.4;cursor:default}
+.mnote{font-size:8.5px;color:var(--tx3);margin-top:6px;line-height:1.4}
+.result{margin-top:10px;padding:10px;border-radius:8px;font-size:10px;max-height:200px;overflow-y:auto}
+.result.ok{background:var(--grn-s);border:1px solid var(--grn-b)}.result.err{background:var(--red-s);border:1px solid #fca5a5}
+.result h4{font-size:11px;margin-bottom:4px}.result pre{font-family:'JetBrains Mono';font-size:9px;white-space:pre-wrap;line-height:1.5}
+.toast{position:fixed;bottom:14px;right:14px;background:var(--tx);color:#fff;padding:8px 14px;border-radius:8px;font-size:11px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:2000;transform:translateY(50px);opacity:0;transition:all .3s;max-width:380px}.toast.show{transform:none;opacity:1}
+.log-row{display:flex;gap:5px;font-size:9.5px;padding:2px 0;border-bottom:1px solid var(--el)}
+@media(max-width:900px){.mg{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="d">
+<div class="hd"><div class="hd-l"><div class="logo">⚡</div><div><div class="hd-t">Jolt Fin AI — Command Center</div><div class="hd-s">Buttons connect live to Intercom via Claude API → MCP</div></div></div><div class="live"><div class="dot"></div>LIVE</div></div>
 
-// ─── CLAUDE API → INTERCOM MCP ───
+<!-- KPIs -->
+<div class="mg" id="kpis"></div>
+
+<!-- KB + Escalations -->
+<div class="g2">
+<div class="pn"><div class="ph"><div class="pt">Knowledge Base Health</div><div class="pb">327</div></div><div id="kbList"></div><div class="hint">Click any row → <strong>Fix & Send to Draft</strong> or <strong>Fix & Make Live</strong></div></div>
+<div class="pn"><div class="ph"><div class="pt">🔴 Live Escalations</div><div class="pb">Today</div></div><div class="ef" id="escFilters"></div><div id="escList" style="max-height:200px;overflow-y:auto"></div></div>
+</div>
+
+<!-- Road -->
+<div class="pn" style="margin-bottom:8px"><div class="ph"><div class="pt">🎯 Road to 95% Resolution</div><div class="pb">23.4pp to close</div></div>
+<div style="height:6px;background:var(--el);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="width:75.4%;height:100%;background:linear-gradient(90deg,var(--amb),var(--grn));border-radius:3px"></div></div>
+<div id="roadList"></div></div>
+
+<!-- Action Log -->
+<div class="pn" id="logPanel" style="display:none"><div class="ph"><div class="pt">📋 Action Log</div></div><div id="logList"></div></div>
+</div>
+
+<!-- Modal -->
+<div class="mo" id="mo" onclick="if(event.target===this)closeModal()">
+<div class="modal"><div class="mh"><div class="mt3" id="modalTitle"></div><div class="mx" onclick="closeModal()">✕</div></div><div class="mb" id="modalBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════ CLAUDE API → INTERCOM MCP ════════
 async function callClaude(prompt) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1000,
-      system: "You are an Intercom help center editor for Jolt Software (workspace vna7zlcy, author_id 8946047). Use Intercom MCP tools to execute requests. Be concise in your response.",
+      system: "You are an Intercom help center editor for Jolt Software (workspace vna7zlcy, author_id 8946047). Use Intercom MCP tools to execute the request. Be concise.",
       messages: [{ role: "user", content: prompt }],
-      mcp_servers: [{ type: "url", url: "https://mcp.intercom.com/mcp", name: "intercom" }],
-    }),
+      mcp_servers: [{ type: "url", url: "https://mcp.intercom.com/mcp", name: "intercom" }]
+    })
   });
-  if (!r.ok) throw new Error(`API error ${r.status}`);
-  const d = await r.json();
+  if (!res.ok) throw new Error("API error " + res.status + ": " + (await res.text()).slice(0, 200));
+  const d = await res.json();
   const texts = (d.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
   const tools = (d.content || []).filter(b => b.type === "mcp_tool_use").map(b => b.name);
-  const results = (d.content || []).filter(b => b.type === "mcp_tool_result").map(b => {
-    try { return JSON.parse(b.content?.[0]?.text || "{}"); } catch { return b.content?.[0]?.text || ""; }
-  });
-  return { texts, tools, results };
+  return { texts, tools };
 }
 
-// ─── PROMPTS FOR EACH ACTION ───
-const PROMPTS = {
-  desc_draft: "Find 3 published Intercom articles in the Jolt help center that have no description (empty description field). For each, generate a concise 1-2 sentence description. Update each article with the new description but set state to 'draft'. Return the article IDs and titles.",
-  desc_live: "Find 3 published Intercom articles in the Jolt help center that have no description (empty description field). For each, generate a concise 1-2 sentence description. Update each article with the new description and keep state as 'published'. Return the article IDs and titles.",
-  links_draft: "Find 2 published Intercom articles about Jolt troubleshooting that have no 'Related Articles' section in their body. Add a Related Articles section with 2-3 links to related articles. Save as draft. Return what you changed.",
-  links_live: "Find 2 published Intercom articles about Jolt troubleshooting that have no 'Related Articles' section in their body. Add a Related Articles section with 2-3 links to related articles. Keep published. Return what you changed.",
-  thin_draft: "Find 1 published Intercom article in the Jolt help center that has very short body content (under 200 words). Expand it with additional troubleshooting steps, FAQ, and tips to make it more comprehensive. Save as draft.",
-  thin_live: "Find 1 published Intercom article in the Jolt help center that has very short body content (under 200 words). Expand it with additional troubleshooting steps, FAQ, and tips to make it more comprehensive. Keep published.",
-  gram_draft: "Fetch Intercom article 9671176. Clean all double spaces (replace '  ' with ' ') and fix lowercase letters after periods. Save as draft so it can be reviewed.",
-  gram_live: "Fetch Intercom article 9671176. Clean all double spaces (replace '  ' with ' ') and fix lowercase letters after periods. Update the article and keep it published.",
-  create_draft: (title) => `Create a new Intercom article as DRAFT. Title: "Troubleshooting: ${title}". Write comprehensive HTML body content for Jolt customers about "${title}". Include: overview of the issue, common causes, step-by-step troubleshooting, and when to contact support. Author ID 8946047.`,
-  create_live: (title) => `Create a new Intercom article and set state to PUBLISHED. Title: "Troubleshooting: ${title}". Write comprehensive HTML body content for Jolt customers about "${title}". Include: overview, common causes, step-by-step troubleshooting, and when to contact support. Author ID 8946047.`,
-};
-
-// ─── DATA ───
-const KPI = [
-  { l: "Resolution", v: "71.6%", t: "95%", g: "+23.4pp", s: "r", i: "✅" },
-  { l: "Automation", v: "51.1%", t: "80%", g: "+28.9pp", s: "r", i: "⚡" },
-  { l: "Involvement", v: "71.4%", t: "80%", g: "+8.6pp", s: "y", i: "🤖" },
-  { l: "CSAT", v: "46.1%", t: "85%", g: "+38.9pp", s: "r", i: "⭐" },
-  { l: "Handoff", v: "28.4%", t: "≤5%", g: "-23.4pp", s: "r", i: "🔀" },
-  { l: "Response", v: "5.2m", t: "≤4m", g: "-1.2m", s: "y", i: "⏱" },
+// ════════ DATA ════════
+const KPI_DATA = [
+  { l: "Resolution", v: "71.6%", t: "95%", s: "r", i: "✅" },
+  { l: "Automation", v: "51.1%", t: "80%", s: "r", i: "⚡" },
+  { l: "Involvement", v: "71.4%", t: "80%", s: "y", i: "🤖" },
+  { l: "CSAT", v: "46.1%", t: "85%", s: "r", i: "⭐" },
+  { l: "Handoff", v: "28.4%", t: "≤5%", s: "r", i: "🔀" },
+  { l: "Response", v: "5.2m", t: "≤4m", s: "y", i: "⏱" }
 ];
 
-const KB = [
-  { id: "desc", label: "Missing Descriptions", count: 239, pct: "73%", c: "#dc2626", detail: "239 articles have no description. Descriptions are Fin's #1 matching signal." },
-  { id: "links", label: "No Cross-Links", count: 230, pct: "71%", c: "#d97706", detail: "230 articles have zero links to related content. Dead-end articles cause escalations." },
-  { id: "thin", label: "Thin Content (<200w)", count: 40, pct: "12%", c: "#d97706", detail: "40 articles under 200 words — not enough for Fin to resolve." },
-  { id: "gram", label: "Grammar Issues", count: 12, pct: "4%", c: "#9095a4", detail: "12 remaining cosmetic double-space issues. 13 articles with real typos already fixed." },
+const KB_DATA = [
+  { id: "desc", label: "Missing Descriptions", count: 239, pct: "73%", color: "var(--red)",
+    detail: "239 articles have no description. Descriptions are Fin's #1 matching signal — the single biggest lever for improving resolution.",
+    recs: "Push descriptions to articles. Low risk — only adds metadata. Estimated +5-10% resolution improvement.",
+    draftPrompt: "Search for 3 published Intercom articles that have an empty or missing description. For each one, generate a concise 1-2 sentence SEO description and update the article description. Keep the articles published. Return the article IDs, titles, and new descriptions you added.",
+    livePrompt: "Search for 3 published Intercom articles that have an empty or missing description. For each one, generate a concise 1-2 sentence SEO description and update the article description. Keep articles published. Return article IDs, titles, and new descriptions." },
+  { id: "links", label: "No Cross-Links", count: 230, pct: "71%", color: "var(--amb)",
+    detail: "230 articles have zero links to related content. Dead-end articles cause escalations because Fin can't guide users to the next step.",
+    recs: "Add 2-3 Related Articles links per article. Prioritize troubleshooting articles.",
+    draftPrompt: "Find 2 published Intercom articles about Jolt printer troubleshooting. Add a Related Articles HTML section at the end of each article body with links to 2-3 related articles. Save as draft for review. Return what you changed.",
+    livePrompt: "Find 2 published Intercom articles about Jolt printer troubleshooting. Add a Related Articles HTML section at the end of each article body with links to 2-3 related articles. Keep published. Return what you changed." },
+  { id: "thin", label: "Thin Content (<200w)", count: 40, pct: "12%", color: "var(--amb)",
+    detail: "40 articles under 200 words — not enough content for Fin to resolve. 6 articles are under 50 words.",
+    recs: "Expand to 300+ words minimum. Add troubleshooting steps, FAQs, edge cases.",
+    draftPrompt: "Find 1 very short published Intercom article (under 200 words) about Jolt. Expand its body with additional troubleshooting steps, FAQ section, and helpful tips. Save as draft. Return the article ID and what you added.",
+    livePrompt: "Find 1 very short published Intercom article (under 200 words) about Jolt. Expand its body with additional troubleshooting steps, FAQ section, and helpful tips. Keep published. Return the article ID and what you added." },
+  { id: "gram", label: "Grammar Issues", count: 12, pct: "4%", color: "var(--tx3)",
+    detail: "12 remaining cosmetic double-space issues. 13 articles with real typos already fixed this session.",
+    recs: "Fix double spaces and capitalization errors. Low risk — safe to push directly.",
+    draftPrompt: "Fetch Intercom article 9787431. Find double spaces in the body text (two spaces where there should be one) and fix them. Also capitalize any lowercase letters that appear after periods. Save as draft. Return what you fixed.",
+    livePrompt: "Fetch Intercom article 9787431. Find double spaces in the body text and fix them. Also capitalize lowercase letters after periods. Keep published. Return what you fixed." }
 ];
 
-const ESC = [
+const ESC_DATA = [
   { id: "215473507702571", title: "List population issue", team: "CHATS", sla: "miss", arts: [], gap: true },
   { id: "215473520780644", title: "Cancel account", team: "BILLING", sla: "miss", arts: [], gap: true },
   { id: "215473505524929", title: "Manufacturer warranty", team: "CHATS", sla: "hit", arts: [], gap: true },
@@ -63,265 +149,190 @@ const ESC = [
   { id: "215473521712992", title: "Follow up work order", team: "BILLING", sla: "miss", arts: ["Payment Method", "Work Orders"] },
   { id: "215473523716866", title: "App labels not displaying", team: "CHATS", sla: "miss", arts: ["Sync Issues", "Reset App"] },
   { id: "215473518649176", title: "Printer replacement status", team: "CHATS", sla: "hit", arts: ["Printer repair FAQ"] },
-  { id: "215473519436069", title: "Unblock time off requests", team: "CHATS", sla: "miss", arts: ["Sync Issues", "Block Time Off"] },
+  { id: "215473519436069", title: "Unblock time off requests", team: "CHATS", sla: "miss", arts: ["Sync Issues", "Block Time Off"] }
 ];
 
-const SC = { g: ["#16a34a", "#dcfce7"], y: ["#d97706", "#fef3c7"], r: ["#dc2626", "#fee2e2"] };
-const m = { fontFamily: "'JetBrains Mono', monospace" };
+const ROAD_DATA = [
+  { n: 1, name: "Fix Content", sub: "Descriptions + cross-links + grammar", imp: "+8-10%", st: "IN PROGRESS", c: "#2563eb", bg: "#dbeafe" },
+  { n: 2, name: "Fill Gaps", sub: "New articles for zero-content topics", imp: "+5-7%", st: "5 GAPS", c: "#7c3aed", bg: "#ede9fe" },
+  { n: 3, name: "Reduce Bypass", sub: "Routing + email enablement", imp: "+8-12%", st: "NOT STARTED", c: "#d97706", bg: "#fef3c7" },
+  { n: 4, name: "Quality Loop", sub: "Weekly escalation review", imp: "+3-5%", st: "ACTIVE", c: "#16a34a", bg: "#dcfce7" }
+];
 
-export default function App() {
-  const [modal, setModal] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [log, setLog] = useState([]);
-  const [ef, setEf] = useState("all");
+let escFilter = "all", actionLog = [], busy = false;
 
-  const t = useCallback((msg) => { setToast(msg); setTimeout(() => setToast(null), 4500); }, []);
+// ════════ RENDER ════════
+function renderKPIs() {
+  const SL = { g: "ON TARGET", y: "NEAR", r: "BELOW" };
+  document.getElementById("kpis").innerHTML = KPI_DATA.map(k =>
+    `<div class="mc ${k.s}"><div class="mc-top"><span style="font-size:11px">${k.i}</span><span class="kp ${k.s}">${SL[k.s]}</span></div><div class="ml">${k.l}</div><div class="mv">${k.v}</div><div class="mt2">Target: ${k.t}</div></div>`
+  ).join("");
+}
 
-  const run = useCallback(async (prompt, label) => {
-    setBusy(true); setResult(null);
-    try {
-      const r = await callClaude(prompt);
-      setResult({ ok: true, ...r });
-      setLog(p => [{ ts: new Date().toLocaleTimeString(), label, ok: true }, ...p].slice(0, 10));
-      t(`✅ ${label}`);
-    } catch (e) {
-      setResult({ ok: false, error: e.message });
-      setLog(p => [{ ts: new Date().toLocaleTimeString(), label, ok: false }, ...p].slice(0, 10));
-      t(`❌ ${e.message}`);
-    } finally { setBusy(false); }
-  }, [t]);
+function renderKB() {
+  document.getElementById("kbList").innerHTML = KB_DATA.map(k =>
+    `<div class="sr" onclick="openKB('${k.id}')"><span style="color:var(--tx2)">${k.label}</span><span style="font-family:'JetBrains Mono';font-weight:600;color:${k.color}">${k.count} (${k.pct})</span></div>`
+  ).join("");
+}
 
-  const open = (type, data) => { setModal({ type, ...data }); setResult(null); };
-  const close = () => { setModal(null); setResult(null); };
-  const fesc = ef === "all" ? ESC : ef === "gaps" ? ESC.filter(e => e.gap) : ESC.filter(e => e.sla === "miss");
+function renderEsc() {
+  const filters = [["all", "All (" + ESC_DATA.length + ")"], ["gaps", "🔴 Gaps"], ["miss", "⏱ SLA Miss"]];
+  document.getElementById("escFilters").innerHTML = filters.map(([v, l]) =>
+    `<button class="${escFilter === v ? "on" : ""}" onclick="escFilter='${v}';renderEsc()">${l}</button>`
+  ).join("");
+  let list = ESC_DATA;
+  if (escFilter === "gaps") list = list.filter(e => e.gap);
+  if (escFilter === "miss") list = list.filter(e => e.sla === "miss");
+  document.getElementById("escList").innerHTML = list.map(e => {
+    const cls = e.gap ? "gap" : "tried";
+    const slaC = e.sla === "hit" ? "var(--grn)" : e.sla === "miss" ? "var(--red)" : "var(--tx3)";
+    const slaBg = e.sla === "hit" ? "var(--grn-s)" : e.sla === "miss" ? "var(--red-s)" : "var(--el)";
+    return `<div class="esc-row ${cls}" onclick="openEsc('${e.id}')"><div><div style="font-weight:600">${e.title}</div><div style="font-size:7px;color:var(--tx3)">${e.arts.length ? e.arts.join(", ") : "No articles"}</div></div><div style="font-family:'JetBrains Mono';font-size:7px;color:var(--tx3)">${e.team}</div><div style="font-family:'JetBrains Mono';font-size:7px;font-weight:700;text-align:center;padding:1px 2px;border-radius:2px;color:${slaC};background:${slaBg}">${e.sla === "hit" ? "HIT" : e.sla === "miss" ? "MISS" : "—"}</div></div>`;
+  }).join("");
+}
 
-  const Btn = ({ onClick, bg, children, disabled }) => (
-    <button disabled={disabled || busy} onClick={onClick} style={{
-      padding: "8px 14px", borderRadius: 7, border: "none", fontFamily: "'Outfit'", fontSize: 11, fontWeight: 600,
-      cursor: disabled || busy ? "default" : "pointer", opacity: disabled || busy ? 0.5 : 1,
-      background: bg || "#2563eb", color: bg === "#f0f1f4" ? "#5c6070" : "#fff",
-      ...(bg === "#f0f1f4" ? { border: "1px solid #e2e4ea" } : {}),
-    }}>{busy && bg !== "#f0f1f4" ? "⏳ Working..." : children}</button>
-  );
+function renderRoad() {
+  document.getElementById("roadList").innerHTML = ROAD_DATA.map(p =>
+    `<div class="road" style="background:${p.bg}"><div class="road-n" style="background:${p.c}">${p.n}</div><div><div style="font-size:10px;font-weight:600">${p.name}</div><div style="font-size:7.5px;color:var(--tx3)">${p.sub}</div></div><div style="font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:${p.c};text-align:center">${p.imp}</div><div style="font-family:'JetBrains Mono';font-size:7px;font-weight:700;padding:2px 4px;border-radius:3px;background:${p.c};color:#fff;text-align:center">${p.st}</div></div>`
+  ).join("");
+}
 
-  const ResultBox = () => result && (
-    <div style={{ marginTop: 10, padding: 10, background: result.ok ? "#dcfce7" : "#fee2e2", border: `1px solid ${result.ok ? "#86efac" : "#fca5a5"}`, borderRadius: 8 }}>
-      <div style={{ fontWeight: 700, fontSize: 11, marginBottom: 4, color: result.ok ? "#16a34a" : "#dc2626" }}>
-        {result.ok ? "✅ Intercom Updated Successfully" : "❌ Error"}
-      </div>
-      <div style={{ ...m, fontSize: 9, whiteSpace: "pre-wrap", maxHeight: 150, overflowY: "auto", lineHeight: 1.5 }}>
-        {result.ok ? (<>
-          {result.tools?.length > 0 && <div style={{ color: "#2563eb", marginBottom: 4 }}>Tools used: {result.tools.join(", ")}</div>}
-          <div>{result.texts}</div>
-        </>) : result.error}
-      </div>
-    </div>
-  );
+function renderLog() {
+  if (!actionLog.length) { document.getElementById("logPanel").style.display = "none"; return; }
+  document.getElementById("logPanel").style.display = "block";
+  document.getElementById("logList").innerHTML = actionLog.slice(0, 5).map(a =>
+    `<div class="log-row"><span style="font-family:'JetBrains Mono';font-size:8px;color:var(--tx3);min-width:55px">${a.ts}</span><span style="color:${a.ok ? "var(--grn)" : "var(--red)"}">${a.ok ? "✅" : "❌"} ${a.label}</span></div>`
+  ).join("");
+}
 
-  return (
-    <div style={{ fontFamily: "'Outfit', system-ui", background: "#f5f6f8", minHeight: "100vh", padding: 14, color: "#1a1d26" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-      <style>{`@keyframes pulse{50%{opacity:.3}} *{box-sizing:border-box;margin:0;padding:0}`}</style>
+// ════════ MODALS ════════
+function openModal(title, body) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = body;
+  document.getElementById("mo").classList.add("show");
+}
+function closeModal() { document.getElementById("mo").classList.remove("show"); }
 
-      {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#16a34a,#15803d)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>⚡</div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>Jolt Fin AI — Command Center</div>
-            <div style={{ fontSize: 9, color: "#9095a4" }}>Buttons connect live to Intercom via Claude API → MCP</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "#dcfce7", border: "1px solid #86efac", borderRadius: 12, fontSize: 8, fontWeight: 600, color: "#16a34a" }}>
-          <div style={{ width: 4, height: 4, background: "#16a34a", borderRadius: "50%", animation: "pulse 2s infinite" }} />LIVE
-        </div>
-      </div>
-
-      {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 5, marginBottom: 8 }}>
-        {KPI.map(k => (
-          <div key={k.l} style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 8, padding: "7px 9px", borderTop: `2px solid ${SC[k.s][0]}` }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-              <span style={{ fontSize: 11 }}>{k.i}</span>
-              <span style={{ fontSize: 7, fontWeight: 700, padding: "1px 4px", borderRadius: 4, background: SC[k.s][1], color: SC[k.s][0] }}>
-                {k.s === "g" ? "ON TARGET" : k.s === "y" ? "NEAR" : "BELOW"}
-              </span>
-            </div>
-            <div style={{ fontSize: 7.5, fontWeight: 600, textTransform: "uppercase", color: "#9095a4" }}>{k.l}</div>
-            <div style={{ ...m, fontSize: 16, fontWeight: 600 }}>{k.v}</div>
-            <div style={{ ...m, fontSize: 7, color: "#9095a4" }}>Target: {k.t}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* KB HEALTH + ESCALATIONS */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-        {/* KB */}
-        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700 }}>Knowledge Base Health</span>
-            <span style={{ fontSize: 7.5, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: "#f0f1f4", color: "#9095a4" }}>327</span>
-          </div>
-          {KB.map(k => (
-            <div key={k.id} onClick={() => open("kb", { kb: k })}
-              style={{ display: "flex", justifyContent: "space-between", padding: "6px 9px", background: "#f0f1f4", borderRadius: 5, marginBottom: 2, cursor: "pointer", fontSize: 10 }}
-              onMouseEnter={e => e.currentTarget.style.background = "#e8e9ee"} onMouseLeave={e => e.currentTarget.style.background = "#f0f1f4"}>
-              <span style={{ color: "#5c6070" }}>{k.label}</span>
-              <span style={{ ...m, fontWeight: 600, color: k.c }}>{k.count} ({k.pct})</span>
-            </div>
-          ))}
-          <div style={{ marginTop: 6, padding: 6, background: "#dcfce7", borderRadius: 5, fontSize: 8.5, color: "#16a34a", fontWeight: 500 }}>
-            Click any row → <strong>Fix & Send to Draft</strong> or <strong>Fix & Make Live</strong>
-          </div>
-        </div>
-
-        {/* ESC */}
-        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-            <span style={{ fontSize: 11, fontWeight: 700 }}>🔴 Live Escalations</span>
-            <span style={{ fontSize: 7.5, fontWeight: 600, padding: "2px 6px", borderRadius: 4, background: "#f0f1f4", color: "#9095a4" }}>Today</span>
-          </div>
-          <div style={{ display: "flex", gap: 2, marginBottom: 5 }}>
-            {[["all", `All (${ESC.length})`], ["gaps", "🔴 Gaps"], ["miss", "⏱ SLA Miss"]].map(([v, l]) => (
-              <button key={v} onClick={() => setEf(v)} style={{ padding: "2px 6px", borderRadius: 3, fontSize: 7.5, fontWeight: 600, cursor: "pointer", border: "1px solid #e2e4ea", background: ef === v ? "#1a1d26" : "#f0f1f4", color: ef === v ? "#fff" : "#9095a4" }}>{l}</button>
-            ))}
-          </div>
-          <div style={{ maxHeight: 180, overflowY: "auto" }}>
-            {fesc.map(e => (
-              <div key={e.id} onClick={() => open("esc", { esc: e })}
-                style={{ display: "grid", gridTemplateColumns: "1fr 55px 32px", gap: 3, padding: "5px 6px", borderRadius: 4, marginBottom: 2, cursor: "pointer", fontSize: 9.5,
-                  background: e.gap ? "#fee2e2" : "#fef3c7", borderLeft: `3px solid ${e.gap ? "#dc2626" : "#d97706"}` }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{e.title}</div>
-                  <div style={{ fontSize: 7, color: "#9095a4" }}>{e.arts.length ? e.arts.join(", ") : "No articles"}</div>
-                </div>
-                <div style={{ ...m, fontSize: 7, color: "#9095a4" }}>{e.team}</div>
-                <div style={{ ...m, fontSize: 7, fontWeight: 700, textAlign: "center", padding: "1px 2px", borderRadius: 2,
-                  color: e.sla === "hit" ? "#16a34a" : e.sla === "miss" ? "#dc2626" : "#9095a4",
-                  background: e.sla === "hit" ? "#dcfce7" : e.sla === "miss" ? "#fee2e2" : "#f0f1f4" }}>
-                  {e.sla === "hit" ? "HIT" : e.sla === "miss" ? "MISS" : "—"}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ROAD TO 95% */}
-      <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12, marginBottom: 8 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 5 }}>🎯 Road to 95% Resolution</div>
-        <div style={{ height: 6, background: "#e2e4ea", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
-          <div style={{ width: "75.4%", height: "100%", background: "linear-gradient(90deg,#d97706,#16a34a)", borderRadius: 3 }} />
-        </div>
-        {[
-          { n: 1, nm: "Fix Content", sub: "Descriptions + cross-links + grammar", imp: "+8-10%", st: "IN PROGRESS", c: "#2563eb", bg: "#dbeafe" },
-          { n: 2, nm: "Fill Gaps", sub: "New articles for zero-content topics", imp: "+5-7%", st: "5 GAPS", c: "#7c3aed", bg: "#ede9fe" },
-          { n: 3, nm: "Reduce Bypass", sub: "Routing + email enablement", imp: "+8-12%", st: "NOT STARTED", c: "#d97706", bg: "#fef3c7" },
-          { n: 4, nm: "Quality Loop", sub: "Weekly escalation review", imp: "+3-5%", st: "ACTIVE", c: "#16a34a", bg: "#dcfce7" },
-        ].map(p => (
-          <div key={p.n} style={{ display: "grid", gridTemplateColumns: "22px 1fr 50px 70px", alignItems: "center", gap: 5, padding: "6px 8px", borderRadius: 6, marginBottom: 2, background: p.bg }}>
-            <div style={{ width: 20, height: 20, borderRadius: "50%", background: p.c, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", ...m, fontSize: 10, fontWeight: 700 }}>{p.n}</div>
-            <div><div style={{ fontSize: 10, fontWeight: 600 }}>{p.nm}</div><div style={{ fontSize: 7.5, color: "#9095a4" }}>{p.sub}</div></div>
-            <div style={{ ...m, fontSize: 9, fontWeight: 700, color: p.c, textAlign: "center" }}>{p.imp}</div>
-            <div style={{ ...m, fontSize: 7, fontWeight: 700, padding: "2px 4px", borderRadius: 3, background: p.c, color: "#fff", textAlign: "center" }}>{p.st}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ACTION LOG */}
-      {log.length > 0 && (
-        <div style={{ background: "#fff", border: "1px solid #e2e4ea", borderRadius: 10, padding: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 5 }}>📋 Action Log</div>
-          {log.slice(0, 5).map((a, i) => (
-            <div key={i} style={{ display: "flex", gap: 5, fontSize: 9.5, padding: "2px 0", borderBottom: "1px solid #f0f1f4" }}>
-              <span style={{ ...m, fontSize: 8, color: "#9095a4", minWidth: 60 }}>{a.ts}</span>
-              <span style={{ color: a.ok ? "#16a34a" : "#dc2626" }}>{a.ok ? "✅" : "❌"} {a.label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ═══ MODAL ═══ */}
-      {modal && (
-        <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "24px 14px", overflowY: "auto" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, boxShadow: "0 20px 60px rgba(0,0,0,.15)", width: "100%", maxWidth: 560, maxHeight: "82vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px 0" }}>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>{modal.type === "kb" ? `KB: ${modal.kb.label}` : modal.esc.title}</div>
-              <button onClick={close} style={{ width: 24, height: 24, borderRadius: 6, border: "1px solid #e2e4ea", background: "#f0f1f4", cursor: "pointer", fontSize: 12, color: "#9095a4" }}>✕</button>
-            </div>
-            <div style={{ padding: "10px 16px 16px" }}>
-
-              {/* ── KB MODAL ── */}
-              {modal.type === "kb" && (<>
-                <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 2 }}>Impact Assessment</div>
-                <div style={{ fontSize: 11, color: "#5c6070", lineHeight: 1.5, marginBottom: 4 }}>{modal.kb.detail}</div>
-                <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 3, marginTop: 8 }}>Recommendations</div>
-                <div style={{ fontSize: 10, color: "#5c6070", lineHeight: 1.6, marginBottom: 10, padding: "6px 8px", background: "#f0f1f4", borderRadius: 6 }}>
-                  {modal.kb.id === "desc" && "→ Push descriptions to articles (Fin's #1 matching signal)\n→ Low risk — only adds metadata, doesn't change article body\n→ Estimated +5-10% resolution improvement"}
-                  {modal.kb.id === "links" && "→ Add 2-3 Related Articles links per article\n→ Helps Fin guide users to next steps\n→ Reduces dead-end escalations"}
-                  {modal.kb.id === "thin" && "→ Expand thin articles to 300+ words\n→ Add troubleshooting steps, FAQs, edge cases\n→ More content = higher Fin resolution confidence"}
-                  {modal.kb.id === "gram" && "→ Fix double spaces and capitalization\n→ Cosmetic but improves professionalism\n→ 13 real typos already fixed this session"}
-                </div>
-
-                {/* ★ THE TWO BUTTONS ★ */}
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 10, borderTop: "1px solid #e2e4ea" }}>
-                  <Btn bg="#2563eb" onClick={() => run(PROMPTS[modal.kb.id + "_draft"], `${modal.kb.label} → Draft`)}>
-                    📝 Fix & Send to Draft
-                  </Btn>
-                  <Btn bg="#16a34a" onClick={() => run(PROMPTS[modal.kb.id + "_live"], `${modal.kb.label} → Live`)}>
-                    🚀 Fix & Make Live
-                  </Btn>
-                  <Btn bg="#f0f1f4" onClick={close}>Close</Btn>
-                </div>
-                <div style={{ marginTop: 6, fontSize: 8.5, color: "#9095a4", lineHeight: 1.4 }}>
-                  These buttons call Claude API → Claude calls Intercom MCP → articles are updated in your help center. Check Intercom to verify changes.
-                </div>
-                <ResultBox />
-              </>)}
-
-              {/* ── ESCALATION MODAL ── */}
-              {modal.type === "esc" && (<>
-                <div style={{ fontSize: 11, color: "#5c6070", marginBottom: 6 }}>
-                  <strong>Team:</strong> {modal.esc.team} · <strong>SLA:</strong> {modal.esc.sla}
-                </div>
-                {modal.esc.arts.length > 0 ? (
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: "#9095a4", marginBottom: 3 }}>Articles Fin Referenced</div>
-                    {modal.esc.arts.map(a => <div key={a} style={{ padding: "3px 8px", background: "#f0f1f4", borderRadius: 4, marginBottom: 2, fontSize: 10 }}>→ {a}</div>)}
-                  </div>
-                ) : (
-                  <div style={{ padding: 8, background: "#fee2e2", borderRadius: 6, fontSize: 11, color: "#dc2626", fontWeight: 600, marginBottom: 8 }}>
-                    ⚠ Content Gap — Fin had zero articles to reference. Creating an article will help deflect future conversations like this.
-                  </div>
-                )}
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #e2e4ea" }}>
-                  <a href={`https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/${modal.esc.id}`} target="_blank" rel="noreferrer"
-                    style={{ padding: "8px 14px", borderRadius: 7, background: "#2563eb", color: "#fff", fontFamily: "'Outfit'", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>
-                    ↗ Open in Intercom
-                  </a>
-                  {modal.esc.gap && (<>
-                    <Btn bg="#7c3aed" onClick={() => run(PROMPTS.create_draft(modal.esc.title), `Create draft: ${modal.esc.title}`)}>
-                      📝 Create & Send to Draft
-                    </Btn>
-                    <Btn bg="#16a34a" onClick={() => run(PROMPTS.create_live(modal.esc.title), `Publish: ${modal.esc.title}`)}>
-                      🚀 Create & Publish Live
-                    </Btn>
-                  </>)}
-                  <Btn bg="#f0f1f4" onClick={close}>Close</Btn>
-                </div>
-                <ResultBox />
-              </>)}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TOAST */}
-      {toast && (
-        <div style={{ position: "fixed", bottom: 14, right: 14, background: "#1a1d26", color: "#fff", padding: "8px 14px", borderRadius: 8, fontSize: 11, fontWeight: 500, boxShadow: "0 8px 30px rgba(0,0,0,.2)", zIndex: 2000, maxWidth: 380 }}>{toast}</div>
-      )}
-    </div>
+function openKB(id) {
+  const k = KB_DATA.find(x => x.id === id);
+  openModal("KB: " + k.label,
+    `<div class="mlbl">Impact Assessment</div><div class="mtxt">${k.detail}</div>` +
+    `<div class="mlbl">Recommendations</div><div class="mtxt" style="padding:6px 8px;background:var(--el);border-radius:6px">${k.recs}</div>` +
+    `<div class="macts">` +
+    `<button class="btn pri" id="btnDraft" onclick="runAction('${id}','draft')">📝 Fix & Send to Draft</button>` +
+    `<button class="btn suc" id="btnLive" onclick="runAction('${id}','live')">🚀 Fix & Make Live</button>` +
+    `<button class="btn sec" onclick="closeModal()">Close</button>` +
+    `</div>` +
+    `<div class="mnote">These buttons call Claude API → Claude calls Intercom MCP → articles are updated in your help center.</div>` +
+    `<div id="resultBox"></div>`
   );
 }
+
+function openEsc(id) {
+  const e = ESC_DATA.find(x => x.id === id);
+  const artsHtml = e.arts.length
+    ? `<div class="mlbl">Articles Fin Referenced</div>` + e.arts.map(a => `<div style="padding:3px 8px;background:var(--el);border-radius:4px;margin-bottom:2px;font-size:10px">→ ${a}</div>`).join("")
+    : `<div style="padding:8px;background:var(--red-s);border-radius:6px;font-size:11px;color:var(--red);font-weight:600;margin-bottom:6px">⚠ Content Gap — Fin had zero articles to reference</div>`;
+
+  const gapBtns = e.gap
+    ? `<button class="btn pur" id="btnDraft" onclick="createArticle('${e.title}','draft')">📝 Create & Send to Draft</button>` +
+      `<button class="btn suc" id="btnLive" onclick="createArticle('${e.title}','live')">🚀 Create & Publish Live</button>`
+    : "";
+
+  openModal(e.title,
+    `<div class="mtxt"><strong>Team:</strong> ${e.team} · <strong>SLA:</strong> ${e.sla}</div>` +
+    artsHtml +
+    `<div class="macts">` +
+    `<a href="https://app.intercom.com/a/apps/vna7zlcy/inbox/inbox/all/conversations/${e.id}" target="_blank" class="btn pri" style="text-decoration:none">↗ Open in Intercom</a>` +
+    gapBtns +
+    `<button class="btn sec" onclick="closeModal()">Close</button>` +
+    `</div>` +
+    `<div class="mnote">Draft creates an article for review. Live publishes immediately.</div>` +
+    `<div id="resultBox"></div>`
+  );
+}
+
+// ════════ EXECUTE ACTIONS ════════
+async function runAction(kbId, mode) {
+  if (busy) return;
+  busy = true;
+  const k = KB_DATA.find(x => x.id === kbId);
+  const prompt = mode === "draft" ? k.draftPrompt : k.livePrompt;
+  const label = k.label + " → " + (mode === "draft" ? "Draft" : "Live");
+  disableButtons();
+  showResult("loading", "⏳ Claude is calling Intercom...");
+  try {
+    const r = await callClaude(prompt);
+    showResult("ok", r.texts + (r.tools.length ? "\n\nTools used: " + r.tools.join(", ") : ""));
+    addLog(label, true);
+    showToast("✅ " + label + " — done");
+  } catch (err) {
+    showResult("err", err.message);
+    addLog(label, false);
+    showToast("❌ " + err.message);
+  } finally { busy = false; enableButtons(); }
+}
+
+async function createArticle(title, mode) {
+  if (busy) return;
+  busy = true;
+  const state = mode === "draft" ? "draft" : "published";
+  const label = "Create: " + title + " → " + (mode === "draft" ? "Draft" : "Live");
+  disableButtons();
+  showResult("loading", "⏳ Claude is creating the article...");
+  try {
+    const r = await callClaude(
+      `Create a new Intercom article. Title: "Troubleshooting: ${title}". ` +
+      `Write a comprehensive HTML body for Jolt customers about "${title}". ` +
+      `Include: overview, common causes, step-by-step troubleshooting (5+ steps), FAQ, and when to contact support. ` +
+      `Set state to "${state}". Author ID 8946047. Return the new article ID and URL.`
+    );
+    showResult("ok", r.texts + (r.tools.length ? "\n\nTools used: " + r.tools.join(", ") : ""));
+    addLog(label, true);
+    showToast("✅ " + label);
+  } catch (err) {
+    showResult("err", err.message);
+    addLog(label, false);
+    showToast("❌ " + err.message);
+  } finally { busy = false; enableButtons(); }
+}
+
+function disableButtons() {
+  document.querySelectorAll("#btnDraft, #btnLive").forEach(b => { b.disabled = true; b.textContent = "⏳ Working..."; });
+}
+function enableButtons() {
+  const d = document.getElementById("btnDraft"), l = document.getElementById("btnLive");
+  if (d) { d.disabled = false; d.textContent = "📝 Fix & Send to Draft"; }
+  if (l) { l.disabled = false; l.textContent = "🚀 Fix & Make Live"; }
+}
+
+function showResult(type, text) {
+  const box = document.getElementById("resultBox");
+  if (!box) return;
+  if (type === "loading") {
+    box.innerHTML = `<div class="result ok" style="background:var(--blu-s);border-color:#93c5fd"><h4 style="color:var(--blu)">⏳ Working...</h4><pre>${text}</pre></div>`;
+  } else if (type === "ok") {
+    box.innerHTML = `<div class="result ok"><h4 style="color:var(--grn)">✅ Intercom Updated</h4><pre>${text}</pre></div>`;
+  } else {
+    box.innerHTML = `<div class="result err"><h4 style="color:var(--red)">❌ Error</h4><pre>${text}</pre></div>`;
+  }
+}
+
+function addLog(label, ok) {
+  actionLog.unshift({ ts: new Date().toLocaleTimeString(), label, ok });
+  renderLog();
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 4000);
+}
+
+// ════════ INIT ════════
+renderKPIs(); renderKB(); renderEsc(); renderRoad(); renderLog();
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+</script>
+</body>
+</html>
